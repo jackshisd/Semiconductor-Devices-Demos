@@ -147,7 +147,8 @@ export function fdHalf(eta: number) {
 }
 export function inverseFdHalf(y: number) {
   requirePositive(y, 'Carrier concentration ratio');
-  let lo = -40,
+  if (y < 1e-6) return Math.log(y); // Boltzmann limit of the exact integral.
+  let lo = Math.min(-40, Math.log(y) - 2),
     hi = 100;
   for (let i = 0; i < 90; i++) {
     const mid = (lo + hi) / 2;
@@ -243,34 +244,33 @@ export function continuityRates(deltaJn: number, deltaJp: number, length: number
     currentDivergence: (deltaJn + deltaJp) / length };
 }
 
-// Uniform n-type Si, complete ionization, paired excess carriers, and nondegenerate statistics.
-export function quasiFermi(ND: number, excess: number, T: number) {
-  requirePositive(ND, 'Donor concentration');
+// Solve uniform, fully ionized p- or n-type charge neutrality with Fermi-Dirac statistics.
+export function dopedFermi(type: 'n' | 'p', dopant: number, T: number) {
+  requirePositive(dopant, 'Dopant concentration');
   requirePositive(T, 'Temperature');
-  if (!Number.isFinite(excess) || excess < 0) throw Error('Excess carrier density must be nonnegative.');
-  const intrinsic = ni(T), Vt = thermalVoltage(T), Eg = bandgap(T);
-  const n0 = (ND + Math.hypot(ND, 2 * intrinsic)) / 2;
-  const p0 = intrinsic ** 2 / n0;
-  const n = n0 + excess, p = p0 + excess;
-  const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
-  const equilibriumFermi = Vt * Math.log(n0 / intrinsic);
-  const Fn = Vt * Math.log(n / intrinsic);
-  const Fp = -Vt * Math.log(p / intrinsic);
-  return { n0, p0, n, p, Ec, Ei: 0, Ev, equilibriumFermi, Fn, Fp, split: Fn - Fp,
-    boltzmannValid: Ec - Fn >= 3 * Vt && Fp - Ev >= 3 * Vt };
-}
-
-// Carrier populations set by independently positioned quasi-Fermi levels.
-// Complete Fermi-Dirac integrals remain valid when a level enters a band.
-export function quasiFermiFromLevels(Fn: number, Fp: number, T: number) {
-  requirePositive(T, 'Temperature');
-  if (!Number.isFinite(Fn) || !Number.isFinite(Fp)) throw Error('Quasi-Fermi energies must be finite.');
   const Vt = thermalVoltage(T), Eg = bandgap(T);
   const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
-  const electronEta = (Fn - Ec) / Vt, holeEta = (Ev - Fp) / Vt;
-  const n = Nc(T) * fdHalf(electronEta), p = Nv(T) * fdHalf(holeEta);
-  return { n, p, Ec, Ei: 0, Ev, Fn, Fp, split: Fn - Fp, electronEta, holeEta,
-    impliedDoping: n - p, boltzmannValid: electronEta <= -3 && holeEta <= -3 };
+  const target = type === 'n' ? dopant : -dopant;
+  let lo = Ev - 2, hi = Ec + 2;
+  for (let i = 0; i < 70; i++) {
+    const mid = (lo + hi) / 2;
+    const charge = Nc(T) * fdHalf((mid - Ec) / Vt) - Nv(T) * fdHalf((Ev - mid) / Vt);
+    if (charge < target) lo = mid; else hi = mid;
+  }
+  const Ef = (lo + hi) / 2;
+  const n0 = Nc(T) * fdHalf((Ef - Ec) / Vt);
+  const p0 = Nv(T) * fdHalf((Ev - Ef) / Vt);
+  return { type, dopant, T, Vt, Ec, Ei: 0, Ev, Ef, n0, p0 };
+}
+
+// Equal electron-hole pair injection preserves net charge while splitting quasi-Fermi levels.
+export function injectedQuasiFermi(base: ReturnType<typeof dopedFermi>, excess: number) {
+  if (!Number.isFinite(excess) || excess < 0) throw Error('Excess carrier density must be nonnegative.');
+  const n = base.n0 + excess, p = base.p0 + excess;
+  const Fn = base.Ec + base.Vt * inverseFdHalf(n / Nc(base.T));
+  const Fp = base.Ev - base.Vt * inverseFdHalf(p / Nv(base.T));
+  return { ...base, n, p, Fn, Fp, split: Fn - Fp,
+    boltzmannValid: base.Ec - Fn >= 3 * base.Vt && Fp - base.Ev >= 3 * base.Vt };
 }
 
 // Parabolic-band density of states per eV and occupied-state spectrum.

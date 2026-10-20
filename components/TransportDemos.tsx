@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Plot from './Plot';
+import ContinuityDiagram from './ContinuityDiagram';
 import { Controls, Toggle, type Control } from './Controls';
 import { Calculation, DemoLayout, Info, Metric, Metrics, fmt, pts, sci, texSci, useParams } from './Demos';
 import * as P from '../lib/physics';
@@ -191,6 +192,7 @@ export function ContinuityEquation() {
       { key: 'R', label: 'Pair recombination R', min: 1e16, max: 1e21, step: 1e16, unit: 'cm⁻³/s', log: true },
     ]} />}>
     <Metrics><Metric label="Electron density rate" value={sci(r.electronRate)} unit="cm⁻³/s" /><Metric label="Hole density rate" value={sci(r.holeRate)} unit="cm⁻³/s" /><Metric label="Net pair rate G−R" value={sci(r.pairRate)} unit="cm⁻³/s" /><Metric label="Charge rate" value={sci(r.chargeRate)} unit="C/(cm³·s)" /></Metrics>
+    <ContinuityDiagram deltaJn={v.deltaJn} deltaJp={v.deltaJp} generation={v.G} recombination={v.R} lengthUm={lengthUm} />
     <div className="graph-grid">
       <Plot title="Current across a 10 µm slice" xLabel="Position (µm)" yLabel="Current density (A/cm²)" xDomain={[0, lengthUm]} yDomain={[-currentMax, currentMax]} series={[
         { name: 'Jₙ', color: blue, points: [[0, -v.deltaJn / 2], [lengthUm, v.deltaJn / 2]] },
@@ -213,109 +215,78 @@ export function ContinuityEquation() {
 }
 
 export function QuasiFermiLevels() {
-  const { v, set, reset } = useParams({ ND: 1e16, excess: 1e14, Fn: .35, Fp: .20, T: 300 });
-  const [mode, setMode] = useState<'injection' | 'levels'>('injection');
+  const { v, set, reset } = useParams({ dopant: 1e16, excess: 1e14, T: 300 });
+  const [type, setType] = useState<'n' | 'p'>('n');
   const [equilibrium, setEquilibrium] = useState(false);
-  const [linked, setLinked] = useState(false);
-  const setControl = (key: string, value: number) => { set(key, value); if (key === 'excess') setEquilibrium(false); };
-  const injected = P.quasiFermi(v.ND, equilibrium ? 0 : v.excess, v.T);
-  const manual = P.quasiFermiFromLevels(v.Fn, linked ? v.Fn : v.Fp, v.T);
-  const r = mode === 'levels' ? manual : injected;
-  const common = mode === 'levels' ? linked : equilibrium;
-  const commonLevel = mode === 'levels' ? manual.Fn : injected.equilibriumFermi;
-  const intrinsic = P.ni(v.T);
-  const minEnergy = Math.min(r.Ev, r.Fp) - .16, maxEnergy = Math.max(r.Ec, r.Fn) + .16;
-  const injectionFn = pts(6, 18, 120, x => P.quasiFermi(v.ND, 10 ** x, v.T).Fn);
-  const injectionFp = pts(6, 18, 120, x => P.quasiFermi(v.ND, 10 ** x, v.T).Fp);
-  const levelN = pts(-.7, .7, 120, energy => Math.log10(P.quasiFermiFromLevels(energy, 0, v.T).n));
-  const levelP = pts(-.7, .7, 120, energy => Math.log10(P.quasiFermiFromLevels(0, energy, v.T).p));
-  const injectionMin = Math.min(r.Ev - .1, ...injectionFp.map(point => point[1])) - .06;
-  const injectionMax = Math.max(r.Ec + .1, ...injectionFn.map(point => point[1])) + .06;
-  const levelMin = Math.min(...levelN.map(point => point[1]), ...levelP.map(point => point[1])) - 1;
-  const levelMax = Math.max(...levelN.map(point => point[1]), ...levelP.map(point => point[1])) + 1;
+  const base = P.dopedFermi(type, v.dopant, v.T);
+  const r = P.injectedQuasiFermi(base, equilibrium ? 0 : v.excess);
+  const samples = pts(6, 18, 80, x => x);
+  const states = samples.map(([x]) => P.injectedQuasiFermi(base, 10 ** x));
+  const fnCurve: [number, number][] = samples.map(([x], index) => [x, states[index].Fn]);
+  const fpCurve: [number, number][] = samples.map(([x], index) => [x, states[index].Fp]);
+  const curveMin = Math.min(base.Ev - .1, ...fpCurve.map(point => point[1])) - .06;
+  const curveMax = Math.max(base.Ec + .1, ...fnCurve.map(point => point[1])) + .06;
+  const minEnergy = Math.min(base.Ev, r.Fp) - .16, maxEnergy = Math.max(base.Ec, r.Fn) + .16;
   const bandLine = (energy: number): [number, number][] => [[-1, energy], [1, energy]];
-  const formula = mode === 'levels'
-    ? '\\begin{aligned}n&=N_CF_{1/2}((F_n-E_C)/kT)\\\\p&=N_VF_{1/2}((E_V-F_p)/kT)\\end{aligned}'
-    : 'F_n-F_p=kT\\ln\\!\\left(\\frac{np}{n_i^2}\\right)';
-  const substitution = mode === 'levels'
-    ? '\\begin{aligned}n&=(' + texSci(P.Nc(v.T)) + ')F_{1/2}(' + fmt(manual.electronEta, 2) + ')=' + texSci(manual.n) + '\\\\p&=(' + texSci(P.Nv(v.T)) + ')F_{1/2}(' + fmt(manual.holeEta, 2) + ')=' + texSci(manual.p) + '\\end{aligned}\\;\\mathrm{cm^{-3}}'
-    : fmt(P.thermalVoltage(v.T), 4) + '\\ln\\!\\left(\\frac{(' + texSci(injected.n) + ')(' + texSci(injected.p) + ')}{(' + texSci(intrinsic) + ')^2}\\right)=' + fmt(injected.split, 4) + '\\,\\mathrm{eV}';
-  const activeControls: Control[] = mode === 'levels' ? [
-    { key: 'Fn', label: linked ? 'Common Fermi level' : 'Electron quasi-Fermi level Fₙ', min: -.7, max: .7, step: .005, unit: 'eV from Eᵢ' },
-    ...(!linked ? [{ key: 'Fp', label: 'Hole quasi-Fermi level Fₚ', min: -.7, max: .7, step: .005, unit: 'eV from Eᵢ' }] : []),
-    temperatureControl,
-  ] : [
-    dopingControl('ND', 'Donor density'),
-    ...(!equilibrium ? [{ key: 'excess', label: 'Injected electron–hole pairs', min: 1e6, max: 1e18, step: 1e6, unit: 'cm⁻³', log: true }] : []),
-    temperatureControl,
-  ];
+  const electronEta = (r.Fn - r.Ec) / base.Vt, holeEta = (r.Ev - r.Fp) / base.Vt;
+  const formula = '\\begin{aligned}F_n&=E_C+kT F_{1/2}^{-1}(n/N_C)\\\\F_p&=E_V-kT F_{1/2}^{-1}(p/N_V)\\end{aligned}';
+  const substitution = '\\begin{aligned}F_n&=' + fmt(r.Ec, 3) + '+(' + fmt(base.Vt, 4) + ')(' + fmt(electronEta, 2) + ')=' + fmt(r.Fn, 3) + '\\,\\mathrm{eV}\\\\F_p&=' + fmt(r.Ev, 3) + '-(' + fmt(base.Vt, 4) + ')(' + fmt(holeEta, 2) + ')=' + fmt(r.Fp, 3) + '\\,\\mathrm{eV}\\end{aligned}';
+  const distance = type === 'n' ? base.Ec - base.Ef : base.Ef - base.Ev;
+  const setControl = (key: string, value: number) => { set(key, value); if (key === 'excess') setEquilibrium(false); };
   return <DemoLayout calculation={<Calculation formula={formula} substitution={substitution} />}
-    controls={<Controls values={v} set={setControl} reset={() => { reset(); setMode('injection'); setEquilibrium(false); setLinked(false); }} items={activeControls}>
-      <div className="chips" role="group" aria-label="How to set Fermi levels">
-        <button className={mode === 'injection' ? 'active' : ''} onClick={() => setMode('injection')}>Set injection</button>
-        <button className={mode === 'levels' ? 'active' : ''} onClick={() => setMode('levels')}>Set levels directly</button>
+    controls={<Controls values={v} set={setControl} reset={() => { reset(); setType('n'); setEquilibrium(false); }} items={[
+      { key: 'dopant', label: type === 'n' ? 'Donor concentration Nᴅ' : 'Acceptor concentration Nₐ', min: 1e15, max: 1e19, step: 1e14, unit: 'cm⁻³', log: true },
+      ...(!equilibrium ? [{ key: 'excess', label: 'Injected electron–hole pairs', min: 1e6, max: 1e18, step: 1e6, unit: 'cm⁻³', log: true }] : []),
+      temperatureControl,
+    ]}>
+      <div className="chips" role="group" aria-label="Doping type">
+        <button className={type === 'n' ? 'active' : ''} onClick={() => setType('n')}>N-type donors</button>
+        <button className={type === 'p' ? 'active' : ''} onClick={() => setType('p')}>P-type acceptors</button>
       </div>
-      {mode === 'levels'
-        ? <Toggle label="Single Fermi level" checked={linked} onChange={setLinked} />
-        : <Toggle label="Thermal equilibrium (Δn = Δp = 0)" checked={equilibrium} onChange={setEquilibrium} />}
+      <Toggle label="Thermal equilibrium (no excess carriers)" checked={equilibrium} onChange={setEquilibrium} />
     </Controls>}>
     <Metrics>
+      <Metric label="Equilibrium Fermi level Eꜰ" value={fmt(base.Ef, 3)} unit="eV from Eᵢ" />
+      <Metric label={type === 'n' ? 'Eᴄ − Eꜰ' : 'Eꜰ − Eᴠ'} value={fmt(distance, 3)} unit="eV" />
       <Metric label="Electrons n" value={sci(r.n)} unit="cm⁻³" />
       <Metric label="Holes p" value={sci(r.p)} unit="cm⁻³" />
-      <Metric label={common ? 'Fermi level Eꜰ' : 'Electron level Fₙ'} value={fmt(r.Fn, 3)} unit="eV from Eᵢ" />
-      {!common && <Metric label="Hole level Fₚ" value={fmt(r.Fp, 3)} unit="eV from Eᵢ" />}
-      <Metric label="Level splitting" value={fmt(r.split, 3)} unit="eV" />
-      {mode === 'levels' && <Metric label="Net density n − p" value={sci(manual.impliedDoping)} unit="cm⁻³" />}
+      <Metric label="Quasi-Fermi split" value={fmt(r.split, 3)} unit="eV" />
     </Metrics>
-    {mode === 'injection' && !injected.boltzmannValid && <div className="notice">A quasi-Fermi level is within 3kT of a band edge. The injection model's exponential carrier formulas are outside their nondegenerate range. Direct level mode uses Fermi–Dirac statistics.</div>}
+    {v.dopant >= 3e18 && <div className="notice">At very high doping, this ideal-band model omits bandgap narrowing and dopant-ionization effects.</div>}
     <div className="graph-grid">
       <Plot title="Energy bands and Fermi levels" xLabel="Position (relative)" yLabel="Energy (eV)" xDomain={[-1, 1]} yDomain={[minEnergy, maxEnergy]} series={[
         { name: 'Eᴄ', color: blue, points: bandLine(r.Ec) },
         { name: 'Eᵢ', color: '#ae7b16', points: bandLine(0), dash: true },
         { name: 'Eᴠ', color: green, points: bandLine(r.Ev) },
-        ...(common ? [{ name: 'Eꜰ', color: purple, points: bandLine(commonLevel) }] : [
+        ...(equilibrium ? [{ name: 'Eꜰ', color: purple, points: bandLine(base.Ef) }] : [
           { name: 'Fₙ', color: blue, points: bandLine(r.Fn) },
           { name: 'Fₚ', color: orange, points: bandLine(r.Fp) },
         ]),
-      ]} brackets={common ? [] : [{ x: .5, from: r.Fp, to: r.Fn, label: 'Fₙ−Fₚ ' + fmt(r.split, 3) + ' eV', color: purple }]}
-        points={common ? [{ x: -.7, y: commonLevel, label: 'Eꜰ ' + fmt(commonLevel, 3) + ' eV', color: purple }] : [
+      ]} brackets={equilibrium ? [] : [{ x: .5, from: r.Fp, to: r.Fn, label: 'Fₙ−Fₚ ' + fmt(r.split, 3) + ' eV', color: purple }]}
+        points={equilibrium ? [{ x: -.7, y: base.Ef, label: 'Eꜰ ' + fmt(base.Ef, 3) + ' eV', color: purple }] : [
           { x: -.65, y: r.Fn, label: 'Fₙ ' + fmt(r.Fn, 3) + ' eV', color: blue },
           { x: -.65, y: r.Fp, label: 'Fₚ ' + fmt(r.Fp, 3) + ' eV', color: orange },
         ]}
         onInspect={() => 'Eᴄ ' + fmt(r.Ec) + ' · Fₙ ' + fmt(r.Fn) + ' · Fₚ ' + fmt(r.Fp) + ' · Eᴠ ' + fmt(r.Ev) + ' eV'} />
-      {mode === 'injection'
-        ? <Plot title="Level splitting with injection" xLabel="log₁₀ injected pairs (cm⁻³)" yLabel="Energy from Eᵢ (eV)" xDomain={[6, 18]} yDomain={[injectionMin, injectionMax]} series={[
-            { name: 'Fₙ', color: blue, points: injectionFn },
-            { name: 'Fₚ', color: orange, points: injectionFp },
-            { name: 'Equilibrium Eꜰ', color: purple, points: [[6, injected.equilibriumFermi], [18, injected.equilibriumFermi]], dash: true },
-          ]} markers={equilibrium ? [] : [{ x: Math.log10(v.excess), label: 'Selected Δ ' + sci(v.excess) + ' cm⁻³' }]}
-          points={equilibrium ? [] : [
-            { x: Math.log10(v.excess), y: injected.Fn, label: 'Fₙ ' + fmt(injected.Fn, 3) + ' eV', color: blue },
-            { x: Math.log10(v.excess), y: injected.Fp, label: 'Fₚ ' + fmt(injected.Fp, 3) + ' eV', color: orange },
-          ]} onInspect={x => 'Fₙ ' + fmt(P.quasiFermi(v.ND, 10 ** x, v.T).Fn) + ' · Fₚ ' + fmt(P.quasiFermi(v.ND, 10 ** x, v.T).Fp) + ' eV'} />
-        : <Plot title="Carrier density vs. level position" xLabel="Level energy from Eᵢ (eV)" yLabel="log₁₀ concentration (cm⁻³)" xDomain={[-.7, .7]} yDomain={[levelMin, levelMax]} series={[
-            { name: 'n versus Fₙ', color: blue, points: levelN },
-            { name: 'p versus Fₚ', color: orange, points: levelP },
-          ]} markers={[
-            { x: manual.Fn, label: 'Fₙ ' + fmt(manual.Fn, 3) + ' eV' },
-            ...(!linked ? [{ x: manual.Fp, label: 'Fₚ ' + fmt(manual.Fp, 3) + ' eV' }] : []),
-          ]} points={[
-            { x: manual.Fn, y: Math.log10(manual.n), label: 'n ' + sci(manual.n), color: blue },
-            { x: manual.Fp, y: Math.log10(manual.p), label: 'p ' + sci(manual.p), color: orange },
-          ]} onInspect={energy => { const value = P.quasiFermiFromLevels(energy, energy, v.T); return 'n ' + sci(value.n) + ' · p ' + sci(value.p) + ' cm⁻³'; }} />}
+      <Plot title="Quasi-Fermi levels with injection" xLabel="log₁₀ injected pairs (cm⁻³)" yLabel="Energy from Eᵢ (eV)" xDomain={[6, 18]} yDomain={[curveMin, curveMax]} series={[
+        { name: 'Fₙ', color: blue, points: fnCurve },
+        { name: 'Fₚ', color: orange, points: fpCurve },
+        { name: 'Equilibrium Eꜰ', color: purple, points: [[6, base.Ef], [18, base.Ef]], dash: true },
+      ]} markers={equilibrium ? [] : [{ x: Math.log10(v.excess), label: 'Selected Δ ' + sci(v.excess) + ' cm⁻³' }]}
+        points={equilibrium ? [] : [
+          { x: Math.log10(v.excess), y: r.Fn, label: 'Fₙ ' + fmt(r.Fn, 3) + ' eV', color: blue },
+          { x: Math.log10(v.excess), y: r.Fp, label: 'Fₚ ' + fmt(r.Fp, 3) + ' eV', color: orange },
+        ]}
+        onInspect={x => { const state = P.injectedQuasiFermi(base, 10 ** x); return 'Fₙ ' + fmt(state.Fn) + ' · Fₚ ' + fmt(state.Fp) + ' eV'; }} />
     </div>
     <Info
-      intuition={mode === 'levels' ? 'Moving Fₙ changes the electron population; moving Fₚ changes the hole population. Linking them gives one common Fermi level.' : 'At equilibrium, one Fermi level describes electrons and holes. Injected electron–hole pairs disturb that balance, so each carrier population needs its own quasi-Fermi level.'}
-      model={mode === 'levels' ? 'The carrier populations use complete Fermi–Dirac integrals, including when a level enters a band. The displayed n−p is the net ionized doping needed for local neutrality.' : 'For nondegenerate carriers, Fₙ−Eᵢ = kT ln(n/nᵢ) and Eᵢ−Fₚ = kT ln(p/nᵢ). Pair injection adds the same excess density to n and p.'}
-      takeaway={common ? 'When Fₙ and Fₚ coincide, there is a single Fermi level.' : 'The separation Fₙ−Fₚ measures the difference between electron and hole populations.'}
-      derivation={mode === 'levels' ? [
-        'n=N_CF_{1/2}((F_n-E_C)/kT)',
-        'p=N_VF_{1/2}((E_V-F_p)/kT)',
-        '\\rho=q(p-n+N_D-N_A)',
-      ] : [
-        'n=n_i e^{(F_n-E_i)/kT},\\qquad p=n_i e^{(E_i-F_p)/kT}',
-        'F_n-F_p=kT\\ln(np/n_i^2)',
-        '\\Delta n=\\Delta p,\\qquad np>n_i^2\\;\\text{under injection}',
+      intuition={type === 'n' ? 'More donors move the equilibrium Fermi level toward the conduction band. Injection then separates the electron and hole quasi-Fermi levels.' : 'More acceptors move the equilibrium Fermi level toward the valence band. Injection then separates the electron and hole quasi-Fermi levels.'}
+      model="The equilibrium level solves charge neutrality with Fermi–Dirac carrier statistics. Equal excess electrons and holes preserve net charge while moving Fₙ and Fₚ apart."
+      takeaway="Doping sets the equilibrium Fermi-level position; nonequilibrium injection creates quasi-Fermi-level splitting."
+      derivation={[
+        type === 'n' ? 'n_0-p_0=N_D' : 'p_0-n_0=N_A',
+        'n=N_CF_{1/2}((F_n-E_C)/kT),\\qquad p=N_VF_{1/2}((E_V-F_p)/kT)',
+        '\\Delta n=\\Delta p,\\qquad F_n=F_p=E_F\\;\\text{at equilibrium}',
       ]} />
   </DemoLayout>;
 }

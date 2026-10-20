@@ -109,6 +109,8 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .graph-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1840px; }
 .plot-card { min-width: 0; max-width: 800px; width: 100%; margin-inline: auto; padding: clamp(14px, 1vw, 24px); border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 10px 32px #294b4a08; }
 .spectrum-card { max-width: 1560px; }
+.continuity-card { max-width: 1550px; margin: clamp(12px, .9vw, 20px) auto; }
+.continuity-card svg { max-height: 220px; }
 .spectrum-scroll { overflow-x: auto; }
 .spectrum-card svg { min-width: 820px; }
 .spectrum-heading { fill: #344650; font-size: 16px; font-weight: 700; }
