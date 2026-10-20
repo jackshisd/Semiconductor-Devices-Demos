@@ -275,50 +275,36 @@ const pnControls: Control[] = [{
   step: 1,
   unit: 'K'
 }];
-function PNModelBreakdown({ d, NA, ND, VA }: {
-  d: ReturnType<typeof P.pnDepletion>;
-  NA: number;
-  ND: number;
-  VA: number;
-}) {
-  const steps = [
-    {
-      title: 'Built-in voltage',
-      equation: String.raw`V_{bi}=V_T\ln\!\left(\frac{N_AN_D}{n_i^2}\right)`,
-      value: `${fmt(d.vbi, 3)} V`,
-      detail: 'Doping and temperature set the equilibrium junction barrier.',
-    },
-    {
-      title: 'Depletion drop',
-      equation: String.raw`V_{dep}=V_{bi}-V_A`,
-      value: `${fmt(d.drop, 3)} V`,
-      detail: VA > 0 ? 'Forward bias reduces the drop and narrows the depletion region.' : VA < 0 ? 'Reverse bias increases the drop and widens the depletion region.' : 'At zero applied bias, the drop equals the built-in voltage.',
-    },
-    {
-      title: 'Charge balance and width',
-      equation: String.raw`N_Ax_p=N_Dx_n,\quad W=x_p+x_n`,
-      value: `xₚ ${fmt(P.um(d.xp), 3)} µm · xₙ ${fmt(P.um(d.xn), 3)} µm`,
-      detail: `${NA < ND ? 'P' : ND < NA ? 'N' : 'Both'}${NA === ND ? ' sides extend equally.' : ' side extends farther because it is more lightly doped.'} Total width: ${fmt(P.um(d.W), 3)} µm.`,
-    },
-    {
-      title: 'Field from fixed charge',
-      equation: String.raw`\frac{d\mathcal E}{dx}=\frac{\rho}{\varepsilon_s},\quad |\mathcal E|_{max}=\frac{qN_Ax_p}{\varepsilon_s}`,
-      value: `${sci(d.Emax)} V/cm`,
-      detail: 'Ionized dopants make the charge flat on each side, the field triangular, and the potential curved.',
-    },
-  ];
-  return <section className="model-breakdown" aria-label="PN junction model breakdown">
-    <h2>PN junction model breakdown</h2>
-    <p>One-dimensional abrupt junction · Boltzmann built-in voltage · depletion approximation · fully ionized dopants · negligible mobile charge in the depleted region.</p>
-    <div className="model-breakdown-grid">{steps.map((step, index) => <article key={step.title}>
-      <span className="model-breakdown-number">{String(index + 1).padStart(2, '0')}</span>
-      <h3>{step.title}</h3>
-      <MathLine s={step.equation} />
-      <strong>{step.value}</strong>
-      <p>{step.detail}</p>
-    </article>)}</div>
-  </section>;
+const pnModelFormulas = [
+  { label: 'Built-in voltage and depletion drop', formula: String.raw`\begin{aligned}V_{bi}&=V_T\ln\!\left(\frac{N_AN_D}{n_i^2}\right)\\V_{dep}&=V_{bi}-V_A,\qquad V_A<V_{bi}\end{aligned}` },
+  { label: 'Depletion width', formula: String.raw`W=\sqrt{\frac{2\varepsilon_s}{q}\left(\frac1{N_A}+\frac1{N_D}\right)(V_{bi}-V_A)}` },
+  { label: 'Charge balance and side widths', formula: String.raw`\begin{aligned}N_Ax_p&=N_Dx_n,\qquad W=x_p+x_n\\x_p&=\frac{N_D}{N_A+N_D}W,\quad x_n=\frac{N_A}{N_A+N_D}W\end{aligned}` },
+  { label: 'Electric field and potential', formula: String.raw`\begin{aligned}\frac{d\mathcal E}{dx}&=\frac{\rho}{\varepsilon_s},\qquad \mathcal E=-\frac{dV}{dx}\\|\mathcal E|_{max}&=\frac{qN_Ax_p}{\varepsilon_s}=\frac{qN_Dx_n}{\varepsilon_s}\end{aligned}` },
+];
+
+function PNModelLimitPlot({ NA, ND, T, VA }: { NA: number; ND: number; T: number; VA: number }) {
+  const vbi = P.builtIn(NA, ND, T);
+  const minBias = -2, maxBias = Math.max(.7, vbi + .25);
+  const widthFactor = Math.sqrt(2 * P.epsSi / P.q * (1 / NA + 1 / ND));
+  // Sample only up to the zero-width mathematical limit, never beyond it.
+  const widths = pts(minBias, vbi, 180, bias => P.um(widthFactor * Math.sqrt(Math.max(0, vbi - bias))));
+  const selectedWidth = VA < vbi ? P.um(P.pnDepletion(NA, ND, T, VA).W) : null;
+  return <Plot title="Depletion model limit" xLabel="Applied voltage (V)" yLabel="Depletion width (µm)"
+    xDomain={[minBias, maxBias]} yDomain={[0, widths[0][1] * 1.12]}
+    zones={[{ from: vbi, to: maxBias, color: '#c4493e' }]}
+    markers={[{ x: vbi, label: 'Vbi: model limit ' + fmt(vbi, 3) + ' V' }, { x: VA, label: 'Selected bias ' + fmt(VA, 3) + ' V' }]}
+    points={selectedWidth === null ? [] : [{ x: VA, y: selectedWidth, label: 'W ' + fmt(selectedWidth, 3) + ' µm', color: blue }]}
+    series={[
+      { name: 'Total W', color: blue, points: widths },
+      { name: 'P-side xₚ', color: orange, points: widths.map(([bias, width]) => [bias, width * ND / (NA + ND)]) },
+      { name: 'N-side xₙ', color: green, points: widths.map(([bias, width]) => [bias, width * NA / (NA + ND)]) },
+    ]}
+    onInspect={bias => bias >= vbi ? 'Shaded region: no valid depletion-width solution'
+      : 'W ' + fmt(P.um(P.pnDepletion(NA, ND, T, bias).W), 3) + ' µm · Vbi − VA ' + fmt(vbi - bias, 3) + ' V'} />;
 }
+
+const pnModelNote = <p className="pn-model-note">The shaded region begins at Vₐ = Vbi, where the depletion-width formula has no valid solution. The approximation becomes less accurate near this limit. The model assumes an abrupt, one-dimensional junction with fully ionized dopants and negligible mobile charge in depletion.</p>;
+
 export function PNDepletion() {
   const {
     v,
@@ -339,11 +325,11 @@ export function PNDepletion() {
     const f = (x: number) => P.pnFields(x, v.NA, v.ND, v.T, v.VA);
     const xpts = pts(a, b, 240, x => x);
     const conv = (fn: (x: number) => number) => xpts.map(([x]) => ([P.um(x), fn(x)] as [number, number]));
-    return <DemoLayout calculation={<Calculation formula="W=\sqrt{\frac{2\varepsilon_s}{q}\left(\frac1{N_A}+\frac1{N_D}\right)(V_{bi}-V_A)}"
+    return <DemoLayout calculation={<Calculation title="PN junction formulas" forms={pnModelFormulas}
 substitution={String.raw`10^4\sqrt{\frac{2(${texSci(P.epsSi)})}{${texSci(P.q)}}\left(\frac1{${texSci(v.NA)}}+\frac1{${texSci(v.ND)}}\right)(${fmt(d.vbi)}-${fmt(v.VA)})}=${fmt(P.um(d.W), 3)}\,\mu\mathrm m`} />} controls={<Controls values={v} set={set} items={pnControls} reset={reset}></Controls>}><Metrics><Metric label="Total width W" value={fmt(P.um(d.W), 3)} unit="µm" /><Metric label="P-side xₚ" value={fmt(P.um(d.xp), 3)} unit="µm" /><Metric label="N-side xₙ" value={fmt(P.um(d.xn), 3)} unit="µm" /><Metric label="Peak |E|" value={sci(d.Emax)} unit="V/cm" /><Metric label="Built-in V" value={fmt(d.vbi)} unit="V" /></Metrics>{!nondegenerate && <div className="notice">One side is within 3kT of a band edge. The Boltzmann built-in voltage and depletion-width estimate are outside their assumed range.</div>}<div className={`junction-bar ${animate ? 'animating' : ''}`}><div className="p-half">P REGION {car && <span className="carriers">○ ○ ○ ○</span>}</div><div className="depletion-slice" style={{
           left: `${100 * (-d.xp - a) / (b - a)}%`,
           width: `${100 * d.W / (b - a)}%`
-        }}>{ions && <span>− − − │ + + +</span>}<small>DEPLETION</small></div><div className="n-half">{car && <span className="carriers">• • • •</span>} N REGION</div></div><div className="graph-grid three"><Plot title="Space charge density" points={[{ x: -P.um(d.xp) / 2, y: -P.q * v.NA, label: `ρp ${sci(-P.q * v.NA)} C/cm³`, color: orange, dx: -12, dy: -10 }, { x: P.um(d.xn) / 2, y: P.q * v.ND, label: `ρn ${sci(P.q * v.ND)} C/cm³`, color: blue, dx: 12, dy: 18 }]} yLabel="ρ (C/cm³)" xDomain={[P.um(a), P.um(b)]} yDomain={[-v.NA * P.q * 1.1, v.ND * P.q * 1.1]} series={[{
+        }}>{ions && <span>− − − │ + + +</span>}<small>DEPLETION</small></div><div className="n-half">{car && <span className="carriers">• • • •</span>} N REGION</div></div><div className="graph-grid pn-graph-grid"><Plot title="Space charge density" points={[{ x: -P.um(d.xp) / 2, y: -P.q * v.NA, label: `ρp ${sci(-P.q * v.NA)} C/cm³`, color: orange, dx: -12, dy: -10 }, { x: P.um(d.xn) / 2, y: P.q * v.ND, label: `ρn ${sci(P.q * v.ND)} C/cm³`, color: blue, dx: 12, dy: 18 }]} yLabel="ρ (C/cm³)" xDomain={[P.um(a), P.um(b)]} yDomain={[-v.NA * P.q * 1.1, v.ND * P.q * 1.1]} series={[{
           name: 'ρ(x)',
           color: orange,
           points: conv(x => f(x).rho)
@@ -358,9 +344,17 @@ substitution={String.raw`10^4\sqrt{\frac{2(${texSci(P.epsSi)})}{${texSci(P.q)}}\
           name: 'V(x)',
           color: green,
           points: conv(x => f(x).V)
-        }]} /></div><PNModelBreakdown d={d} NA={v.NA} ND={v.ND} VA={v.VA} /><Info intuition="Diffusing carriers leave fixed ions near the interface. The resulting electric field opposes further diffusion." model="Charge neutrality sets the side widths; Poisson's equation determines the electric field and potential." takeaway="The depletion region reaches farther into the more lightly doped side. Forward bias narrows it." derivation={['N_Ax_p=N_Dx_n,\\qquad W=x_p+x_n', 'W=\\sqrt{\\frac{2\\varepsilon_s}{q}\\left(\\frac1{N_A}+\\frac1{N_D}\\right)(V_{bi}-V_A)}', 'E_{max}=\\frac{qN_Ax_p}{\\varepsilon_s}=\\frac{qN_Dx_n}{\\varepsilon_s}']} /></DemoLayout>;
+        }]} /><PNModelLimitPlot NA={v.NA} ND={v.ND} T={v.T} VA={v.VA} /></div>{pnModelNote}<Info intuition="Diffusing carriers leave fixed ions near the interface. The resulting electric field opposes further diffusion." model="Charge neutrality sets the side widths; Poisson's equation determines the electric field and potential." takeaway="The depletion region reaches farther into the more lightly doped side. Forward bias narrows it." derivation={[]} /></DemoLayout>;
   } catch (e) {
-    return <DemoLayout controls={<Controls values={v} set={set} items={pnControls} reset={reset} />}><ErrorBox error={e} /></DemoLayout>;
+    return <DemoLayout controls={<Controls values={v} set={set} items={pnControls} reset={reset} />}
+      calculation={<Calculation title="PN junction formulas" forms={pnModelFormulas} substitution={String.raw`\text{No valid depletion solution at the selected bias.}`} />}>
+      <div className="graph-grid pn-graph-grid">
+        {['Space charge density', 'Electric field', 'Electrostatic potential'].map(title =>
+          <div className="plot-card" key={title}><div className="plot-title"><b>{title}</b></div><ErrorBox error={e} /></div>)}
+        <PNModelLimitPlot NA={v.NA} ND={v.ND} T={v.T} VA={v.VA} />
+      </div>
+      {pnModelNote}
+    </DemoLayout>;
   }
 }
 export function JunctionModels() {

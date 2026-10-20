@@ -230,6 +230,21 @@ export function idealDiode(NA: number, ND: number, VA: number, T: number, lifeti
     lowInjection: np0 * injection < .1 * NA && pn0 * injection < .1 * ND };
 }
 
+// Illustrative reverse-breakdown extension, with an independently chosen knee and voltage scale.
+export function diodeWithBreakdown(NA: number, ND: number, VA: number, T: number, lifetime: number,
+  breakdownVoltage: number, kneeVoltage: number, kneeCurrent = 1e-3) {
+  requirePositive(breakdownVoltage, 'Breakdown voltage');
+  requirePositive(kneeVoltage, 'Breakdown knee voltage scale');
+  requirePositive(kneeCurrent, 'Breakdown knee current density');
+  if (!Number.isFinite(VA)) throw Error('Applied voltage must be finite.');
+  const ideal = idealDiode(NA, ND, VA, T, lifetime);
+  const overdrive = Math.max(0, -VA - breakdownVoltage);
+  const breakdownJ = overdrive > 0 ? -kneeCurrent * Math.expm1(overdrive / kneeVoltage) : 0;
+  const J = ideal.J + breakdownJ;
+  if (!Number.isFinite(J)) throw Error('Current exceeds the breakdown model range.');
+  return { ...ideal, idealJ: ideal.J, breakdownJ, J, inBreakdown: overdrive > 0 };
+}
+
 // Local 1D continuity balance over a slice of length cm. Delta J is right-face minus left-face current density.
 export function continuityRates(deltaJn: number, deltaJp: number, length: number, generation: number, recombination: number) {
   requirePositive(length, 'Slice length');

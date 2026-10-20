@@ -6,6 +6,7 @@ import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { Doping, JunctionModels, PNDepletion, BuiltIn, Degenerate, DegenerateJunctions, Schottky, SchottkyBias, Capacitance } from './Demos';
 import { DriftDiffusion, MinorityDiffusion, IdealDiode, ContinuityEquation, QuasiFermiLevels } from './TransportDemos';
 import { HoleDistributionDemo } from './HoleDistributionDemo';
+import { AvalancheBreakdown, ZenerBreakdown } from './BreakdownDemos';
 
 const pages = [
   { slug: 'doping', title: 'Doping profile', subtitle: 'Donors, acceptors, and the metallurgical junction', group: 'Doping & PN junctions', Component: Doping },
@@ -15,7 +16,9 @@ const pages = [
   { slug: 'drift-diffusion', title: 'Drift & diffusion', subtitle: 'Carrier current and the Einstein relation', group: 'Carrier transport', Component: DriftDiffusion },
   { slug: 'minority-diffusion', title: 'Minority diffusion', subtitle: 'Recombination lifetime and diffusion length', group: 'Carrier transport', Component: MinorityDiffusion },
   { slug: 'continuity', title: 'Continuity equation', subtitle: 'Current divergence and carrier balance', group: 'Carrier transport', Component: ContinuityEquation },
-  { slug: 'ideal-diode', title: 'Ideal PN diode', subtitle: 'Minority injection and current–voltage response', group: 'Carrier transport', Component: IdealDiode },
+  { slug: 'ideal-diode', title: 'PN diode & breakdown', subtitle: 'Forward injection, reverse saturation, and the breakdown knee', group: 'Carrier transport', Component: IdealDiode },
+  { slug: 'avalanche-breakdown', title: 'Avalanche breakdown', subtitle: 'Inject an electron and watch impact ionization multiply carriers', group: 'Reverse breakdown', Component: AvalancheBreakdown },
+  { slug: 'zener-breakdown', title: 'Zener breakdown', subtitle: 'Explore interband quantum tunneling across a narrow junction', group: 'Reverse breakdown', Component: ZenerBreakdown },
   { slug: 'quasi-fermi', title: 'Fermi & quasi-Fermi levels', subtitle: 'Doping, injection, and energy levels', group: 'Carrier statistics', Component: QuasiFermiLevels },
   { slug: 'hole-distribution', title: 'Electron & hole distributions', subtitle: 'Density of states × occupation = carrier spectra', group: 'Carrier statistics', Component: HoleDistributionDemo },
   { slug: 'degenerate-doping', title: 'Degenerate doping', subtitle: 'Fermi level and carrier statistics', group: 'Carrier statistics', Component: Degenerate },

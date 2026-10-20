@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import Plot from './Plot';
 import ContinuityDiagram from './ContinuityDiagram';
 import { Controls, Toggle, type Control } from './Controls';
@@ -141,41 +142,95 @@ export function MinorityDiffusion() {
 }
 
 export function IdealDiode() {
-  const [logGraphs, setLogGraphs] = useState(true);
-  const { v, set, reset } = useParams({ NA: 1e17, ND: 1e16, VA: .45, tau: 1e-6, T: 300 });
-  const result = P.idealDiode(v.NA, v.ND, v.VA, v.T, v.tau);
+  const [logGraphs, setLogGraphs] = useState(false);
+  const { v, set, reset } = useParams({ NA: 1e17, ND: 1e16, VA: .45, tau: 1e-6, T: 300, VBR: 5, VK: .1 });
+  const kneeCurrent = 1e-3;
+  const diodeAt = (bias: number) => P.diodeWithBreakdown(v.NA, v.ND, bias, v.T, v.tau, v.VBR, v.VK, kneeCurrent);
+  const result = diodeAt(v.VA);
   const nondegenerate = P.fermiOffset('p', v.NA, v.T).boltzmannValid && P.fermiOffset('n', v.ND, v.T).boltzmannValid;
-  const biasRange: [number, number] = [-.5, .65];
-  const diodeAt = (bias: number) => P.idealDiode(v.NA, v.ND, bias, v.T, v.tau);
-  const logCurrent = (bias: number) => Math.log10(Math.max(Math.abs(diodeAt(bias).J), result.J0 * 1e-6));
-  const logHole = (bias: number) => Math.log10(diodeAt(bias).pnEdge);
-  const logElectron = (bias: number) => Math.log10(diodeAt(bias).npEdge);
-  const yMin = Math.log10(result.J0) - 6.5;
-  const yMax = Math.max(logCurrent(biasRange[1]), Math.log10(result.J0)) + .5;
-  const carrierMin = Math.min(logHole(biasRange[0]), logElectron(biasRange[0])) - .5;
-  const carrierMax = Math.max(logHole(biasRange[1]), logElectron(biasRange[1])) + .5;
-  const currentY = (bias: number) => logGraphs ? logCurrent(bias) : diodeAt(bias).J;
-  const holeY = (bias: number) => logGraphs ? logHole(bias) : diodeAt(bias).pnEdge;
-  const electronY = (bias: number) => logGraphs ? logElectron(bias) : diodeAt(bias).npEdge;
-  const currentDomain: [number, number] = logGraphs ? [yMin, yMax] : [diodeAt(biasRange[0]).J * 1.1, diodeAt(biasRange[1]).J * 1.1];
-  const carrierDomain: [number, number] = logGraphs ? [carrierMin, carrierMax] : [0, Math.max(diodeAt(biasRange[1]).pnEdge, diodeAt(biasRange[1]).npEdge) * 1.1];
-  return <DemoLayout calculation={<Calculation formula={String.raw`J=J_0\left(e^{V_A/V_T}-1\right)`}
-    substitution={String.raw`J=(${texSci(result.J0)})\left[e^{${fmt(v.VA, 3)}/${fmt(P.thermalVoltage(v.T), 4)}}-1\right]=${texSci(result.J)}\,\mathrm{A/cm^2}`} />}
-    controls={<Controls values={v} set={set} reset={() => { reset(); setLogGraphs(true); }} items={[
+  const minBias = -v.VBR - 6 * v.VK;
+  const biasRange: [number, number] = [minBias, .65];
+  const setControl = (key: string, value: number) => {
+    set(key, value);
+    if (key === 'VBR' || key === 'VK') {
+      const nextMin = -(key === 'VBR' ? value : v.VBR) - 6 * (key === 'VK' ? value : v.VK);
+      if (v.VA < nextMin) set('VA', nextMin);
+    }
+  };
+  // Resolve the breakdown knee and the narrow forward branch separately, including zero exactly.
+  const currentSamples = [
+    ...pts(minBias, -v.VBR, 100, bias => diodeAt(bias).J),
+    ...pts(-v.VBR, 0, 100, bias => diodeAt(bias).J).slice(1),
+    ...pts(0, biasRange[1], 180, bias => diodeAt(bias).J).slice(1),
+  ];
+  const currentY = (current: number) => logGraphs ? Math.log10(Math.max(Math.abs(current), result.J0 * 1e-6)) : current;
+  const currentPoints: [number, number][] = currentSamples.map(([bias, current]) => [bias, currentY(current)]);
+  const idealPoints: [number, number][] = currentSamples.map(([bias]) => [bias, currentY(diodeAt(bias).idealJ)]);
+  const currentMin = Math.min(...currentPoints.map(([, current]) => current));
+  const currentMax = Math.max(...currentPoints.map(([, current]) => current));
+  const currentPadding = (currentMax - currentMin) * .08;
+  const currentDomain: [number, number] = [currentMin - currentPadding, currentMax + currentPadding];
+
+  // These remain the ideal injection boundary conditions, shown around the forward-bias region.
+  const carrierRange: [number, number] = [-.5, .65];
+  const holeY = (bias: number) => logGraphs ? Math.log10(diodeAt(bias).pnEdge) : diodeAt(bias).pnEdge;
+  const electronY = (bias: number) => logGraphs ? Math.log10(diodeAt(bias).npEdge) : diodeAt(bias).npEdge;
+  const carrierMin = logGraphs ? Math.min(holeY(carrierRange[0]), electronY(carrierRange[0])) - .5 : 0;
+  const carrierMax = Math.max(holeY(carrierRange[1]), electronY(carrierRange[1]));
+  const carrierDomain: [number, number] = [carrierMin, logGraphs ? carrierMax + .5 : carrierMax * 1.1];
+  const showInjectionMarker = v.VA >= carrierRange[0] && v.VA <= carrierRange[1];
+  return <DemoLayout calculation={<Calculation title="Diode model with reverse breakdown" forms={[
+    { label: 'Ideal injection current', formula: String.raw`J_{ideal}=J_0\left(e^{V_A/V_T}-1\right)` },
+    { label: 'Illustrative reverse-breakdown knee', formula: String.raw`J_{BR}=\begin{cases}0,&V_A\geq -V_{BR}\\-J_K\left[e^{(-V_A-V_{BR})/V_K}-1\right],&V_A<-V_{BR}\end{cases}` },
+    { label: 'Total current density', formula: String.raw`J=J_{ideal}+J_{BR},\qquad J_K=10^{-3}\,\mathrm{A/cm^2}` },
+  ]} substitution={String.raw`J=(${texSci(result.idealJ)})+(${texSci(result.breakdownJ)})=${texSci(result.J)}\,\mathrm{A/cm^2}`} />}
+    controls={<Controls values={v} set={setControl} reset={() => { reset(); setLogGraphs(false); }} items={[
       dopingControl('NA', 'P-side acceptors'), dopingControl('ND', 'N-side donors'),
-      { key: 'VA', label: 'Applied voltage', min: -.5, max: .65, step: .005, unit: 'V' },
+      { key: 'VA', label: 'Applied voltage', min: minBias, max: .65, step: .005, unit: 'V' },
+      { key: 'VBR', label: 'Reverse breakdown voltage', min: 1, max: 20, step: .1, unit: 'V' },
+      { key: 'VK', label: 'Breakdown knee voltage scale', min: .02, max: .5, step: .01, unit: 'V' },
       { key: 'tau', label: 'Minority lifetime', min: 1e-9, max: 1e-3, step: 1e-9, unit: 's', log: true },
       temperatureControl,
     ]}><Toggle label="Logarithmic graph axes" checked={logGraphs} onChange={setLogGraphs} /></Controls>}>
-    <Metrics><Metric label="Current density J" value={sci(result.J)} unit="A/cm²" /><Metric label="Saturation density J₀" value={sci(result.J0)} unit="A/cm²" /><Metric label="N-side edge holes" value={sci(result.pnEdge)} unit="cm⁻³" /><Metric label="P-side edge electrons" value={sci(result.npEdge)} unit="cm⁻³" /></Metrics>
-    {!result.lowInjection && <div className="notice">The selected forward bias violates the low-level-injection condition. The ideal diode equation is extrapolated outside its stated range.</div>}
-    {!nondegenerate && <div className="notice">One side is within 3kT of a band edge. The Boltzmann boundary concentrations used by the ideal diode equation are inaccurate.</div>}
-    {logGraphs && <div className="notice small">The current plot uses a logarithmic magnitude. Exactly zero current at 0 V is shown at a display floor of 10⁻⁶ J₀; the calculated current remains zero.</div>}
+    <Metrics>
+      <Metric label="Current density J" value={sci(result.J)} unit="A/cm²" />
+      <Metric label="Saturation density J₀" value={sci(result.J0)} unit="A/cm²" />
+      <Metric label="Breakdown contribution" value={sci(result.breakdownJ)} unit="A/cm²" />
+      <Metric label="Operating region" value={result.inBreakdown ? 'Reverse breakdown' : v.VA > 0 ? 'Forward bias' : v.VA < 0 ? 'Reverse saturation' : 'Equilibrium'} />
+    </Metrics>
+    {!result.lowInjection && <div className="notice">The selected forward bias violates the low-level-injection condition. The ideal injection equation is extrapolated outside its stated range.</div>}
+    {!nondegenerate && <div className="notice">One side is within 3kT of a band edge. The Boltzmann injection boundary concentrations are outside their assumed range.</div>}
+    <div className="notice small">The reverse-breakdown knee is an illustrative exponential extension. VBR and its knee scale are chosen independently of doping; series resistance and heating are omitted. The carrier plot shows the ideal injection model around forward bias and excludes carriers generated during breakdown.</div>
+    <div className="breakdown-related"><Link href="/avalanche-breakdown">Animate avalanche multiplication →</Link><Link href="/zener-breakdown">Animate Zener tunneling →</Link></div>
+    {logGraphs && <div className="notice small">Log view shows current magnitude; reverse current is negative in linear view. Zero current is drawn at a display floor of 10⁻⁶ J₀.</div>}
     <div className="graph-grid">
-      <Plot title="Ideal diode I–V" xLabel="Applied voltage (V)" yLabel={logGraphs ? 'log₁₀ |J| (A/cm²)' : 'J (A/cm²)'} xDomain={biasRange} yDomain={currentDomain} series={[{ name: logGraphs ? 'Current magnitude' : 'Current density', color: blue, points: pts(...biasRange, 180, currentY) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: currentY(v.VA), label: `J ${sci(result.J)} A/cm²`, color: blue }]} onInspect={bias => `J = ${sci(diodeAt(bias).J)} A/cm²`} />
-      <Plot title="Minority carriers at depletion edges" xLabel="Applied voltage (V)" yLabel={logGraphs ? 'log₁₀ density (cm⁻³)' : 'Density (cm⁻³)'} xDomain={biasRange} yDomain={carrierDomain} series={[{ name: 'Holes on n side', color: orange, points: pts(...biasRange, 180, holeY) }, { name: 'Electrons on p side', color: purple, points: pts(...biasRange, 180, electronY) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: holeY(v.VA), label: `pₙ ${sci(result.pnEdge)}`, color: orange }, { x: v.VA, y: electronY(v.VA), label: `nₚ ${sci(result.npEdge)}`, color: purple }]} onInspect={bias => `pₙ = ${sci(diodeAt(bias).pnEdge)} · nₚ = ${sci(diodeAt(bias).npEdge)} cm⁻³`} />
+      <Plot title="Diode I–V with reverse breakdown" xLabel="Applied voltage (V)"
+        yLabel={logGraphs ? 'log₁₀ |J| (A/cm²)' : 'J (A/cm²)'} xDomain={biasRange} yDomain={currentDomain}
+        series={[
+          { name: 'With breakdown', color: blue, points: currentPoints },
+          { name: 'Ideal reference', color: '#87949e', points: idealPoints, dash: true },
+        ]}
+        zones={[{ from: minBias, to: -v.VBR, color: orange }]}
+        markers={[{ x: -v.VBR, label: 'Breakdown −' + fmt(v.VBR, 2) + ' V' }, { x: v.VA, label: 'Vₐ ' + fmt(v.VA, 3) + ' V' }]}
+        points={[{ x: v.VA, y: currentY(result.J), label: 'J ' + sci(result.J) + ' A/cm²', color: blue }]}
+        onInspect={bias => 'J ' + sci(diodeAt(bias).J) + ' A/cm² · ' + (bias < -v.VBR ? 'Reverse breakdown' : bias < 0 ? 'Reverse saturation' : 'Forward bias')} />
+      <Plot title="Minority carriers: ideal injection" xLabel="Applied voltage (V)"
+        yLabel={logGraphs ? 'log₁₀ density (cm⁻³)' : 'Density (cm⁻³)'} xDomain={carrierRange} yDomain={carrierDomain}
+        series={[
+          { name: 'Holes on n side', color: orange, points: pts(...carrierRange, 180, holeY) },
+          { name: 'Electrons on p side', color: purple, points: pts(...carrierRange, 180, electronY) },
+        ]}
+        markers={showInjectionMarker ? [{ x: v.VA, label: 'Vₐ ' + fmt(v.VA, 3) + ' V' }] : []}
+        points={showInjectionMarker ? [
+          { x: v.VA, y: holeY(v.VA), label: 'pₙ ' + sci(result.pnEdge), color: orange },
+          { x: v.VA, y: electronY(v.VA), label: 'nₚ ' + sci(result.npEdge), color: purple },
+        ] : []}
+        onInspect={bias => 'pₙ ' + sci(diodeAt(bias).pnEdge) + ' · nₚ ' + sci(diodeAt(bias).npEdge) + ' cm⁻³'} />
     </div>
-    <Info intuition="Forward bias lowers the junction barrier, so minority-carrier injection grows exponentially. Reverse bias removes minority carriers from the edges and approaches a nearly constant reverse current." model="The ideal long-base step-junction model uses low-level injection, steady state, complete ionization, negligible depletion-region recombination, and constant 300 K reference mobilities scaled only through the Einstein relation." takeaway="A change of roughly 60 mV produces a decade of forward-current change near 300 K when the exponential term dominates." derivation={[String.raw`n_{p0}=\frac{n_i^2}{N_A},\quad p_{n0}=\frac{n_i^2}{N_D}`, String.raw`n_p(-x_p)=n_{p0}e^{V_A/V_T},\quad p_n(x_n)=p_{n0}e^{V_A/V_T}`, String.raw`J_0=qn_i^2\left(\frac{D_n}{L_nN_A}+\frac{D_p}{L_pN_D}\right)`, String.raw`J=J_0(e^{V_A/V_T}-1),\quad L_{n,p}=\sqrt{D_{n,p}\tau}`]} />
+    <Info intuition="Forward injection produces the rising positive-current branch. In reverse bias, leakage stays near −J₀ until the added breakdown knee makes the reverse current grow rapidly."
+      model="The forward and leakage currents use the ideal long-base PN model. An empirical exponential term supplies the reverse-breakdown branch, with an independently selected voltage and knee scale."
+      takeaway="Move the voltage past −VBR to enter reverse breakdown. A smaller knee voltage scale makes the reverse branch steeper."
+      derivation={[String.raw`J_0=qn_i^2\left(\frac{D_n}{L_nN_A}+\frac{D_p}{L_pN_D}\right),\qquad L_{n,p}=\sqrt{D_{n,p}\tau}`]} />
   </DemoLayout>;
 }
 
