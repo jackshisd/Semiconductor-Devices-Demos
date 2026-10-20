@@ -174,9 +174,10 @@ export function IdealDiode() {
 }
 
 export function ContinuityEquation() {
-  const { v, set, reset } = useParams({ deltaJn: .004, deltaJp: -.002, G: 2e19, R: 1e19 });
+  const { v, set, reset } = useParams({ deltaJn: .004, deltaJp: -.002, driftJn: .006, driftJp: -.003, G: 2e19, R: 1e19 });
   const lengthUm = 10, lengthCm = lengthUm * 1e-4;
   const r = P.continuityRates(v.deltaJn, v.deltaJp, lengthCm, v.G, v.R);
+  const diffJn = v.deltaJn - v.driftJn, diffJp = v.deltaJp - v.driftJp;
   const currentMax = Math.max(.001, Math.abs(v.deltaJn) / 2, Math.abs(v.deltaJp) / 2) * 1.2;
   const scale = 1e19;
   const rates = [r.electronRate / scale, r.holeRate / scale, r.pairRate / scale];
@@ -184,15 +185,17 @@ export function ContinuityEquation() {
   const ratePadding = Math.max(1, rateMax - rateMin) * .18;
   return <DemoLayout calculation={<Calculation
     formula={'\\begin{aligned}\\frac{\\partial n}{\\partial t}&=\\frac{1}{q}\\frac{\\partial J_n}{\\partial x}+G-R\\\\\\frac{\\partial p}{\\partial t}&=-\\frac{1}{q}\\frac{\\partial J_p}{\\partial x}+G-R\\end{aligned}'}
-    substitution={'\\begin{aligned}\\dot n&=\\frac{' + texSci(v.deltaJn) + '}{(' + texSci(P.q) + ')(' + texSci(lengthCm) + ')}+(' + texSci(r.pairRate) + ')=' + texSci(r.electronRate) + '\\\\\\dot p&=-\\frac{' + texSci(v.deltaJp) + '}{(' + texSci(P.q) + ')(' + texSci(lengthCm) + ')}+(' + texSci(r.pairRate) + ')=' + texSci(r.holeRate) + '\\end{aligned}\\;\\mathrm{cm^{-3}s^{-1}}'} />}
+    substitution={'\\begin{aligned}\\dot n&=\\frac{' + texSci(v.driftJn) + '+(' + texSci(diffJn) + ')}{' + texSci(P.q * lengthCm) + '}+(' + texSci(r.pairRate) + ')=' + texSci(r.electronRate) + '\\\\\\dot p&=-\\frac{' + texSci(v.driftJp) + '+(' + texSci(diffJp) + ')}{' + texSci(P.q * lengthCm) + '}+(' + texSci(r.pairRate) + ')=' + texSci(r.holeRate) + '\\end{aligned}\\;\\mathrm{cm^{-3}s^{-1}}'} />}
     controls={<Controls values={v} set={set} reset={reset} items={[
       { key: 'deltaJn', label: 'Electron current change ΔJₙ', min: -.02, max: .02, step: .0001, unit: 'A/cm²' },
       { key: 'deltaJp', label: 'Hole current change ΔJₚ', min: -.02, max: .02, step: .0001, unit: 'A/cm²' },
+      { key: 'driftJn', label: 'Electron drift contribution ΔJₙ,drift', min: -.04, max: .04, step: .0001, unit: 'A/cm²' },
+      { key: 'driftJp', label: 'Hole drift contribution ΔJₚ,drift', min: -.04, max: .04, step: .0001, unit: 'A/cm²' },
       { key: 'G', label: 'Pair generation G', min: 1e16, max: 1e21, step: 1e16, unit: 'cm⁻³/s', log: true },
       { key: 'R', label: 'Pair recombination R', min: 1e16, max: 1e21, step: 1e16, unit: 'cm⁻³/s', log: true },
     ]} />}>
     <Metrics><Metric label="Electron density rate" value={sci(r.electronRate)} unit="cm⁻³/s" /><Metric label="Hole density rate" value={sci(r.holeRate)} unit="cm⁻³/s" /><Metric label="Net pair rate G−R" value={sci(r.pairRate)} unit="cm⁻³/s" /><Metric label="Charge rate" value={sci(r.chargeRate)} unit="C/(cm³·s)" /></Metrics>
-    <ContinuityDiagram deltaJn={v.deltaJn} deltaJp={v.deltaJp} generation={v.G} recombination={v.R} lengthUm={lengthUm} />
+    <ContinuityDiagram deltaJn={v.deltaJn} deltaJp={v.deltaJp} driftJn={v.driftJn} driftJp={v.driftJp} generation={v.G} recombination={v.R} lengthUm={lengthUm} />
     <div className="graph-grid">
       <Plot title="Current across a 10 µm slice" xLabel="Position (µm)" yLabel="Current density (A/cm²)" xDomain={[0, lengthUm]} yDomain={[-currentMax, currentMax]} series={[
         { name: 'Jₙ', color: blue, points: [[0, -v.deltaJn / 2], [lengthUm, v.deltaJn / 2]] },
@@ -210,7 +213,7 @@ export function ContinuityEquation() {
         { x: 5, y: rates[1], label: '∂p/∂t ' + sci(r.holeRate), color: orange },
       ]} onInspect={() => 'Electron ' + sci(r.electronRate) + ' · Hole ' + sci(r.holeRate) + ' cm⁻³/s'} />
     </div>
-    <Info intuition="Carriers enter and leave a small slice through its faces. Generation adds an electron and a hole together; recombination removes them together." model="A positive electron-current gradient raises n, while a positive hole-current gradient lowers p, because conventional electron current points opposite electron flow." takeaway="Pair processes do not create net charge: q(∂p/∂t−∂n/∂t) = −∂(Jₙ+Jₚ)/∂x." derivation={['\\frac{\\partial n}{\\partial t}=\\frac{1}{q}\\frac{\\partial J_n}{\\partial x}+G-R', '\\frac{\\partial p}{\\partial t}=-\\frac{1}{q}\\frac{\\partial J_p}{\\partial x}+G-R', '\\frac{\\partial\\rho}{\\partial t}=-\\frac{\\partial(J_n+J_p)}{\\partial x}']} />
+    <Info intuition="Carriers enter and leave a small slice through its faces. Generation adds an electron and a hole together; recombination removes them together." model="A positive electron-current gradient raises n, while a positive hole-current gradient lowers p, because conventional electron current points opposite electron flow. The chosen drift and diffusion changes sum to the net current change." takeaway="Pair processes do not create net charge: q(∂p/∂t−∂n/∂t) = −∂(Jₙ+Jₚ)/∂x." derivation={['\\Delta J_{n,p}=\\Delta J_{n,p,\\mathrm{drift}}+\\Delta J_{n,p,\\mathrm{diff}}', '\\frac{\\partial n}{\\partial t}=\\frac{1}{q}\\frac{\\partial J_n}{\\partial x}+G-R', '\\frac{\\partial p}{\\partial t}=-\\frac{1}{q}\\frac{\\partial J_p}{\\partial x}+G-R', '\\frac{\\partial\\rho}{\\partial t}=-\\frac{\\partial(J_n+J_p)}{\\partial x}']} />
   </DemoLayout>;
 }
 

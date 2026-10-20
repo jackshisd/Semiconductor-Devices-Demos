@@ -9,7 +9,7 @@ const blue = '#2672d9';
 const orange = '#d56138';
 const purple = '#7654ba';
 const W = 1120, H = 370, top = 45, bottom = 326;
-const conductionY = 160, valenceY = 211;
+const conductionY = 150, valenceY = 225;
 
 type Point = [number, number];
 const path = (points: Point[]) => points.map(([x, y], index) => (index ? 'L' : 'M') + x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
@@ -22,7 +22,11 @@ export function HoleDistributionDemo() {
   const base = P.dopedFermi(type, v.dopant, v.T);
   const Ef = base.Ef, Ec = base.Ec, Ev = base.Ev;
   const Vt = P.thermalVoltage(v.T);
-  const span = Math.max(.38, 14 * Vt);
+  const degenerate = type === 'n' ? Ef >= Ec : Ef <= Ev;
+  const nearBandEdge = type === 'n' ? Ec - Ef < 3 * Vt : Ef - Ev < 3 * Vt;
+  const edgeState = P.carrierDensitiesFromFermi(type === 'n' ? Ec : Ev, v.T);
+  const edgeThreshold = type === 'n' ? edgeState.n - edgeState.p : edgeState.p - edgeState.n;
+  const span = Math.max(.38, 14 * Vt, Ef - Ec + .12, Ev - Ef + .12);
   const minEnergy = Ev - span, maxEnergy = Ec + span;
   // The band gap is compressed; the two band windows remain linear in energy.
   const Y = (energy: number) => energy >= Ec ? conductionY - (energy - Ec) / span * (conductionY - top)
@@ -58,7 +62,7 @@ export function HoleDistributionDemo() {
     formula={'\\begin{aligned}n&=\\int_{E_C}^{\\infty}g_C(E)f(E)\\,dE\\\\p&=\\int_{-\\infty}^{E_V}g_V(E)[1-f(E)]\\,dE\\end{aligned}'}
     substitution={'\\begin{aligned}n&=(' + texSci(P.Nc(v.T)) + ')F_{1/2}(' + fmt((Ef - Ec) / Vt, 2) + ')=' + texSci(base.n0) + '\\,\\mathrm{cm^{-3}}\\\\p&=(' + texSci(P.Nv(v.T)) + ')F_{1/2}(' + fmt((Ev - Ef) / Vt, 2) + ')=' + texSci(base.p0) + '\\,\\mathrm{cm^{-3}}\\end{aligned}'} />}
     controls={<Controls values={v} set={set} reset={() => { reset(); setType('n'); setRelative(false); }} items={[
-      { key: 'dopant', label: type === 'n' ? 'Donor concentration Nᴅ' : 'Acceptor concentration Nₐ', min: 1e14, max: 1e19, step: 1e13, unit: 'cm⁻³', log: true },
+      { key: 'dopant', label: type === 'n' ? 'Donor concentration Nᴅ' : 'Acceptor concentration Nₐ', min: 1e14, max: 1e20, step: 1e13, unit: 'cm⁻³', log: true },
       { key: 'T', label: 'Temperature', min: 200, max: 450, step: 1, unit: 'K' },
     ]}>
       <div className="chips" role="group" aria-label="Doping type">
@@ -72,7 +76,11 @@ export function HoleDistributionDemo() {
       <Metric label="Holes p" value={sci(base.p0)} unit="cm⁻³" />
       <Metric label="Fermi level Eꜰ" value={fmt(Ef, 3)} unit="eV from Eᵢ" />
       <Metric label={type === 'n' ? 'Eᴄ − Eꜰ' : 'Eꜰ − Eᴠ'} value={fmt(type === 'n' ? Ec - Ef : Ef - Ev, 3)} unit="eV" />
+      <Metric label="Band-edge doping" value={sci(edgeThreshold)} unit="cm⁻³" />
+      <Metric label="Statistics" value={degenerate ? 'Degenerate' : nearBandEdge ? 'Near band edge' : 'Nondegenerate'} unit="" />
     </Metrics>
+    {degenerate && <div className="notice">Eꜰ has entered the {type === 'n' ? 'conduction' : 'valence'} band. The carrier totals use Fermi–Dirac statistics; a Boltzmann approximation is invalid here.</div>}
+    {!degenerate && nearBandEdge && <div className="notice">Eꜰ is within 3kT of a band edge. The Boltzmann approximation is becoming inaccurate.</div>}
     {v.dopant >= 3e18 && <div className="notice">At very high doping, this ideal-band model omits bandgap narrowing and dopant-ionization effects.</div>}
     <div className="plot-card spectrum-card">
       <div className="plot-title"><b>Electron and hole energy distributions</b><span>Blue: electrons · Orange: holes</span></div>
