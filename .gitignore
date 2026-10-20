@@ -4,3 +4,4 @@ node_modules
 out
 *.tsbuildinfo
 semiconductor-physics-lab/
+class slides/

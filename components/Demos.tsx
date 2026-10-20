@@ -2,23 +2,46 @@
 
 import { useState } from 'react';
 import katex from 'katex';
-import Plot, { Series } from './Plot';
+import Plot, { EnergyBracket, PointLabel, Series, SpanLabel } from './Plot';
 import { Controls, Control, Toggle } from './Controls';
+import { useChangeHighlight } from './useChangeHighlight';
 import * as P from '../lib/physics';
-const blue = '#2672d9',
+export const blue = '#2672d9',
   orange = '#d56138',
   green = '#14875f',
   purple = '#7654ba',
   yellow = '#ae7b16';
-const pts = (a: number, b: number, n: number, fn: (x: number) => number): [number, number][] => Array.from({
+export const pts = (a: number, b: number, n: number, fn: (x: number) => number): [number, number][] => Array.from({
   length: n + 1
 }, (_, i) => {
   const x = a + (b - a) * i / n;
   return [x, fn(x)];
 });
 const sample = (data: [number, number][], x: number) => {let i=1;while(i<data.length-1&&data[i][0]<x)i++;const a=data[i-1],b=data[i],t=(x-a[0])/(b[0]-a[0]);return a[1]+t*(b[1]-a[1])};
-const sci = (n: number, d = 2) => Number(n).toExponential(d);
-const fmt = (n: number, d = 3) => Number(n).toFixed(d);
+export const sci = (n: number, d = 2) => {
+  if (n === 0) return '0';
+  const exponent = Math.floor(Math.log10(Math.abs(n)));
+  const mantissa = Number((n / 10 ** exponent).toPrecision(d + 1));
+  const superscript = String(exponent).replace(/[0-9-]/g, digit => ({ '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' })[digit] ?? digit);
+  return `${mantissa} × 10${superscript}`;
+};
+export const fmt = (n: number, d = 3) => Number(n).toFixed(d);
+export const texSci = (n: number) => {
+  if (n === 0) return '0';
+  const [mantissa, exponent] = n.toExponential(2).split('e');
+  return `${Number(mantissa)}\\times10^{${Number(exponent)}}`;
+};
+export function Calculation({ formula, substitution, title = 'Live calculation' }: { formula: string; substitution: string; title?: string }) {
+  const highlighted = useChangeHighlight(substitution);
+  const render = (expression: string) => ({ __html: katex.renderToString(expression, { throwOnError: false, displayMode: true }) });
+  return <section className="calculation" aria-label={title}>
+    <div className="calculation-heading">{title}</div>
+    <div className="calculation-pair">
+      <div><span>Formula</span><div className="calculation-math" dangerouslySetInnerHTML={render(formula)} /></div>
+      <div><span>With current values</span><div className={`calculation-math ${highlighted ? 'number-updated' : ''}`} dangerouslySetInnerHTML={render(substitution)} /></div>
+    </div>
+  </section>;
+}
 function MathLine({
   s
 }: {
@@ -31,7 +54,7 @@ function MathLine({
     })
   }} />;
 }
-function Info({
+export function Info({
   intuition,
   model,
   takeaway,
@@ -42,19 +65,19 @@ function Info({
   takeaway: string;
   derivation: string[];
 }) {
-  return <div className="learning-block">
+  return <details className="learning-block">
+    <summary>Learn the physics <span>+</span></summary>
     <p className="takeaway"><span>Takeaway</span>{takeaway}</p>
-    <details className="derivation">
-      <summary>Explanation and derivation <span>+</span></summary>
+    <div className="derivation">
       <div className="info-grid">
         <div><span>Physical intuition</span><p>{intuition}</p></div>
         <div><span>Model</span><p>{model}</p></div>
       </div>
       {derivation.map((equation, index) => <MathLine key={index} s={equation} />)}
-    </details>
-  </div>;
+    </div>
+  </details>;
 }
-function Metric({
+export function Metric({
   label,
   value,
   unit
@@ -63,9 +86,10 @@ function Metric({
   value: string | number;
   unit?: string;
 }) {
-  return <div className="metric"><span>{label}</span><strong>{value}</strong><small>{unit}</small></div>;
+  const highlighted = useChangeHighlight(value);
+  return <div className="metric"><span>{label}</span><strong className={highlighted ? 'number-updated' : undefined}>{value}</strong><small>{unit}</small></div>;
 }
-function Metrics({
+export function Metrics({
   children
 }: {
   children: React.ReactNode;
@@ -93,7 +117,7 @@ function ErrorBox({
 }) {
   return <div className="error-box">{error instanceof Error ? error.message : String(error)}</div>;
 }
-function useParams(initial: Record<string, number>) {
+export function useParams(initial: Record<string, number>) {
   const [v, setV] = useState(initial);
   return {
     v,
@@ -149,9 +173,10 @@ export function Doping() {
     const transform = (arr: [number, number][]) => arr.map(([x, y]) => ([x, log ? Math.log10(y) : y / 1e18] as [number, number]));
     const low = log ? Math.floor(Math.log10(Math.min(v.ND, v.NA0 * Math.exp(-max / v.L)))) : 0,
       high = log ? Math.ceil(Math.log10(Math.max(v.NA0, v.ND))) : Math.max(v.NA0, v.ND) / 1e18 * 1.05;
-    return <DemoLayout controls={<Controls values={v} set={set} items={dopControls} reset={reset}></Controls>}><Metrics><Metric label="Metallurgical junction" value={jd ? fmt(xj, 2) : 'Outside bar'} unit={jd ? 'µm' : ''} /><Metric label="P-type length" value={fmt(Math.max(0, Math.min(max, xj)), 2)} unit="µm" /><Metric label="N-type length" value={fmt(max - Math.max(0, Math.min(max, xj)), 2)} unit="µm" /></Metrics><div className="silicon-bar"><div style={{
+    return <DemoLayout calculation={<Calculation formula="x_j=L\ln\left(\frac{N_{A0}}{N_D}\right)"
+substitution={String.raw`${fmt(v.L, 2)}\,\mu\mathrm m\cdot\ln\left(\frac{${texSci(v.NA0)}}{${texSci(v.ND)}}\right)=${fmt(xj, 2)}\,\mu\mathrm m`} />} controls={<Controls values={v} set={set} items={dopControls} reset={reset}></Controls>}><Metrics><Metric label="Metallurgical junction" value={jd ? fmt(xj, 2) : 'Outside bar'} unit={jd ? 'µm' : ''} /><Metric label="P-type length" value={fmt(Math.max(0, Math.min(max, xj)), 2)} unit="µm" /><Metric label="N-type length" value={fmt(max - Math.max(0, Math.min(max, xj)), 2)} unit="µm" /></Metrics><div className="silicon-bar"><div style={{
           width: `${100 * Math.max(0, Math.min(max, xj)) / max}%`
-        }} className="pbar">P-TYPE</div><div className="nbar">N-TYPE</div></div><div className="graph-grid"><Plot title="Individual doping concentrations" yLabel={log ? 'log₁₀ concentration (cm⁻³)' : 'Concentration (10¹⁸ cm⁻³)'} series={curves ? [{
+        }} className="pbar">P-TYPE</div><div className="nbar">N-TYPE</div></div><div className="graph-grid"><Plot title="Individual doping concentrations" points={[{ x: 0, y: log ? Math.log10(v.NA0) : v.NA0 / 1e18, label: `NA(0) ${sci(v.NA0)} cm⁻³`, color: orange, dx: 12, dy: 18 }, { x: 0, y: log ? Math.log10(v.ND) : v.ND / 1e18, label: `ND ${sci(v.ND)} cm⁻³`, color: blue, dx: 12, dy: -9 }]} yLabel={log ? 'log₁₀ concentration (cm⁻³)' : 'Concentration (10¹⁸ cm⁻³)'} series={curves ? [{
           name: 'Nₐ',
           color: orange,
           points: transform(a)
@@ -161,7 +186,7 @@ export function Doping() {
           points: transform(d)
         }] : []} xDomain={[0, max]} yDomain={[low, high]} markers={junction && jd ? [{
           x: xj,
-          label: 'Metallurgical junction'
+          label: `Junction ${fmt(xj, 2)} µm`
         }] : []} onInspect={x => {
           const r = P.doping(v.NA0, v.ND, v.L, x);
           return `Nₐ ${sci(r.NA)} · Nᴅ ${sci(r.ND)} cm⁻³`;
@@ -188,20 +213,22 @@ export function Doping() {
     return <ErrorBox error={e} />;
   }
 }
-function DemoLayout({
+export function DemoLayout({
   controls,
+  calculation,
   children
 }: {
   controls: React.ReactNode;
+  calculation?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  return <div className="demo-layout"><div className="demo-main">{children}</div>{controls}</div>;
+  return <div className="demo-layout"><div className="demo-main">{children}</div>{calculation}{controls}</div>;
 }
 const pnControls: Control[] = [{
   key: 'NA',
   label: 'P-side acceptors',
   min: 1e15,
-  max: 1e19,
+  max: 5e17,
   step: 1e14,
   unit: 'cm⁻³',
   log: true
@@ -209,7 +236,7 @@ const pnControls: Control[] = [{
   key: 'ND',
   label: 'N-side donors',
   min: 1e15,
-  max: 1e19,
+  max: 5e17,
   step: 1e14,
   unit: 'cm⁻³',
   log: true
@@ -244,24 +271,26 @@ export function PNDepletion() {
     const d = P.pnDepletion(v.NA, v.ND, v.T, v.VA),
       a = -d.xp * 1.35,
       b = d.xn * 1.35;
+    const nondegenerate = P.fermiOffset('p', v.NA, v.T).boltzmannValid && P.fermiOffset('n', v.ND, v.T).boltzmannValid;
     const f = (x: number) => P.pnFields(x, v.NA, v.ND, v.T, v.VA);
     const xpts = pts(a, b, 240, x => x);
     const conv = (fn: (x: number) => number) => xpts.map(([x]) => ([P.um(x), fn(x)] as [number, number]));
-    return <DemoLayout controls={<Controls values={v} set={set} items={pnControls} reset={reset}></Controls>}><Metrics><Metric label="Total width W" value={fmt(P.um(d.W), 3)} unit="µm" /><Metric label="P-side xₚ" value={fmt(P.um(d.xp), 3)} unit="µm" /><Metric label="N-side xₙ" value={fmt(P.um(d.xn), 3)} unit="µm" /><Metric label="Peak |E|" value={sci(d.Emax)} unit="V/cm" /><Metric label="Built-in V" value={fmt(d.vbi)} unit="V" /></Metrics><div className={`junction-bar ${animate ? 'animating' : ''}`}><div className="p-half">P REGION {car && <span className="carriers">○ ○ ○ ○</span>}</div><div className="depletion-slice" style={{
+    return <DemoLayout calculation={<Calculation formula="W=\sqrt{\frac{2\varepsilon_s}{q}\left(\frac1{N_A}+\frac1{N_D}\right)(V_{bi}-V_A)}"
+substitution={String.raw`10^4\sqrt{\frac{2(${texSci(P.epsSi)})}{${texSci(P.q)}}\left(\frac1{${texSci(v.NA)}}+\frac1{${texSci(v.ND)}}\right)(${fmt(d.vbi)}-${fmt(v.VA)})}=${fmt(P.um(d.W), 3)}\,\mu\mathrm m`} />} controls={<Controls values={v} set={set} items={pnControls} reset={reset}></Controls>}><Metrics><Metric label="Total width W" value={fmt(P.um(d.W), 3)} unit="µm" /><Metric label="P-side xₚ" value={fmt(P.um(d.xp), 3)} unit="µm" /><Metric label="N-side xₙ" value={fmt(P.um(d.xn), 3)} unit="µm" /><Metric label="Peak |E|" value={sci(d.Emax)} unit="V/cm" /><Metric label="Built-in V" value={fmt(d.vbi)} unit="V" /></Metrics>{!nondegenerate && <div className="notice">One side is within 3kT of a band edge. The Boltzmann built-in voltage and depletion-width estimate are outside their assumed range.</div>}<div className={`junction-bar ${animate ? 'animating' : ''}`}><div className="p-half">P REGION {car && <span className="carriers">○ ○ ○ ○</span>}</div><div className="depletion-slice" style={{
           left: `${100 * (-d.xp - a) / (b - a)}%`,
           width: `${100 * d.W / (b - a)}%`
-        }}>{ions && <span>− − − │ + + +</span>}<small>DEPLETION</small></div><div className="n-half">{car && <span className="carriers">• • • •</span>} N REGION</div></div><div className="graph-grid three"><Plot title="Space charge density" yLabel="ρ (C/cm³)" xDomain={[P.um(a), P.um(b)]} yDomain={[-v.NA * P.q * 1.1, v.ND * P.q * 1.1]} series={[{
+        }}>{ions && <span>− − − │ + + +</span>}<small>DEPLETION</small></div><div className="n-half">{car && <span className="carriers">• • • •</span>} N REGION</div></div><div className="graph-grid three"><Plot title="Space charge density" points={[{ x: -P.um(d.xp) / 2, y: -P.q * v.NA, label: `ρp ${sci(-P.q * v.NA)} C/cm³`, color: orange, dx: -12, dy: -10 }, { x: P.um(d.xn) / 2, y: P.q * v.ND, label: `ρn ${sci(P.q * v.ND)} C/cm³`, color: blue, dx: 12, dy: 18 }]} yLabel="ρ (C/cm³)" xDomain={[P.um(a), P.um(b)]} yDomain={[-v.NA * P.q * 1.1, v.ND * P.q * 1.1]} series={[{
           name: 'ρ(x)',
           color: orange,
           points: conv(x => f(x).rho)
         }]} markers={[{
           x: 0,
           label: 'Junction'
-        }]} /><Plot title="Electric field" yLabel="E (V/cm)" xDomain={[P.um(a), P.um(b)]} yDomain={[-d.Emax * 1.1, d.Emax * .1]} series={[{
+        }]} /><Plot title="Electric field" points={[{ x: 0, y: -d.Emax, label: `|E|max ${sci(d.Emax)} V/cm`, color: blue, dx: 12, dy: -10 }]} spans={[{ from: -P.um(d.xp), to: P.um(d.xn), y: d.Emax * .04, label: `W ${fmt(P.um(d.W), 3)} µm` }]} yLabel="E (V/cm)" xDomain={[P.um(a), P.um(b)]} yDomain={[-d.Emax * 1.1, d.Emax * .1]} series={[{
           name: 'E(x)',
           color: blue,
           points: conv(x => f(x).E)
-        }]} /><Plot title="Electrostatic potential" yLabel="V (V)" xDomain={[P.um(a), P.um(b)]} yDomain={[0, d.drop * 1.1]} series={[{
+        }]} /><Plot title="Electrostatic potential" brackets={[{ x: P.um(b) * .86, from: 0, to: d.drop, label: `Drop ${fmt(d.drop, 3)} V`, color: green, side: 'left' }, { x: P.um(a) * .8, from: 0, to: d.vbi, label: `Vbi(eq) ${fmt(d.vbi, 3)} V`, color: '#77838b', dashed: true }]} yLabel="V (V)" xDomain={[P.um(a), P.um(b)]} yDomain={[0, Math.max(d.drop, d.vbi) * 1.1]} series={[{
           name: 'V(x)',
           color: green,
           points: conv(x => f(x).V)
@@ -286,6 +315,9 @@ export function JunctionModels() {
     abrupt = x.map(([z]) => ([z, z < 0 ? -v.NA / 1e17 : v.ND / 1e17] as [number, number])),
     graded = x.map(([z]) => ([z, v.a * z / 1e18] as [number, number])),
     actual = x.map(([z]) => ([z, (v.ND + v.NA) / 2e17 * Math.tanh(z / .09) + (v.ND - v.NA) / 2e17] as [number, number]));
+  // Use a reference depleted span of 1.3 µm. Charge neutrality determines its unequal side widths.
+  const xp = 1.3 * v.ND / (v.NA + v.ND), xn = 1.3 - xp;
+  const abruptField = (z: number) => z < -xp || z > xn ? 0 : z < 0 ? -(z + xp) / xp : -(xn - z) / xn;
   const series: Series[] = [...(ideal && model !== 'graded' ? [{
     name: 'Abrupt',
     color: orange,
@@ -300,7 +332,8 @@ export function JunctionModels() {
     points: actual,
     dash: true
   }] : [])];
-  return <DemoLayout controls={<Controls values={v} set={set} items={[{
+  return <DemoLayout calculation={<Calculation formula={model === 'graded' ? 'N_{net}(x)=ax' : model === 'abrupt' ? 'N_{net}(x<0)=-N_A' : String.raw`\begin{aligned}N_{abrupt}(x<0)&=-N_A\\N_{graded}(x)&=ax\end{aligned}`}
+substitution={model === 'graded' ? String.raw`${texSci(v.a)}(-0.5)=${texSci(-v.a / 2)}\,\mathrm{cm}^{-3}` : model === 'abrupt' ? String.raw`-${texSci(v.NA)}=${texSci(-v.NA)}\,\mathrm{cm}^{-3}` : String.raw`\begin{aligned}-(${texSci(v.NA)})&=${texSci(-v.NA)}\\(${texSci(v.a)})(-0.5)&=${texSci(-v.a / 2)}\end{aligned}\,\mathrm{cm}^{-3}`} />} controls={<Controls values={v} set={set} items={[{
     key: 'NA',
     label: 'Acceptor density',
     min: 1e15,
@@ -333,19 +366,19 @@ export function JunctionModels() {
     }, {
       value: 'both',
       label: 'Overlay'
-    }]} value={model} set={M} /></Controls>}><div className="graph-grid"><Plot title="Net dopant concentration" yLabel="Nᴅ − Nₐ (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series} markers={[{
+    }]} value={model} set={M} /></Controls>}><div className="graph-grid three"><Plot title="Net dopant concentration" points={[...(model !== 'graded' ? [{ x: -.5, y: -v.NA / 1e17, label: `Abrupt ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2e18, label: `Graded ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="Nᴅ − Nₐ (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series} markers={[{
         x: 0,
         label: 'Junction'
-      }]} /><Plot title="Depletion-region charge" yLabel="ρ/q (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series.map(s => ({
+      }]} /><Plot title="Depletion-region charge" points={[...(model !== 'graded' ? [{ x: -xp / 2, y: -v.NA / 1e17, label: `ρ/q ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2e18, label: `ρ/q ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="ρ/q (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series.map(s => ({
         ...s,
-        points: s.points.map(([z, y]) => [z, Math.abs(z) < .65 ? y : 0])
+        points: s.points.map(([z, y]) => [z, s.name === 'Abrupt' ? (z >= -xp && z <= xn ? y : 0) : (Math.abs(z) < .65 ? y : 0)])
       }))} markers={[{
         x: 0,
         label: 'Junction'
-      }]} /></div><div className="graph-grid"><Plot title="Electric-field shape" yLabel="Normalized E" xDomain={[-1, 1]} yDomain={[-1.1, .1]} series={[...(model !== 'graded' ? [{
+      }]} /><Plot title="Electric-field shape" points={[{ x: 0, y: -1, label: 'E(0) = −1 normalized', color: blue, dx: 12, dy: -10 }]} yLabel="Normalized E" xDomain={[-1, 1]} yDomain={[-1.1, .1]} series={[...(model !== 'graded' ? [{
         name: 'Abrupt: triangular',
         color: orange,
-        points: x.map(([z]) => ([z, Math.abs(z) < .65 ? -(1 - Math.abs(z) / .65) : 0] as [number, number]))
+        points: x.map(([z]) => ([z, abruptField(z)] as [number, number]))
       }] : []), ...(model !== 'abrupt' ? [{
         name: 'Graded: parabolic',
         color: blue,
@@ -359,7 +392,10 @@ function Band({
   ef = 0,
   ei,
   xDomain = [-1, 1],
-  markers = []
+  markers = [],
+  brackets = [],
+  points = [],
+  spans = []
 }: {
   title: string;
   ec: [number, number][];
@@ -371,9 +407,12 @@ function Band({
     x: number;
     label: string;
   }[];
+  brackets?: EnergyBracket[];
+  points?: PointLabel[];
+  spans?: SpanLabel[];
 }) {
   const all = [...ec, ...ev].map(p => p[1]);
-  return <Plot title={title} xLabel="Position (relative)" yLabel="Energy (eV)" xDomain={xDomain} yDomain={[Math.min(...all, ef) - .12, Math.max(...all, ef) + .12]} markers={markers} series={[{
+  return <Plot title={title} xLabel="Position (relative)" yLabel="Energy (eV)" xDomain={xDomain} yDomain={[Math.min(...all, ef) - .12, Math.max(...all, ef) + .12]} markers={markers} brackets={brackets} points={points} spans={spans} series={[{
     name: 'Eᴄ',
     color: blue,
     points: ec
@@ -396,7 +435,7 @@ const bandControls: Control[] = [{
   key: 'NA',
   label: 'Acceptor density',
   min: 1e15,
-  max: 1e19,
+  max: 5e17,
   step: 1e14,
   unit: 'cm⁻³',
   log: true
@@ -404,7 +443,7 @@ const bandControls: Control[] = [{
   key: 'ND',
   label: 'Donor density',
   min: 1e15,
-  max: 1e19,
+  max: 5e17,
   step: 1e14,
   unit: 'cm⁻³',
   log: true
@@ -427,22 +466,21 @@ export function BuiltIn() {
     T: 300
   });
   const [contact, C] = useState(true);
-  const show = true;
   try {
     const V = P.builtIn(v.NA, v.ND, v.T),
       Eg = P.bandgap(v.T),
       kT = P.thermalVoltage(v.T),
-      ni = P.ni(v.T);
+      ni = P.ni(v.T),
+      eiShift = P.intrinsicMidgapOffset(v.T);
+    const nondegenerate = P.fermiOffset('p', v.NA, v.T).boltzmannValid && P.fermiOffset('n', v.ND, v.T).boltzmannValid;
     const left = kT * Math.log(v.NA / ni),
       right = kT * Math.log(v.ND / ni);
-    const bend = pts(-1, 1, 120, x => V * (1 - (1 + Math.tanh(x * 3)) / 2));
-    const ec = bend.map(([x, y]) => ([x, y + Eg / 2 - right] as [number, number])),
+    const bend = pts(-1, 1, 120, x => V * (Math.tanh(3) - Math.tanh(x * 3)) / (2 * Math.tanh(3)));
+    const ec = bend.map(([x, y]) => ([x, y + Eg / 2 - eiShift - right] as [number, number])),
       ev = ec.map(([x, y]) => ([x, y - Eg] as [number, number])),
-      ei = ec.map(([x, y]) => ([x, y - Eg / 2] as [number, number]));
-    return <DemoLayout controls={<Controls values={v} set={set} items={bandControls} reset={reset}><Toggle label="After contact / equilibrium" checked={contact} onChange={C} /></Controls>}><Metrics><Metric label="Built-in potential" value={fmt(V)} unit="V" /><Metric label="Thermal voltage" value={fmt(kT, 4)} unit="V" /><Metric label="Intrinsic density" value={sci(ni)} unit="cm⁻³" /><Metric label="Bandgap" value={fmt(Eg)} unit="eV" /></Metrics>{contact ? <Band title="Equilibrium PN energy bands" ec={ec} ev={ev} ei={ei} markers={show ? [{
-        x: 0,
-        label: `qVbi = ${fmt(V)} eV`
-      }] : []} /> : <div className="graph-grid"><Band title="Separate p-type bulk" ec={[[-1, Eg / 2 + left], [1, Eg / 2 + left]]} ev={[[-1, -Eg / 2 + left], [1, -Eg / 2 + left]]} ei={[[-1, left], [1, left]]} /><Band title="Separate n-type bulk" ec={[[-1, Eg / 2 - right], [1, Eg / 2 - right]]} ev={[[-1, -Eg / 2 - right], [1, -Eg / 2 - right]]} ei={[[-1, -right], [1, -right]]} /></div>}<Info intuition="Carrier diffusion at contact creates a space-charge field. Equilibrium requires a flat Fermi level." model="The bulk Fermi-level offsets on each side add to the built-in energy." takeaway="More doping increases band bending logarithmically, while the equilibrium Fermi level stays flat." derivation={['(E_i-E_F)_p=kT\\ln(N_A/n_i)', '(E_F-E_i)_n=kT\\ln(N_D/n_i)', 'qV_{bi}=kT\\ln\\!\\left(\\frac{N_AN_D}{n_i^2}\\right)']} /></DemoLayout>;
+      ei = ec.map(([x, y]) => ([x, y - Eg / 2 + eiShift] as [number, number]));
+    return <DemoLayout calculation={<Calculation formula="V_{bi}=V_T\ln\left(\frac{N_AN_D}{n_i^2}\right)"
+substitution={String.raw`${fmt(kT, 4)}\ln\left(\frac{(${texSci(v.NA)})(${texSci(v.ND)})}{(${texSci(ni)})^2}\right)=${fmt(V, 3)}\,\mathrm V`} />} controls={<Controls values={v} set={set} items={bandControls} reset={reset}><Toggle label="After contact / equilibrium" checked={contact} onChange={C} /></Controls>}><Metrics><Metric label="Built-in potential" value={fmt(V)} unit="V" /><Metric label="Thermal voltage" value={fmt(kT, 4)} unit="V" /><Metric label="Intrinsic density" value={sci(ni)} unit="cm⁻³" /><Metric label="Bandgap" value={fmt(Eg)} unit="eV" /></Metrics>{!nondegenerate && <div className="notice">One side is within 3kT of a band edge. This Boltzmann built-in voltage is outside its assumed range; see the degenerate-junction demo.</div>}{contact ? <Band title="Equilibrium PN energy bands" brackets={[{ x: -.58, from: ec[0][1], to: ec[ec.length - 1][1], guideFromX: -1, guideToX: 1, label: `qVbi ${fmt(V, 3)} eV`, color: purple }, { x: .72, from: sample(ec, .72), to: sample(ev, .72), label: `Eg ${fmt(Eg, 3)} eV`, color: green, side: 'left' }]} ec={ec} ev={ev} ei={ei}/> : <div className="graph-grid"><Band title="Separate p-type bulk" brackets={[{ x: 0, from: 0, to: left, label: `Ei−EF ${fmt(left, 3)} eV`, color: purple }]} ec={[[-1, Eg / 2 - eiShift + left], [1, Eg / 2 - eiShift + left]]} ev={[[-1, -Eg / 2 - eiShift + left], [1, -Eg / 2 - eiShift + left]]} ei={[[-1, left], [1, left]]} /><Band title="Separate n-type bulk" brackets={[{ x: 0, from: 0, to: -right, label: `EF−Ei ${fmt(right, 3)} eV`, color: purple }]} ec={[[-1, Eg / 2 - eiShift - right], [1, Eg / 2 - eiShift - right]]} ev={[[-1, -Eg / 2 - eiShift - right], [1, -Eg / 2 - eiShift - right]]} ei={[[-1, -right], [1, -right]]} /></div>}<Info intuition="Carrier diffusion at contact creates a space-charge field. Equilibrium requires a flat Fermi level." model="The bulk Fermi-level offsets on each side add to the built-in energy." takeaway="More doping increases band bending logarithmically, while the equilibrium Fermi level stays flat." derivation={['(E_i-E_F)_p=kT\\ln(N_A/n_i)', '(E_F-E_i)_n=kT\\ln(N_D/n_i)', 'qV_{bi}=kT\\ln\\!\\left(\\frac{N_AN_D}{n_i^2}\\right)']} /></DemoLayout>;
   } catch (e) {
     return <ErrorBox error={e} />;
   }
@@ -461,9 +499,11 @@ export function Degenerate() {
   try {
     const r = P.fermiOffset((type as 'n' | 'p'), v.N, v.T),
       Eg = P.bandgap(v.T),
-      edge = type === 'n' ? Eg / 2 : -Eg / 2,
+      eiShift = P.intrinsicMidgapOffset(v.T),
+      edge = type === 'n' ? Eg / 2 - eiShift : -Eg / 2 - eiShift,
       EF = type === 'n' ? edge + r.edge : edge - r.edge;
-    return <DemoLayout controls={<Controls values={v} set={set} items={[{
+    return <DemoLayout calculation={<Calculation formula={type === 'n' ? String.raw`N=N_CF_{1/2}(\eta),\quad E_F-E_C=\eta kT` : String.raw`N=N_VF_{1/2}(\eta),\quad E_V-E_F=\eta kT`}
+substitution={String.raw`${texSci(v.N)}/${texSci(type === 'n' ? P.Nc(v.T) : P.Nv(v.T))}=F_{1/2}(\eta)\Rightarrow\eta=${fmt(r.eta, 2)}\Rightarrow${fmt(r.edge, 3)}\,\mathrm{eV}`} />} controls={<Controls values={v} set={set} items={[{
       key: 'N',
       label: 'Dopant density',
       min: 1e15,
@@ -484,7 +524,7 @@ export function Degenerate() {
       }, {
         value: 'p',
         label: 'P-type'
-      }]} value={type} set={S} /></Controls>}><Metrics><Metric label="Fermi-to-band edge" value={fmt(r.edge, 3)} unit="eV (positive = in band)" /><Metric label="Reduced Fermi level η" value={fmt(r.eta, 2)} /><Metric label="Statistics" value={r.degenerate ? 'Degenerate' : r.boltzmannValid ? 'Boltzmann valid' : 'Transition'} /></Metrics>{!r.boltzmannValid && <div className="notice">Boltzmann statistics become inaccurate within about 3kT of a band edge. Values here use numerical Fermi–Dirac statistics.</div>}{bands && <Band title={`${type.toUpperCase()}-type silicon energy bands`} ec={[[-1, Eg / 2], [1, Eg / 2]]} ev={[[-1, -Eg / 2], [1, -Eg / 2]]} ei={intrinsic ? [[-1, 0], [1, 0]] : undefined} ef={EF} />}<div className="comparison"><div><b>Boltzmann approximation</b><p>Assumes the Fermi level is several kT away from a band edge. Carrier density is exponential in energy.</p></div><div><b>Fermi–Dirac statistics</b><p>Accounts for occupancy limits near and inside a band. Used for the displayed Fermi-level result.</p></div></div><Info intuition="Adding dopants raises electron or hole density and pushes the Fermi level toward its nearby band." model="Carrier density is NᴄF₁/₂(η) or NᴠF₁/₂(η), solved numerically for η." takeaway="When η ≥ 0, the Fermi level enters an allowed band and the doping is degenerate." derivation={['n=N_CF_{1/2}((E_F-E_C)/kT)', 'p=N_VF_{1/2}((E_V-E_F)/kT)', 'F_{1/2}(\\eta)=\\frac{2}{\\sqrt\\pi}\\int_0^\\infty\\frac{\\sqrt{u}}{1+e^{u-\\eta}}\\,du']} /></DemoLayout>;
+      }]} value={type} set={S} /></Controls>}><Metrics><Metric label="Fermi-to-band edge" value={fmt(r.edge, 3)} unit="eV (positive = in band)" /><Metric label="Reduced Fermi level η" value={fmt(r.eta, 2)} /><Metric label="Statistics" value={r.insideBand ? 'Degenerate: in band' : r.degenerate ? 'Degenerate: near edge' : 'Nondegenerate'} /></Metrics>{!r.boltzmannValid && <div className="notice">Boltzmann statistics become inaccurate within about 3kT of a band edge. Values here use numerical Fermi–Dirac statistics.</div>}{bands && <Band title={`${type.toUpperCase()}-type silicon energy bands`} brackets={[{ x: 0, from: EF, to: edge, label: `${type === 'n' ? 'EF−EC' : 'EV−EF'} ${fmt(r.edge, 3)} eV`, color: purple }]} ec={[[-1, Eg / 2 - eiShift], [1, Eg / 2 - eiShift]]} ev={[[-1, -Eg / 2 - eiShift], [1, -Eg / 2 - eiShift]]} ei={intrinsic ? [[-1, 0], [1, 0]] : undefined} ef={EF} />}<details className="comparison-details"><summary>Compare carrier statistics <span>+</span></summary><div className="comparison"><div><b>Boltzmann approximation</b><p>Assumes the Fermi level is several kT away from a band edge. Carrier density is exponential in energy.</p></div><div><b>Fermi–Dirac statistics</b><p>Accounts for occupancy limits near and inside a band. Used for the displayed Fermi-level result.</p></div></div></details><Info intuition="Adding dopants raises electron or hole density and pushes the Fermi level toward its nearby band." model="Carrier density is NᴄF₁/₂(η) or NᴠF₁/₂(η), solved numerically for η." takeaway="Within 3kT of a band edge, Boltzmann statistics fail; η ≥ 0 means the Fermi level is inside the band." derivation={['n=N_CF_{1/2}((E_F-E_C)/kT)', 'p=N_VF_{1/2}((E_V-E_F)/kT)', 'F_{1/2}(\\eta)=\\frac{2}{\\sqrt\\pi}\\int_0^\\infty\\frac{\\sqrt{u}}{1+e^{u-\\eta}}\\,du']} /></DemoLayout>;
   } catch (e) {
     return <ErrorBox error={e} />;
   }
@@ -496,7 +536,7 @@ export function DegenerateJunctions() {
     reset
   } = useParams({
     N: 1e17,
-    Eg: 1.124,
+    Eg: 1.12,
     T: 300
   });
   const [mode, M] = useState('pn'),
@@ -506,11 +546,13 @@ export function DegenerateJunctions() {
       ni = Math.sqrt(P.Nc(v.T) * P.Nv(v.T)) * Math.exp(-v.Eg / (2 * kT));
     const ordinary = kT * Math.log(v.N * v.N / ni ** 2);
     const approx = v.Eg / 2 + kT * Math.log(v.N / ni);
-    const adv = P.advancedJunction(mode === 'p+n' ? 1e20 : v.N, mode === 'n+p' ? 1e20 : v.N, v.T).vbi + (v.Eg - P.bandgap(v.T));
+    const advResult = P.advancedJunction(mode === 'p+n' ? 1e20 : v.N, mode === 'n+p' ? 1e20 : v.N, v.T);
+    const adv = advResult.vbi + (v.Eg - P.bandgap(v.T));
     const V = mode === 'pn' ? ordinary : advanced ? adv : approx;
-    const ec = pts(-1, 1, 100, x => v.Eg / 2 + V * (1 - Math.tanh(x * 3)) / 2),
+    const ec = pts(-1, 1, 100, x => v.Eg / 2 + V * (Math.tanh(3) - Math.tanh(x * 3)) / (2 * Math.tanh(3))),
       ev = ec.map(([x, y]) => ([x, y - v.Eg] as [number, number]));
-    return <DemoLayout controls={<Controls values={v} set={set} items={[{
+    return <DemoLayout calculation={<Calculation formula={mode === 'pn' ? String.raw`V_{bi}=V_T\ln(N^2/n_i^2)` : advanced ? 'qV_{bi}=E_G+(E_V-E_F)_p+(E_F-E_C)_n' : String.raw`qV_{bi}\approx E_G/2+kT\ln(N/n_i)`}
+substitution={mode === 'pn' ? String.raw`${fmt(kT, 4)}\ln\left(\frac{(${texSci(v.N)})^2}{(${texSci(ni)})^2}\right)=${fmt(V, 3)}\,\mathrm V` : advanced ? String.raw`${fmt(v.Eg, 3)}+(${fmt(advResult.p.edge, 3)})+(${fmt(advResult.n.edge, 3)})=${fmt(V, 3)}\,\mathrm{eV}` : String.raw`${fmt(v.Eg, 3)}/2+${fmt(kT, 4)}\ln\left(\frac{${texSci(v.N)}}{${texSci(ni)}}\right)=${fmt(V, 3)}\,\mathrm{eV}`} />} controls={<Controls values={v} set={set} items={[{
       key: 'N',
       label: 'Nondegenerate-side doping',
       min: 1e15,
@@ -541,10 +583,7 @@ export function DegenerateJunctions() {
       }, {
         value: 'n+p',
         label: 'N⁺P'
-      }]} value={mode} set={M} /><Toggle label="Advanced Fermi–Dirac result" checked={advanced} onChange={A} /></Controls>}><Metrics><Metric label="Built-in voltage" value={fmt(V, 3)} unit="V" /><Metric label="Model" value={mode === 'pn' ? 'Boltzmann' : advanced ? 'Fermi–Dirac' : 'Band-edge approximation'} /></Metrics><Band title="Junction energy-band comparison" ec={ec} ev={ev} markers={[{
-        x: 0,
-        label: `qVbi ${fmt(V)} eV`
-      }]} />{mode !== 'pn' && !advanced && <div className="notice">Approximation: intrinsic level at midgap and heavily doped-side Fermi level exactly at the band edge. Arbitrary degenerate doping needs Fermi–Dirac statistics.</div>}<Info intuition="A heavily doped side pulls its Fermi level close to or inside a band, changing the contact potential." model="The simple Eɢ/2 expressions pin the Fermi level at a band edge; the advanced option solves carrier statistics numerically with a nominal 10²⁰ cm⁻³ heavy side." takeaway="Band-edge formulas are teaching approximations, not universal degenerate-junction formulas." derivation={['qV_{bi}=E_G/2+kT\\ln(N_D/n_i)\\quad(p^+n)', 'qV_{bi}=E_G/2+kT\\ln(N_A/n_i)\\quad(n^+p)', 'qV_{bi}=E_G+(E_F-E_C)_n+(E_V-E_F)_p']} /></DemoLayout>;
+      }]} value={mode} set={M} /><Toggle label="Fermi–Dirac (ideal bands)" checked={advanced} onChange={A} /></Controls>}><Metrics><Metric label="Built-in voltage" value={fmt(V, 3)} unit="V" /><Metric label="Model" value={mode === 'pn' ? 'Boltzmann' : advanced ? 'Fermi–Dirac' : 'Band-edge approximation'} /></Metrics>{(!advanced || mode === 'pn') && !P.fermiOffset('p', v.N, v.T).boltzmannValid && <div className="notice">The selected nondegenerate-side doping is within 3kT of a band edge. The Boltzmann or band-edge formula shown here is outside its assumed range; use the advanced option for the heavily doped junction.</div>}<Band title="Junction energy-band comparison" brackets={[{ x: -.55, from: ec[0][1], to: ec[ec.length - 1][1], guideFromX: -1, guideToX: 1, label: `qVbi ${fmt(V, 3)} eV`, color: purple }]} ec={ec} ev={ev} />{mode !== 'pn' && !advanced && <div className="notice">Approximation: intrinsic level at midgap and heavily doped-side Fermi level exactly at the band edge. Arbitrary degenerate doping needs Fermi–Dirac statistics.</div>}<Info intuition="A heavily doped side pulls its Fermi level close to or inside a band, changing the contact potential." model="The simple Eɢ/2 expressions pin the Fermi level at a band edge; the Fermi–Dirac option solves an ideal parabolic-band model with a nominal 10²⁰ cm⁻³ heavy side; it omits band-gap narrowing." takeaway="Band-edge formulas are teaching approximations, not universal degenerate-junction formulas." derivation={['qV_{bi}=E_G/2+kT\\ln(N_D/n_i)\\quad(p^+n)', 'qV_{bi}=E_G/2+kT\\ln(N_A/n_i)\\quad(n^+p)', 'qV_{bi}=E_G+(E_F-E_C)_n+(E_V-E_F)_p']} /></DemoLayout>;
   } catch (e) {
     return <ErrorBox error={e} />;
   }
@@ -553,6 +592,8 @@ function SchottkyBand({
   title,
   phi,
   drop,
+  vbi,
+  width,
   VA,
   T = 300,
   p = false
@@ -560,16 +601,29 @@ function SchottkyBand({
   title: string;
   phi: number;
   drop: number;
+  vbi: number;
+  width: number;
   VA: number;
   T?: number;
   p?: boolean;
 }) {
   const Eg = P.bandgap(T);
-  const bend = pts(0, 1, 100, x => drop * Math.exp(-5 * x));
-  const ec = bend.map(([x, y]) => ([x, p ? Eg - phi - VA + drop - y : phi - VA - drop + y] as [number, number])),
+  const W = P.um(width);
+  const right = 1.18 * W;
+  const interfaceEc = p ? Eg - phi - VA : phi - VA;
+  const bend = pts(0, right, 120, x => {
+    const u = Math.min(x / W, 1);
+    return drop * (Math.exp(-5 * u) - Math.exp(-5)) / (1 - Math.exp(-5));
+  });
+  const ec = bend.map(([x, y]) => ([x, p ? interfaceEc + drop - y : interfaceEc - drop + y] as [number, number])),
     ev = ec.map(([x, y]) => ([x, y - Eg] as [number, number]));
   const all = [...ec, ...ev].map(d => d[1]);
-  return <Plot title={title} xLabel="Metal │ semiconductor position" yLabel="Energy (eV)" xDomain={[-.25, 1]} yDomain={[Math.min(...all, -VA, 0) - .2, Math.max(...all, -VA, 0) + .2]} markers={[{
+  const interfaceBand = p ? interfaceEc - Eg : interfaceEc;
+  const bulkBand = interfaceBand + (p ? drop : -drop);
+  const equilibriumReference = interfaceBand + (p ? vbi : -vbi);
+  const low = Math.min(...all, -VA, 0, equilibriumReference) - .23;
+  const high = Math.max(...all, -VA, 0, equilibriumReference) + .23;
+  return <Plot title={title} height={300} xLabel="Distance from interface (µm)" yLabel="Energy (eV)" xDomain={[-.35 * W, right]} yDomain={[low, high]} markers={[{
     x: 0,
     label: 'Interface'
   }]} series={[{
@@ -583,18 +637,53 @@ function SchottkyBand({
   }, {
     name: 'Metal Eꜰ',
     color: purple,
-    points: [[-.25, -VA], [0, -VA]]
+    points: [[-.35 * W, -VA], [0, -VA]]
   }, {
     name: 'Semiconductor Eꜰ',
     color: yellow,
-    points: [[0, 0], [1, 0]]
-  }]} onInspect={x=>x<0?`Metal Eꜰ ${fmt(-VA)} eV`:`Eᴄ ${fmt(sample(ec,x))} · Eᴠ ${fmt(sample(ev,x))} eV`} />;
+    points: [[0, 0], [right, 0]]
+  }]} brackets={[{
+    x: -.21 * W,
+    from: -VA,
+    to: interfaceBand,
+    guideToX: 0,
+    label: `${p ? 'ΦBp' : 'ΦBn'} ${fmt(phi, 3)} eV`,
+    labelDy: -10
+  }, {
+    x: .12 * W,
+    from: 0,
+    to: interfaceBand,
+    guideToX: 0,
+    label: `${p ? 'Hole' : 'Electron'} from Eꜰ ${fmt(phi + (p ? VA : -VA), 3)} eV`,
+    labelDy: 12
+  }, {
+    x: .54 * W,
+    from: interfaceBand,
+    to: bulkBand,
+    guideFromX: 0,
+    guideToX: W,
+    side: 'left',
+    label: `Drop ${fmt(drop, 3)} V`,
+    color: blue,
+    labelDy: 14
+  }, {
+    x: .91 * W,
+    from: interfaceBand,
+    to: equilibriumReference,
+    guideFromX: 0,
+    side: 'left',
+    dashed: true,
+    label: `Vbi(eq) ${fmt(vbi, 3)} V`,
+    color: '#747f89',
+    labelDy: -14
+  }]} spans={[{ from: 0, to: W, y: low + .12, label: `W ${fmt(W, 3)} µm`, color: '#446a77' }]}
+    onInspect={x=>x<0?`Metal Eꜰ ${fmt(-VA)} eV`:`Eᴄ ${fmt(sample(ec,x))} · Eᴠ ${fmt(sample(ev,x))} eV`} />;
 }
 const schControls: Control[] = [{
   key: 'ND',
   label: 'Donor density',
   min: 1e15,
-  max: 1e19,
+  max: 5e17,
   step: 1e14,
   unit: 'cm⁻³',
   log: true
@@ -652,13 +741,14 @@ export function Schottky() {
   try {
     const phi = mode === 'ideal' ? v.phiM - v.chi : v.phiEmp,
       d = P.schottky(phi, v.ND, v.T, v.VA);
-    return <DemoLayout controls={<Controls values={v} set={set} items={schControls.filter(control => mode === 'ideal' ? ['ND','phiM','chi','VA'].includes(control.key) : ['ND','phiEmp','VA'].includes(control.key))} reset={reset}><label className="select-label">Contact material<select value={metal} onChange={e => {const selected=e.target.value;setMetal(selected);set('phiM',selected==='Al'?4.28:selected==='Au'?5.10:4.80);if(selected!=='NiSi')M('ideal')}}><option value="NiSi">NiSi / Si</option><option value="Al">Al / Si (ideal)</option><option value="Au">Au / Si (ideal)</option></select></label><ChipGroup items={metal==='NiSi'?[{
+    return <DemoLayout calculation={<Calculation formula="V_{bi}=\Phi_{Bn}-V_T\ln\left(\frac{N_C}{N_D}\right)"
+substitution={String.raw`${fmt(phi, 3)}-${fmt(P.thermalVoltage(v.T), 4)}\ln\left(\frac{${texSci(P.Nc(v.T))}}{${texSci(v.ND)}}\right)=${fmt(d.vbi, 3)}\,\mathrm V`} />} controls={<Controls values={v} set={set} items={schControls.filter(control => mode === 'ideal' ? ['ND','phiM','chi','VA'].includes(control.key) : ['ND','phiEmp','VA'].includes(control.key))} reset={reset}><label className="select-label">Contact material<select value={metal} onChange={e => {const selected=e.target.value;setMetal(selected);set('phiM',selected==='Al'?4.28:selected==='Au'?5.10:4.80);if(selected!=='NiSi')M('ideal')}}><option value="NiSi">NiSi / Si</option><option value="Al">Al / Si (ideal)</option><option value="Au">Au / Si (ideal)</option></select></label><ChipGroup items={metal==='NiSi'?[{
         value: 'empirical',
         label: 'Empirical barrier'
       }, {
         value: 'ideal',
         label: 'Ideal Schottky–Mott'
-      }]:[{value:'ideal',label:'Ideal Schottky–Mott'}]} value={mode} set={M} /></Controls>}><Metrics><Metric label="Electron barrier ΦBn" value={fmt(phi)} unit="eV" /><Metric label="Built-in potential" value={fmt(d.vbi)} unit="V" /><Metric label="Depletion drop" value={fmt(d.drop)} unit="V" /><Metric label="Effective electron barrier" value={fmt(phi-v.VA)} unit="eV from semiconductor Eꜰ" /><Metric label="Depletion width" value={fmt(P.um(d.W), 3)} unit="µm" /></Metrics><SchottkyBand title="Metal / n-Si energy bands" phi={phi} drop={d.drop} VA={v.VA} T={v.T} /><div className="notice">Ideal mode uses ΦBn = ΦM − χ. The 0.67 eV NiSi/n-Si default follows a measured thermionic-emission result; real barriers depend on interface preparation and measurement. Bias changes band bending, while the idealized interface barrier remains fixed. <a href="https://doi.org/10.1016/S0038-1101(03)00286-7" target="_blank" rel="noreferrer">NiSi/n-Si measurement ?</a></div><Info intuition="Electrons see an interface barrier. Ionized donors in silicon create a depletion region and band bending." model="Barrier height sets interface energetics; subtracting the semiconductor Fermi-to-conduction-band offset gives built-in voltage." takeaway="Barrier height, built-in voltage, and the bias-dependent depletion drop are different quantities." derivation={['\\Phi_{Bn}=\\Phi_M-\\chi', 'V_{bi}=\\Phi_{Bn}-\\frac{kT}{q}\\ln(N_C/N_D)', 'W=\\sqrt{2\\varepsilon_s(V_{bi}-V_A)/(qN_D)}']} /></DemoLayout>;
+      }]:[{value:'ideal',label:'Ideal Schottky–Mott'}]} value={mode} set={M} /></Controls>}><Metrics><Metric label="Electron barrier ΦBn" value={fmt(phi)} unit="eV" /><Metric label="Built-in potential" value={fmt(d.vbi)} unit="V" /><Metric label="Depletion drop" value={fmt(d.drop)} unit="V" /><Metric label="Effective electron barrier" value={fmt(phi-v.VA)} unit="eV from semiconductor Eꜰ" /><Metric label="Depletion width" value={fmt(P.um(d.W), 3)} unit="µm" /></Metrics><SchottkyBand title="Metal / n-Si energy bands" phi={phi} drop={d.drop} vbi={d.vbi} width={d.W} VA={v.VA} T={v.T} /><details className="notice"><summary>Model assumptions and measurement <span>+</span></summary>Ideal mode uses ΦBn = ΦM − χ. The 0.67 eV NiSi/n-Si default follows a measured thermionic-emission result; real barriers depend on interface preparation and measurement. Bias changes band bending, while the idealized interface barrier remains fixed. <a href="https://doi.org/10.1016/S0038-1101(03)00286-7" target="_blank" rel="noreferrer">NiSi/n-Si measurement ?</a></details><Info intuition="Electrons see an interface barrier. Ionized donors in silicon create a depletion region and band bending." model="Barrier height sets interface energetics; subtracting the semiconductor Fermi-to-conduction-band offset gives built-in voltage." takeaway="Barrier height, built-in voltage, and the bias-dependent depletion drop are different quantities." derivation={['\\Phi_{Bn}=\\Phi_M-\\chi', 'V_{bi}=\\Phi_{Bn}-\\frac{kT}{q}\\ln(N_C/N_D)', 'W=\\sqrt{2\\varepsilon_s(V_{bi}-V_A)/(qN_D)}']} /></DemoLayout>;
   } catch (e) {
     return <ErrorBox error={e} />;
   }
@@ -672,7 +762,7 @@ export function SchottkyBias() {
     phiN: .67,
     phiP: .45
   });
-  const [selected, S] = useState([true, true, true, true]);
+  const [selected, S] = useState([true, false, false, false]);
   const cases = [{
     name: 'NiSi / n-Si · equilibrium',
     VA: 0,
@@ -708,7 +798,10 @@ export function SchottkyBias() {
       };
     }
   });
-  return <DemoLayout controls={<Controls values={v} set={set} items={[{
+  const firstSelected = rows.find(r => selected[r.index] && !('error' in r));
+  return <DemoLayout calculation={<Calculation title={firstSelected ? String.raw`Case ${firstSelected.index + 1} calculation` : 'Case calculation'}
+formula={firstSelected?.p ? String.raw`W_p=\sqrt{2\varepsilon_sV_{bi,p}/(qN_A)}` : String.raw`W_n=\sqrt{2\varepsilon_s(V_{bi}-V_A)/(qN_D)}`}
+substitution={firstSelected && !('error' in firstSelected) ? String.raw`10^4\sqrt{\frac{2(${texSci(12 * 8.85e-14)})(${fmt(firstSelected.drop, 3)})}{(${texSci(P.q)})(${texSci(1e17)})}}=${fmt(P.um(firstSelected.W), 3)}\,\mu\mathrm m` : String.raw`\text{Select a valid case}` } />} controls={<Controls values={v} set={set} items={[{
     key: 'phiN',
     label: 'NiSi / n-Si reference barrier',
     min: .4,
@@ -722,7 +815,7 @@ export function SchottkyBias() {
     max: .8,
     step: .01,
     unit: 'eV'
-  }]} reset={reset}><div className="case-select">{cases.map((c, i) => <Toggle key={i} label={`Case ${i + 1}`} checked={selected[i]} onChange={checked => S(old => old.map((x, j) => j === i ? checked : x))} />)}</div></Controls>}><div className="notice">Teaching reference: ΦBn = 0.67 eV, ΦBp = 0.45 eV for NiSi/Si. Adjustable values represent interface-dependent empirical barriers (<a href="https://doi.org/10.1016/S0038-1101(03)00286-7" target="_blank" rel="noreferrer">n-Si study</a>; <a href="https://avesis.uludag.edu.tr/yayin/c1235786-676b-42d1-acf7-6ceafb248039/temperature-dependent-electrical-behavior-of-nickel-silicide-schottky-diodes-on-p-type-silicon" target="_blank" rel="noreferrer">p-Si study</a>). T = 300 K; εs = 12 × 8.85 × 10⁻¹⁴ F/cm; dopant density = 10¹⁷ cm⁻³.</div><div className="graph-grid">{rows.filter(r => selected[r.index]).map(r => 'error' in r ? <ErrorBox key={r.index} error={r.error} /> : <SchottkyBand key={r.index} title={r.name} phi={r.phi} drop={r.drop} VA={r.VA} p={r.p} />)}</div><div className="table-wrap"><table><thead><tr><th>Case</th><th>Vₐ (V)</th><th>Barrier (eV)</th><th>Vbi (V)</th><th>Drop (V)</th><th>W (µm)</th></tr></thead><tbody>{rows.filter(r => selected[r.index]).map(r => <tr key={r.index}><td>{r.name}</td><td>{r.VA}</td><td>{fmt(r.phi)}</td><td>{'error' in r ? '—' : fmt(r.vbi)}</td><td>{'error' in r ? '—' : fmt(r.drop)}</td><td>{'error' in r ? '—' : fmt(P.um(r.W))}</td></tr>)}</tbody></table></div><Info intuition="Reverse bias increases n-side band bending and depletion width; forward bias reduces both. P-side depletion bends the bands in the opposite direction." model="The contact barrier is fixed in this idealized model, while the semiconductor depletion drop is Vbi − Vₐ for n-type." takeaway="Biased diagrams require distinct metal and semiconductor electrochemical potentials." derivation={['W_n=\\sqrt{2\\varepsilon_s(V_{bi}-V_A)/(qN_D)}', 'W_p=\\sqrt{2\\varepsilon_sV_{bi,p}/(qN_A)}', '\\Phi_{Bp}\\approx E_G-\\Phi_{Bn}\\quad\\text{only for the same ideal interface}']} /></DemoLayout>;
+  }]} reset={reset}><div className="case-select">{cases.map((c, i) => <Toggle key={i} label={`Case ${i + 1}`} checked={selected[i]} onChange={checked => S(old => old.map((x, j) => j === i ? checked : x))} />)}</div></Controls>}><details className="notice"><summary>Teaching reference and sources <span>+</span></summary>Teaching reference: ΦBn = 0.67 eV, ΦBp = 0.45 eV for NiSi/Si. Adjustable values represent interface-dependent empirical barriers (<a href="https://doi.org/10.1016/S0038-1101(03)00286-7" target="_blank" rel="noreferrer">n-Si study</a>; <a href="https://research.ibm.com/publications/interaction-of-nisi-with-dopants-for-metallic-sourcedrain-applications" target="_blank" rel="noreferrer">p-Si study</a>). T = 300 K; εs = 12 × 8.85 × 10⁻¹⁴ F/cm; dopant density = 10¹⁷ cm⁻³.</details><div className="graph-grid">{rows.filter(r => selected[r.index]).map(r => 'error' in r ? <ErrorBox key={r.index} error={r.error} /> : <SchottkyBand key={r.index} title={r.name} phi={r.phi} drop={r.drop} vbi={r.vbi} width={r.W} VA={r.VA} p={r.p} />)}</div><div className="table-wrap"><table><thead><tr><th>Case</th><th>Vₐ (V)</th><th>Barrier (eV)</th><th>Vbi (V)</th><th>Drop (V)</th><th>W (µm)</th></tr></thead><tbody>{rows.filter(r => selected[r.index]).map(r => <tr key={r.index}><td>{r.name}</td><td>{r.VA}</td><td>{fmt(r.phi)}</td><td>{'error' in r ? '—' : fmt(r.vbi)}</td><td>{'error' in r ? '—' : fmt(r.drop)}</td><td>{'error' in r ? '—' : fmt(P.um(r.W))}</td></tr>)}</tbody></table></div><Info intuition="Reverse bias increases n-side band bending and depletion width; forward bias reduces both. P-side depletion bends the bands in the opposite direction." model="The contact barrier is fixed in this idealized model, while the semiconductor depletion drop is Vbi − Vₐ for n-type." takeaway="Biased diagrams require distinct metal and semiconductor electrochemical potentials." derivation={['W_n=\\sqrt{2\\varepsilon_s(V_{bi}-V_A)/(qN_D)}', 'W_p=\\sqrt{2\\varepsilon_sV_{bi,p}/(qN_A)}', '\\Phi_{Bp}\\approx E_G-\\Phi_{Bn}\\quad\\text{only for the same ideal interface}']} /></DemoLayout>;
 }
 export function Capacitance() {
   const {
@@ -745,7 +838,8 @@ export function Capacitance() {
     const width = xs.map(([x]) => ([x, P.um(P.capacitance(v.ND, v.A, v.vbi, x, epsilon).W)] as [number, number]));
     const caps = xs.map(([x]) => ([x, P.capacitance(v.ND, v.A, v.vbi, x, epsilon).C * 1e12] as [number, number]));
     const inv = xs.map(([x]) => ([x, P.capacitance(v.ND, v.A, v.vbi, x, epsilon).invC2 / 1e24] as [number, number]));
-    return <DemoLayout controls={<Controls values={v} set={set} items={[{
+    return <DemoLayout calculation={<Calculation formula="C_j=\frac{\varepsilon_sA}{W}"
+substitution={String.raw`\frac{(${texSci(epsilon)})(${texSci(v.A)})}{${texSci(now.W)}}=${texSci(now.C)}\,\mathrm F=${fmt(now.C * 1e12, 2)}\,\mathrm{pF}`} />} controls={<Controls values={v} set={set} items={[{
       key: 'ND',
       label: 'Donor density',
       min: 1e15,
@@ -782,21 +876,21 @@ export function Capacitance() {
       max: 16,
       step: .1,
       unit: 'ε₀'
-    }].filter(control => control.key !== 'eps')} reset={reset}><div className="notice small">Depletion capacitance only. Diffusion capacitance and strong forward bias are excluded.</div></Controls>}><Metrics><Metric label="Depletion width" value={fmt(P.um(now.W), 3)} unit="µm" /><Metric label="Junction capacitance" value={fmt(now.C * 1e12, 2)} unit="pF" /><Metric label="1/C² slope" value={sci(now.slope)} unit="F⁻²/V" /><Metric label="Voltage intercept" value={fmt(now.intercept)} unit="V" /></Metrics><div className="graph-grid three"><Plot title="Depletion width" xLabel="Applied voltage (V)" yLabel="W (µm)" xDomain={[min, max]} yDomain={[0, width[0][1] * 1.1]} series={[{
+    }].filter(control => control.key !== 'eps')} reset={reset}><div className="notice small">Depletion capacitance only. Diffusion capacitance and strong forward bias are excluded.</div></Controls>}><Metrics><Metric label="Depletion width" value={fmt(P.um(now.W), 3)} unit="µm" /><Metric label="Junction capacitance" value={fmt(now.C * 1e12, 2)} unit="pF" /><Metric label="1/C² slope" value={sci(now.slope)} unit="F⁻²/V" /><Metric label="Voltage intercept" value={fmt(now.intercept)} unit="V" /></Metrics><div className="graph-grid three"><Plot title="Depletion width" points={[{ x: v.VA, y: P.um(now.W), label: `W ${fmt(P.um(now.W), 3)} µm`, color: blue, dx: 12, dy: -10 }]} xLabel="Applied voltage (V)" yLabel="W (µm)" xDomain={[min, max]} yDomain={[0, width[0][1] * 1.1]} series={[{
           name: 'W',
           color: blue,
           points: width
         }]} markers={[{
           x: v.VA,
           label: 'Selected bias'
-        }]} /><Plot title="Junction capacitance" xLabel="Applied voltage (V)" yLabel="C (pF)" xDomain={[min, max]} yDomain={[0, caps[caps.length - 1][1] * 1.1]} series={[{
+        }]} /><Plot title="Junction capacitance" points={[{ x: v.VA, y: now.C * 1e12, label: `C ${fmt(now.C * 1e12, 2)} pF`, color: green, dx: 12, dy: -10 }]} xLabel="Applied voltage (V)" yLabel="C (pF)" xDomain={[min, max]} yDomain={[0, caps[caps.length - 1][1] * 1.1]} series={[{
           name: 'C',
           color: green,
           points: caps
         }]} markers={[{
           x: v.VA,
           label: 'Selected bias'
-        }]} /><Plot title="Inverse capacitance squared" xLabel="Applied voltage (V)" yLabel="1/C² (10²⁴ F⁻²)" xDomain={[min, v.vbi]} yDomain={[0, inv[0][1] * 1.1]} series={[{
+        }]} /><Plot title="Inverse capacitance squared" points={[{ x: v.VA, y: now.invC2 / 1e24, label: `1/C² ${fmt(now.invC2 / 1e24, 2)} ×10²⁴ F⁻²`, color: orange, dx: 12, dy: -10 }, { x: (min + max) / 2, y: P.capacitance(v.ND, v.A, v.vbi, (min + max) / 2, epsilon).invC2 / 1e24, label: `Slope ${sci(now.slope)} F⁻²/V`, color: orange, dx: -12, dy: 15 }]} xLabel="Applied voltage (V)" yLabel="1/C² (10²⁴ F⁻²)" xDomain={[min, v.vbi]} yDomain={[0, inv[0][1] * 1.1]} series={[{
           name: '1/C²',
           color: orange,
           points: [...inv, [v.vbi, 0]]

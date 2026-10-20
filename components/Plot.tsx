@@ -3,12 +3,26 @@
 import { scaleLinear } from 'd3-scale';
 import { line } from 'd3-shape';
 import { useState } from 'react';
+import { useChangeHighlight } from './useChangeHighlight';
 
 export type Series = { name: string; color: string; points: [number, number][]; dash?: boolean };
 type Marker = { x: number; label: string };
 type Zone = { from: number; to: number; color: string };
+export type EnergyBracket = { x: number; from: number; to: number; label: string; color?: string; dashed?: boolean; guideFromX?: number; guideToX?: number; side?: 'left' | 'right'; labelDy?: number };
+export type PointLabel = { x: number; y: number; label: string; color?: string; dx?: number; dy?: number };
+export type SpanLabel = { from: number; to: number; y: number; label: string; color?: string };
 
-export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel = '', xDomain, yDomain, markers = [], zones = [], height = 310, onInspect }: {
+type PlacedLabel = { key: string; label: string; x: number; y: number; width: number; anchorX: number; anchorY: number; color: string };
+
+function MeasurementLabel({ label }: { label: PlacedLabel }) {
+  const highlighted = useChangeHighlight(label.label);
+  return <g fill={label.color} stroke={label.color}>
+    <line x1={label.anchorX} y1={label.anchorY} x2={Math.max(label.x, Math.min(label.anchorX, label.x + label.width))} y2={label.y - 5} strokeWidth="1" />
+    <text className={highlighted && /\d/.test(label.label) ? 'plot-number-updated' : undefined} x={label.x} y={label.y} fontSize="11" fontWeight="700" stroke="white" strokeWidth="3" paintOrder="stroke">{label.label}</text>
+  </g>;
+}
+
+export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel = '', xDomain, yDomain, markers = [], zones = [], brackets = [], points = [], spans = [], height = 260, onInspect }: {
   title: string;
   series: Series[];
   xLabel?: string;
@@ -17,6 +31,9 @@ export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel 
   yDomain: [number, number];
   markers?: Marker[];
   zones?: Zone[];
+  brackets?: EnergyBracket[];
+  points?: PointLabel[];
+  spans?: SpanLabel[];
   height?: number;
   onInspect?: (x: number) => string;
 }) {
@@ -28,9 +45,49 @@ export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel 
   const yTicks = Y.ticks(5);
   const xTicks = X.ticks(6);
   const tickLabel = (value: number) => Math.abs(value) >= 1000 ? value.toExponential(0) : Number(value.toPrecision(2));
+  const labelSeeds = [
+    ...markers.filter(marker => marker.x >= xDomain[0] && marker.x <= xDomain[1]).map((marker, index) => ({
+      key: `marker-${index}`, label: marker.label, anchorX: X(marker.x), anchorY: top + 8,
+      preferredX: X(marker.x) + 8, preferredY: top + 14, color: '#8c6023'
+    })),
+    ...spans.map((span, index) => ({
+      key: `span-${index}`, label: span.label, anchorX: (X(span.from) + X(span.to)) / 2, anchorY: Y(span.y),
+      preferredX: (X(span.from) + X(span.to)) / 2 - span.label.length * 3.1,
+      preferredY: Y(span.y) - 9, color: span.color ?? '#446a77'
+    })),
+    ...brackets.map((bracket, index) => ({
+      key: `bracket-${index}`, label: bracket.label, anchorX: X(bracket.x),
+      anchorY: (Y(bracket.from) + Y(bracket.to)) / 2,
+      preferredX: X(bracket.x) + (bracket.side === 'left' ? -bracket.label.length * 6.2 - 9 : 9),
+      preferredY: (Y(bracket.from) + Y(bracket.to)) / 2 + (bracket.labelDy ?? 0) + 3,
+      color: bracket.color ?? '#6e4ba3'
+    })),
+    ...points.map((point, index) => ({
+      key: `point-${index}`, label: point.label, anchorX: X(point.x), anchorY: Y(point.y),
+      preferredX: X(point.x) + (point.dx ?? 10) + ((point.dx ?? 10) < 0 ? -point.label.length * 6.2 : 3),
+      preferredY: Y(point.y) + (point.dy ?? -10) - 3, color: point.color ?? '#345e6b'
+    }))
+  ];
+  const placed: PlacedLabel[] = [];
+  for (const seed of labelSeeds) {
+    const width = Math.min(230, seed.label.length * 6.2 + 5);
+    const candidates = [0, -17, 17, -34, 34, -51, 51, -68, 68];
+    let best: { x: number; y: number; penalty: number } | null = null;
+    for (const dy of candidates) {
+      for (const dx of [0, -24, 24, -72, 72, -130, 130]) {
+        const x = Math.max(left + 4, Math.min(w - right - width - 3, seed.preferredX + dx));
+        const y = Math.max(top + 12, Math.min(h - bottom - 4, seed.preferredY + dy));
+        const overlaps = placed.filter(other => x < other.x + other.width + 5 && x + width + 5 > other.x && y - 13 < other.y + 4 && y + 4 > other.y - 13).length;
+        const penalty = overlaps * 10000 + Math.abs(dx) + Math.abs(dy) * 1.4;
+        if (!best || penalty < best.penalty) best = { x, y, penalty };
+      }
+    }
+    placed.push({ ...seed, x: best!.x, y: best!.y, width });
+  }
 
   return <div className="plot-card">
     <div className="plot-title"><b>{title}</b><span>{yLabel}</span></div>
+    <div className="plot-visual">
     <svg viewBox={`0 0 ${w} ${h}`} role="img" aria-label={title}
       onMouseMove={event => {
         const bounds = event.currentTarget.getBoundingClientRect();
@@ -50,13 +107,39 @@ export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel 
       <line x1={left} x2={w - right} y1={h - bottom} y2={h - bottom} stroke="#a9b3bb" />
       <line x1={left} x2={left} y1={top} y2={h - bottom} stroke="#a9b3bb" />
       {series.map(item => <path key={item.name} d={makeLine(item.points) || ''} fill="none" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash ? '6 5' : undefined} vectorEffect="non-scaling-stroke" />)}
+      {spans.map((span, index) => {
+        const y = Y(span.y), x1 = X(span.from), x2 = X(span.to), color = span.color ?? '#446a77';
+        return <g key={`span-${index}`} stroke={color} fill={color}>
+          <line x1={x1} x2={x2} y1={y} y2={y} strokeWidth="1.6" />
+          <line x1={x1} x2={x1} y1={y - 5} y2={y + 5} strokeWidth="1.6" />
+          <line x1={x2} x2={x2} y1={y - 5} y2={y + 5} strokeWidth="1.6" />
+        </g>;
+      })}
+      {brackets.map((bracket, index) => {
+        const x = X(bracket.x), upper = Y(Math.max(bracket.from, bracket.to)), lower = Y(Math.min(bracket.from, bracket.to));
+        const color = bracket.color ?? '#6e4ba3';
+        return <g key={`bracket-${index}`} stroke={color} fill={color}>
+          {bracket.guideFromX !== undefined && <line x1={x} x2={X(bracket.guideFromX)} y1={Y(bracket.from)} y2={Y(bracket.from)} strokeWidth="1" strokeDasharray="3 3" />}
+          {bracket.guideToX !== undefined && <line x1={x} x2={X(bracket.guideToX)} y1={Y(bracket.to)} y2={Y(bracket.to)} strokeWidth="1" strokeDasharray="3 3" />}
+          <line x1={x} x2={x} y1={upper} y2={lower} strokeWidth="2" strokeDasharray={bracket.dashed ? '4 3' : undefined} />
+          <line x1={x - 5} x2={x + 5} y1={upper} y2={upper} stroke={color} strokeWidth="2" />
+          <line x1={x - 5} x2={x + 5} y1={lower} y2={lower} stroke={color} strokeWidth="2" />
+        </g>;
+      })}
+      {points.map((point, index) => {
+        const x = X(point.x), y = Y(point.y), color = point.color ?? '#345e6b';
+        return <g key={`point-${index}`} stroke={color} fill={color}>
+          <circle cx={x} cy={y} r="3.5" fill="white" strokeWidth="2" />
+        </g>;
+      })}
       {markers.filter(marker => marker.x >= xDomain[0] && marker.x <= xDomain[1]).map((marker, index) => <g key={index}>
         <line x1={X(marker.x)} x2={X(marker.x)} y1={top} y2={h - bottom} stroke="#9b6c2b" strokeDasharray="4 4" />
-        <text x={Math.min(X(marker.x) + 5, w - 112)} y={top + 13} fill="#8c6023" fontSize="11">{marker.label}</text>
       </g>)}
+      {placed.map(label => <MeasurementLabel key={label.key} label={label} />)}
       {hover !== null && <line x1={X(hover)} x2={X(hover)} y1={top} y2={h - bottom} stroke="#657381" strokeDasharray="3 3" />}
       <text x={(left + w - right) / 2} y={h - 5} textAnchor="middle" fill="#84919b" fontSize="11">{xLabel}</text>
     </svg>
+    </div>
     <div className="plot-footer">
       <div className="legend">{series.map(item => <span key={item.name}><i style={{ background: item.color }} />{item.name}</span>)}</div>
       <span className="inspect">{hover === null ? 'Hover to inspect' : onInspect ? onInspect(hover) : `x = ${hover.toFixed(3)} µm`}</span>

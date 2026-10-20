@@ -4,12 +4,18 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { Doping, JunctionModels, PNDepletion, BuiltIn, Degenerate, DegenerateJunctions, Schottky, SchottkyBias, Capacitance } from './Demos';
+import { DriftDiffusion, MinorityDiffusion, IdealDiode, ContinuityEquation, QuasiFermiLevels } from './TransportDemos';
 
 const pages = [
   { slug: 'doping', title: 'Doping profile', subtitle: 'Donors, acceptors, and the metallurgical junction', group: 'Doping & PN junctions', Component: Doping },
   { slug: 'junction-models', title: 'Junction models', subtitle: 'Abrupt and linearly graded profiles', group: 'Doping & PN junctions', Component: JunctionModels },
   { slug: 'pn-depletion', title: 'PN depletion', subtitle: 'Charge, electric field, and potential', group: 'Doping & PN junctions', Component: PNDepletion },
   { slug: 'built-in-potential', title: 'Built-in potential', subtitle: 'Doping and equilibrium band bending', group: 'Doping & PN junctions', Component: BuiltIn },
+  { slug: 'drift-diffusion', title: 'Drift & diffusion', subtitle: 'Carrier current and the Einstein relation', group: 'Carrier transport', Component: DriftDiffusion },
+  { slug: 'minority-diffusion', title: 'Minority diffusion', subtitle: 'Recombination lifetime and diffusion length', group: 'Carrier transport', Component: MinorityDiffusion },
+  { slug: 'continuity', title: 'Continuity equation', subtitle: 'Current divergence and carrier balance', group: 'Carrier transport', Component: ContinuityEquation },
+  { slug: 'ideal-diode', title: 'Ideal PN diode', subtitle: 'Minority injection and current–voltage response', group: 'Carrier transport', Component: IdealDiode },
+  { slug: 'quasi-fermi', title: 'Fermi & quasi-Fermi levels', subtitle: 'Equilibrium and injected carrier populations', group: 'Carrier statistics', Component: QuasiFermiLevels },
   { slug: 'degenerate-doping', title: 'Degenerate doping', subtitle: 'Fermi level and carrier statistics', group: 'Carrier statistics', Component: Degenerate },
   { slug: 'degenerate-junctions', title: 'Degenerate junctions', subtitle: 'PN, P⁺N, and N⁺P contacts', group: 'Carrier statistics', Component: DegenerateJunctions },
   { slug: 'schottky', title: 'Schottky contact', subtitle: 'Metal–semiconductor barrier formation', group: 'Metal contacts', Component: Schottky },
