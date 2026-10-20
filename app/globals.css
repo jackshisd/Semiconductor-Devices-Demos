@@ -77,6 +77,10 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .calculation-pair > div { min-width: 0; }
 .calculation-pair > div + div { border-top: 1px solid #e5edeb; padding-top: 7px; }
 .calculation-pair > div > span { display: block; color: #7b898d; font-size: 10px; }
+.calculation-forms { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; }
+.calculation-form { min-width: 0; padding: 12px; border: 1px solid #e5edeb; border-radius: 8px; background: #f8fbfa; }
+.calculation-form > span { display: block; color: #62777a; font-size: 11px; font-weight: 650; }
+.calculation-form .calculation-math { font-size: clamp(15px, .95vw, 19px); }
 .calculation-math { overflow-x: auto; padding: 8px 0 6px; color: #233d43; font-size: clamp(19px, 1.15vw, 27px); white-space: nowrap; transition: color .25s, background-color .25s; }
 .calculation-math .formula-number-updated { color: #086b48; background: #d9f2e2; border-radius: 4px; box-shadow: 0 0 0 4px #d9f2e2; }
 .calculation-math .katex-display { margin: 0; text-align: left; }
@@ -109,6 +113,10 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .schottky-case-grid { display: flex; flex-wrap: wrap; justify-content: center; }
 .graph-grid.schottky-case-grid > .plot-card, .graph-grid.schottky-case-grid > .error-box { flex: 1 1 calc(50% - 12px); max-width: 760px; }
 .graph-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1840px; }
+.page-junction-models .graph-grid.three { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 1600px; }
+.page-junction-models .graph-grid.three > .plot-card:last-child { grid-column: 1 / -1; max-width: 1000px; }
+.page-built-in-potential .graph-grid { grid-template-columns: minmax(0, 1fr); max-width: 1200px; }
+.page-built-in-potential .plot-card { max-width: 1200px; }
 .plot-card { min-width: 0; max-width: 800px; width: 100%; margin-inline: auto; padding: clamp(14px, 1vw, 24px); border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 10px 32px #294b4a08; }
 .spectrum-card { max-width: 1560px; }
 .continuity-card { max-width: 1550px; margin: clamp(12px, .9vw, 20px) auto; }
@@ -176,6 +184,16 @@ td { color: #2f3b45; }
 .derivation summary { padding: 14px 0; cursor: pointer; list-style: none; font-size: 12px; font-weight: 650; }
 .derivation summary span { float: right; color: #8a97a1; }
 .math { overflow: auto; padding: 10px 0; color: #35424c; font-size: 12px; border-top: 1px solid #f0f2f4; }
+.model-breakdown { margin: 24px auto; max-width: 1550px; }
+.model-breakdown h2 { margin: 0 0 6px; font-size: clamp(20px, 1.2vw, 28px); letter-spacing: -.03em; }
+.model-breakdown > p { margin: 0 0 15px; color: var(--muted); font-size: 12px; line-height: 1.5; }
+.model-breakdown-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 12px; }
+.model-breakdown-grid article { min-width: 0; padding: 16px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }
+.model-breakdown-number { color: #7c9697; font-size: 11px; font-weight: 700; }
+.model-breakdown-grid h3 { margin: 7px 0 11px; font-size: 15px; }
+.model-breakdown-grid .math { min-height: 54px; }
+.model-breakdown-grid strong { display: block; margin-top: 12px; color: #1d5e72; font-size: 16px; font-variant-numeric: tabular-nums; }
+.model-breakdown-grid article p { margin: 9px 0 0; color: #5f7079; font-size: 12px; line-height: 1.5; }
 
 .hero { padding: clamp(48px, 5vw, 130px) clamp(30px, 3vw, 80px); border: 1px solid #d9e6e4; border-radius: 18px; background: radial-gradient(circle at 86% 12%, #d7eee9 0, transparent 29%), linear-gradient(130deg, #fff, #eef7f5); }
 .hero h1 { margin: 9px 0 12px; font-size: clamp(40px, 3.6vw, 96px); font-weight: 700; letter-spacing: -.055em; line-height: 1.07; }
@@ -195,6 +213,8 @@ td { color: #2f3b45; }
 
 @media (max-width: 1350px) {
   .graph-grid.three { grid-template-columns: 1fr; }
+  .page-junction-models .graph-grid.three { grid-template-columns: 1fr; }
+  .page-junction-models .graph-grid.three > .plot-card:last-child { grid-column: auto; }
 }
 @media (max-width: 1100px) {
   .sidebar { width: 190px; }

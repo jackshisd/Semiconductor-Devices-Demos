@@ -32,7 +32,12 @@ export const texSci = (n: number) => {
   const [mantissa, exponent] = n.toExponential(2).split('e');
   return `${Number(mantissa)}\\times10^{${Number(exponent)}}`;
 };
-export function Calculation({ formula, substitution, title = 'Live calculation' }: { formula: string; substitution: string; title?: string }) {
+export function Calculation({ formula, forms, substitution, title = 'Live calculation' }: {
+  formula?: string;
+  forms?: { label: string; formula: string }[];
+  substitution: string;
+  title?: string;
+}) {
   const previous = useRef(substitution);
   const [displayed, setDisplayed] = useState(substitution);
   useEffect(() => {
@@ -46,7 +51,12 @@ export function Calculation({ formula, substitution, title = 'Live calculation' 
   return <section className="calculation" aria-label={title}>
     <div className="calculation-heading">{title}</div>
     <div className="calculation-pair">
-      <div><span>Formula</span><div className="calculation-math" dangerouslySetInnerHTML={render(formula)} /></div>
+      {forms ? <div className="calculation-forms">{forms.map(form =>
+        <div className="calculation-form" key={form.label}>
+          <span>{form.label}</span>
+          <div className="calculation-math" dangerouslySetInnerHTML={render(form.formula)} />
+        </div>
+      )}</div> : formula && <div><span>Formula</span><div className="calculation-math" dangerouslySetInnerHTML={render(formula)} /></div>}
       <div><span>With current values</span><div className="calculation-math" dangerouslySetInnerHTML={render(displayed)} /></div>
     </div>
   </section>;
@@ -162,6 +172,7 @@ const dopControls: Control[] = [{
   unit: 'µm'
 }];
 export function Doping() {
+  const [log, setLog] = useState(true);
   const {
     v,
     set,
@@ -171,7 +182,7 @@ export function Doping() {
     ND: 1e16,
     L: 1
   });
-  const curves = true, junction = true, log = true;
+  const curves = true, junction = true;
   try {
     const xj = P.junctionPosition(v.NA0, v.ND, v.L),
       max = 5,
@@ -183,7 +194,7 @@ export function Doping() {
     const low = log ? Math.floor(Math.log10(Math.min(v.ND, v.NA0 * Math.exp(-max / v.L)))) : 0,
       high = log ? Math.ceil(Math.log10(Math.max(v.NA0, v.ND))) : Math.max(v.NA0, v.ND) / 1e18 * 1.05;
     return <DemoLayout calculation={<Calculation formula="x_j=L\ln\left(\frac{N_{A0}}{N_D}\right)"
-substitution={String.raw`${fmt(v.L, 2)}\,\mu\mathrm m\cdot\ln\left(\frac{${texSci(v.NA0)}}{${texSci(v.ND)}}\right)=${fmt(xj, 2)}\,\mu\mathrm m`} />} controls={<Controls values={v} set={set} items={dopControls} reset={reset}></Controls>}><Metrics><Metric label="Metallurgical junction" value={jd ? fmt(xj, 2) : 'Outside bar'} unit={jd ? 'µm' : ''} /><Metric label="P-type length" value={fmt(Math.max(0, Math.min(max, xj)), 2)} unit="µm" /><Metric label="N-type length" value={fmt(max - Math.max(0, Math.min(max, xj)), 2)} unit="µm" /></Metrics><div className="silicon-bar"><div style={{
+substitution={String.raw`${fmt(v.L, 2)}\,\mu\mathrm m\cdot\ln\left(\frac{${texSci(v.NA0)}}{${texSci(v.ND)}}\right)=${fmt(xj, 2)}\,\mu\mathrm m`} />} controls={<Controls values={v} set={set} items={dopControls} reset={() => { reset(); setLog(true); }}><Toggle label="Logarithmic concentration axis" checked={log} onChange={setLog} /></Controls>}><Metrics><Metric label="Metallurgical junction" value={jd ? fmt(xj, 2) : 'Outside bar'} unit={jd ? 'µm' : ''} /><Metric label="P-type length" value={fmt(Math.max(0, Math.min(max, xj)), 2)} unit="µm" /><Metric label="N-type length" value={fmt(max - Math.max(0, Math.min(max, xj)), 2)} unit="µm" /></Metrics><div className="silicon-bar"><div style={{
           width: `${100 * Math.max(0, Math.min(max, xj)) / max}%`
         }} className="pbar">P-TYPE</div><div className="nbar">N-TYPE</div></div><div className="graph-grid"><Plot title="Individual doping concentrations" points={[{ x: 0, y: log ? Math.log10(v.NA0) : v.NA0 / 1e18, label: `NA(0) ${sci(v.NA0)} cm⁻³`, color: orange, dx: 12, dy: 18 }, { x: 0, y: log ? Math.log10(v.ND) : v.ND / 1e18, label: `ND ${sci(v.ND)} cm⁻³`, color: blue, dx: 12, dy: -9 }]} yLabel={log ? 'log₁₀ concentration (cm⁻³)' : 'Concentration (10¹⁸ cm⁻³)'} series={curves ? [{
           name: 'Nₐ',
@@ -264,6 +275,50 @@ const pnControls: Control[] = [{
   step: 1,
   unit: 'K'
 }];
+function PNModelBreakdown({ d, NA, ND, VA }: {
+  d: ReturnType<typeof P.pnDepletion>;
+  NA: number;
+  ND: number;
+  VA: number;
+}) {
+  const steps = [
+    {
+      title: 'Built-in voltage',
+      equation: String.raw`V_{bi}=V_T\ln\!\left(\frac{N_AN_D}{n_i^2}\right)`,
+      value: `${fmt(d.vbi, 3)} V`,
+      detail: 'Doping and temperature set the equilibrium junction barrier.',
+    },
+    {
+      title: 'Depletion drop',
+      equation: String.raw`V_{dep}=V_{bi}-V_A`,
+      value: `${fmt(d.drop, 3)} V`,
+      detail: VA > 0 ? 'Forward bias reduces the drop and narrows the depletion region.' : VA < 0 ? 'Reverse bias increases the drop and widens the depletion region.' : 'At zero applied bias, the drop equals the built-in voltage.',
+    },
+    {
+      title: 'Charge balance and width',
+      equation: String.raw`N_Ax_p=N_Dx_n,\quad W=x_p+x_n`,
+      value: `xₚ ${fmt(P.um(d.xp), 3)} µm · xₙ ${fmt(P.um(d.xn), 3)} µm`,
+      detail: `${NA < ND ? 'P' : ND < NA ? 'N' : 'Both'}${NA === ND ? ' sides extend equally.' : ' side extends farther because it is more lightly doped.'} Total width: ${fmt(P.um(d.W), 3)} µm.`,
+    },
+    {
+      title: 'Field from fixed charge',
+      equation: String.raw`\frac{d\mathcal E}{dx}=\frac{\rho}{\varepsilon_s},\quad |\mathcal E|_{max}=\frac{qN_Ax_p}{\varepsilon_s}`,
+      value: `${sci(d.Emax)} V/cm`,
+      detail: 'Ionized dopants make the charge flat on each side, the field triangular, and the potential curved.',
+    },
+  ];
+  return <section className="model-breakdown" aria-label="PN junction model breakdown">
+    <h2>PN junction model breakdown</h2>
+    <p>One-dimensional abrupt junction · Boltzmann built-in voltage · depletion approximation · fully ionized dopants · negligible mobile charge in the depleted region.</p>
+    <div className="model-breakdown-grid">{steps.map((step, index) => <article key={step.title}>
+      <span className="model-breakdown-number">{String(index + 1).padStart(2, '0')}</span>
+      <h3>{step.title}</h3>
+      <MathLine s={step.equation} />
+      <strong>{step.value}</strong>
+      <p>{step.detail}</p>
+    </article>)}</div>
+  </section>;
+}
 export function PNDepletion() {
   const {
     v,
@@ -303,7 +358,7 @@ substitution={String.raw`10^4\sqrt{\frac{2(${texSci(P.epsSi)})}{${texSci(P.q)}}\
           name: 'V(x)',
           color: green,
           points: conv(x => f(x).V)
-        }]} /></div><Info intuition="Diffusing carriers leave fixed ions near the interface. The resulting electric field opposes further diffusion." model="Charge neutrality sets the side widths; Poisson's equation determines the electric field and potential." takeaway="The depletion region reaches farther into the more lightly doped side. Forward bias narrows it." derivation={['N_Ax_p=N_Dx_n,\\qquad W=x_p+x_n', 'W=\\sqrt{\\frac{2\\varepsilon_s}{q}\\left(\\frac1{N_A}+\\frac1{N_D}\\right)(V_{bi}-V_A)}', 'E_{max}=\\frac{qN_Ax_p}{\\varepsilon_s}=\\frac{qN_Dx_n}{\\varepsilon_s}']} /></DemoLayout>;
+        }]} /></div><PNModelBreakdown d={d} NA={v.NA} ND={v.ND} VA={v.VA} /><Info intuition="Diffusing carriers leave fixed ions near the interface. The resulting electric field opposes further diffusion." model="Charge neutrality sets the side widths; Poisson's equation determines the electric field and potential." takeaway="The depletion region reaches farther into the more lightly doped side. Forward bias narrows it." derivation={['N_Ax_p=N_Dx_n,\\qquad W=x_p+x_n', 'W=\\sqrt{\\frac{2\\varepsilon_s}{q}\\left(\\frac1{N_A}+\\frac1{N_D}\\right)(V_{bi}-V_A)}', 'E_{max}=\\frac{qN_Ax_p}{\\varepsilon_s}=\\frac{qN_Dx_n}{\\varepsilon_s}']} /></DemoLayout>;
   } catch (e) {
     return <DemoLayout controls={<Controls values={v} set={set} items={pnControls} reset={reset} />}><ErrorBox error={e} /></DemoLayout>;
   }
@@ -316,17 +371,21 @@ export function JunctionModels() {
   } = useParams({
     NA: 1e17,
     ND: 1e17,
-    a: 1e18
+    a: 2e17
   });
   const [model, M] = useState('both');
   const smooth = false, ideal = true;
   const x = pts(-1, 1, 200, z => z),
-    abrupt = x.map(([z]) => ([z, z < 0 ? -v.NA / 1e17 : v.ND / 1e17] as [number, number])),
-    graded = x.map(([z]) => ([z, v.a * z / 1e18] as [number, number])),
-    actual = x.map(([z]) => ([z, (v.ND + v.NA) / 2e17 * Math.tanh(z / .09) + (v.ND - v.NA) / 2e17] as [number, number]));
+    abrupt = x.map(([z]) => ([z, z < 0 ? -v.NA : v.ND] as [number, number])),
+    graded = x.map(([z]) => ([z, v.a * z] as [number, number])),
+    actual = x.map(([z]) => ([z, (v.ND + v.NA) / 2 * Math.tanh(z / .09) + (v.ND - v.NA) / 2] as [number, number]));
   // Use a reference depleted span of 1.3 µm. Charge neutrality determines its unequal side widths.
   const xp = 1.3 * v.ND / (v.NA + v.ND), xn = 1.3 - xp;
-  const abruptField = (z: number) => z < -xp || z > xn ? 0 : z < 0 ? -(z + xp) / xp : -(xn - z) / xn;
+  const fieldScale = P.q * 1e-4 / P.epsSi; // x is in µm; the field is in V/cm.
+  const gradedHalfWidth = .65;
+  const abruptField = (z: number) => z < -xp || z > xn ? 0 : z < 0 ? -fieldScale * v.NA * (z + xp) : -fieldScale * v.ND * (xn - z);
+  const gradedField = (z: number) => Math.abs(z) < gradedHalfWidth ? fieldScale * v.a * (z * z - gradedHalfWidth * gradedHalfWidth) / 2 : 0;
+  const fieldMin = Math.min(model === 'graded' ? 0 : abruptField(0), model === 'abrupt' ? 0 : gradedField(0));
   const series: Series[] = [...(ideal && model !== 'graded' ? [{
     name: 'Abrupt',
     color: orange,
@@ -341,6 +400,8 @@ export function JunctionModels() {
     points: actual,
     dash: true
   }] : [])];
+  const concentrationMin = -Math.max(model === 'graded' ? 0 : v.NA, model === 'abrupt' ? 0 : v.a) * 1.2;
+  const concentrationMax = Math.max(model === 'graded' ? 0 : v.ND, model === 'abrupt' ? 0 : v.a) * 1.2;
   return <DemoLayout calculation={<Calculation formula={model === 'graded' ? 'N_{net}(x)=ax' : model === 'abrupt' ? 'N_{net}(x<0)=-N_A' : String.raw`\begin{aligned}N_{abrupt}(x<0)&=-N_A\\N_{graded}(x)&=ax\end{aligned}`}
 substitution={model === 'graded' ? String.raw`${texSci(v.a)}(-0.5)=${texSci(-v.a / 2)}\,\mathrm{cm}^{-3}` : model === 'abrupt' ? String.raw`-${texSci(v.NA)}=${texSci(-v.NA)}\,\mathrm{cm}^{-3}` : String.raw`\begin{aligned}-(${texSci(v.NA)})&=${texSci(-v.NA)}\\(${texSci(v.a)})(-0.5)&=${texSci(-v.a / 2)}\end{aligned}\,\mathrm{cm}^{-3}`} />} controls={<Controls values={v} set={set} items={[{
     key: 'NA',
@@ -375,24 +436,24 @@ substitution={model === 'graded' ? String.raw`${texSci(v.a)}(-0.5)=${texSci(-v.a
     }, {
       value: 'both',
       label: 'Overlay'
-    }]} value={model} set={M} /></Controls>}><div className="graph-grid three"><Plot title="Net dopant concentration" points={[...(model !== 'graded' ? [{ x: -.5, y: -v.NA / 1e17, label: `Abrupt ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2e18, label: `Graded ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="Nᴅ − Nₐ (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series} markers={[{
+    }]} value={model} set={M} /></Controls>}><div className="graph-grid three"><Plot title="Net dopant concentration" points={[...(model !== 'graded' ? [{ x: -.5, y: -v.NA, label: `Abrupt ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2, label: `Graded ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="Nᴅ − Nₐ (cm⁻³)" xDomain={[-1, 1]} yDomain={[concentrationMin, concentrationMax]} series={series} markers={[{
         x: 0,
         label: 'Junction'
-      }]} /><Plot title="Depletion-region charge" points={[...(model !== 'graded' ? [{ x: -xp / 2, y: -v.NA / 1e17, label: `ρ/q ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2e18, label: `ρ/q ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="ρ/q (10¹⁷ cm⁻³)" xDomain={[-1, 1]} yDomain={[-Math.max(v.NA / 1e17, v.a / 1e18) * 1.2, Math.max(v.ND / 1e17, v.a / 1e18) * 1.2]} series={series.map(s => ({
+      }]} /><Plot title="Depletion-region charge" points={[...(model !== 'graded' ? [{ x: -xp / 2, y: -v.NA, label: `ρ/q ${sci(-v.NA)} cm⁻³`, color: orange, dx: -12, dy: -10 }] : []), ...(model !== 'abrupt' ? [{ x: -.5, y: -v.a / 2, label: `ρ/q ${sci(-v.a / 2)} cm⁻³`, color: blue, dx: 12, dy: 16 }] : [])]} yLabel="ρ/q (cm⁻³)" xDomain={[-1, 1]} yDomain={[concentrationMin, concentrationMax]} series={series.map(s => ({
         ...s,
         points: s.points.map(([z, y]) => [z, s.name === 'Abrupt' ? (z >= -xp && z <= xn ? y : 0) : (Math.abs(z) < .65 ? y : 0)])
       }))} markers={[{
         x: 0,
         label: 'Junction'
-      }]} /><Plot title="Electric-field shape" points={[{ x: 0, y: -1, label: 'E(0) = −1 normalized', color: blue, dx: 12, dy: -10 }]} yLabel="Normalized E" xDomain={[-1, 1]} yDomain={[-1.1, .1]} series={[...(model !== 'graded' ? [{
+      }]} /><Plot title="Electric field" points={[{ x: 0, y: fieldMin, label: `Peak |E| ${sci(-fieldMin)} V/cm`, color: blue, dx: 12, dy: -10 }]} yLabel="E (V/cm)" xDomain={[-1, 1]} yDomain={[fieldMin * 1.1, -fieldMin * .1]} series={[...(model !== 'graded' ? [{
         name: 'Abrupt: triangular',
         color: orange,
         points: x.map(([z]) => ([z, abruptField(z)] as [number, number]))
       }] : []), ...(model !== 'abrupt' ? [{
         name: 'Graded: parabolic',
         color: blue,
-        points: x.map(([z]) => ([z, Math.abs(z) < .65 ? -(1 - (z / .65) ** 2) : 0] as [number, number]))
-      }] : [])]} /></div><Info intuition="An abrupt junction changes dopant type sharply. A graded junction crosses through zero gradually." model="Within depletion, fixed ionized dopants set ρ ≈ q(Nᴅ−Nₐ). Neutral regions contain compensating mobile carriers, so their net charge is near zero." takeaway="Abrupt charge makes a triangular field; linear charge makes a parabolic field." derivation={['\\rho(x)\\approx q(N_D-N_A)\\quad\\text{inside depletion}', '\\frac{d\\mathcal E}{dx}=\\frac{\\rho}{\\varepsilon_s}', '\\rho\\propto x\\quad\\Rightarrow\\quad \\mathcal E\\propto x^2']} /></DemoLayout>;
+        points: x.map(([z]) => ([z, gradedField(z)] as [number, number]))
+      }] : [])]} /></div><Info intuition="An abrupt junction changes dopant type sharply. A graded junction crosses through zero gradually." model="Within depletion, fixed ionized dopants set ρ ≈ q(Nᴅ−Nₐ). The field is shown in V/cm for the model's fixed 1.3 µm depletion span. Neutral regions contain compensating mobile carriers, so their net charge is near zero." takeaway="Abrupt charge makes a triangular field; linear charge makes a parabolic field." derivation={['\\rho(x)\\approx q(N_D-N_A)\\quad\\text{inside depletion}', '\\frac{d\\mathcal E}{dx}=\\frac{\\rho}{\\varepsilon_s}', '\\rho\\propto x\\quad\\Rightarrow\\quad \\mathcal E\\propto x^2']} /></DemoLayout>;
 }
 function Band({
   title,

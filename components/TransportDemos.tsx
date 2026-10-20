@@ -141,6 +141,7 @@ export function MinorityDiffusion() {
 }
 
 export function IdealDiode() {
+  const [logGraphs, setLogGraphs] = useState(true);
   const { v, set, reset } = useParams({ NA: 1e17, ND: 1e16, VA: .45, tau: 1e-6, T: 300 });
   const result = P.idealDiode(v.NA, v.ND, v.VA, v.T, v.tau);
   const nondegenerate = P.fermiOffset('p', v.NA, v.T).boltzmannValid && P.fermiOffset('n', v.ND, v.T).boltzmannValid;
@@ -153,21 +154,26 @@ export function IdealDiode() {
   const yMax = Math.max(logCurrent(biasRange[1]), Math.log10(result.J0)) + .5;
   const carrierMin = Math.min(logHole(biasRange[0]), logElectron(biasRange[0])) - .5;
   const carrierMax = Math.max(logHole(biasRange[1]), logElectron(biasRange[1])) + .5;
+  const currentY = (bias: number) => logGraphs ? logCurrent(bias) : diodeAt(bias).J;
+  const holeY = (bias: number) => logGraphs ? logHole(bias) : diodeAt(bias).pnEdge;
+  const electronY = (bias: number) => logGraphs ? logElectron(bias) : diodeAt(bias).npEdge;
+  const currentDomain: [number, number] = logGraphs ? [yMin, yMax] : [diodeAt(biasRange[0]).J * 1.1, diodeAt(biasRange[1]).J * 1.1];
+  const carrierDomain: [number, number] = logGraphs ? [carrierMin, carrierMax] : [0, Math.max(diodeAt(biasRange[1]).pnEdge, diodeAt(biasRange[1]).npEdge) * 1.1];
   return <DemoLayout calculation={<Calculation formula={String.raw`J=J_0\left(e^{V_A/V_T}-1\right)`}
     substitution={String.raw`J=(${texSci(result.J0)})\left[e^{${fmt(v.VA, 3)}/${fmt(P.thermalVoltage(v.T), 4)}}-1\right]=${texSci(result.J)}\,\mathrm{A/cm^2}`} />}
-    controls={<Controls values={v} set={set} reset={reset} items={[
+    controls={<Controls values={v} set={set} reset={() => { reset(); setLogGraphs(true); }} items={[
       dopingControl('NA', 'P-side acceptors'), dopingControl('ND', 'N-side donors'),
       { key: 'VA', label: 'Applied voltage', min: -.5, max: .65, step: .005, unit: 'V' },
       { key: 'tau', label: 'Minority lifetime', min: 1e-9, max: 1e-3, step: 1e-9, unit: 's', log: true },
       temperatureControl,
-    ]} />}>
+    ]}><Toggle label="Logarithmic graph axes" checked={logGraphs} onChange={setLogGraphs} /></Controls>}>
     <Metrics><Metric label="Current density J" value={sci(result.J)} unit="A/cm²" /><Metric label="Saturation density J₀" value={sci(result.J0)} unit="A/cm²" /><Metric label="N-side edge holes" value={sci(result.pnEdge)} unit="cm⁻³" /><Metric label="P-side edge electrons" value={sci(result.npEdge)} unit="cm⁻³" /></Metrics>
     {!result.lowInjection && <div className="notice">The selected forward bias violates the low-level-injection condition. The ideal diode equation is extrapolated outside its stated range.</div>}
     {!nondegenerate && <div className="notice">One side is within 3kT of a band edge. The Boltzmann boundary concentrations used by the ideal diode equation are inaccurate.</div>}
-    <div className="notice small">The current plot uses a logarithmic magnitude. Exactly zero current at 0 V is shown at a display floor of 10⁻⁶ J₀; the calculated current remains zero.</div>
+    {logGraphs && <div className="notice small">The current plot uses a logarithmic magnitude. Exactly zero current at 0 V is shown at a display floor of 10⁻⁶ J₀; the calculated current remains zero.</div>}
     <div className="graph-grid">
-      <Plot title="Ideal diode I–V" xLabel="Applied voltage (V)" yLabel="log₁₀ |J| (A/cm²)" xDomain={biasRange} yDomain={[yMin, yMax]} series={[{ name: 'Current magnitude', color: blue, points: pts(...biasRange, 180, logCurrent) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: logCurrent(v.VA), label: `J ${sci(result.J)} A/cm²`, color: blue }]} onInspect={bias => `J = ${sci(diodeAt(bias).J)} A/cm²`} />
-      <Plot title="Minority carriers at depletion edges" xLabel="Applied voltage (V)" yLabel="log₁₀ density (cm⁻³)" xDomain={biasRange} yDomain={[carrierMin, carrierMax]} series={[{ name: 'Holes on n side', color: orange, points: pts(...biasRange, 180, logHole) }, { name: 'Electrons on p side', color: purple, points: pts(...biasRange, 180, logElectron) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: logHole(v.VA), label: `pₙ ${sci(result.pnEdge)}`, color: orange }, { x: v.VA, y: logElectron(v.VA), label: `nₚ ${sci(result.npEdge)}`, color: purple }]} onInspect={bias => `pₙ = ${sci(diodeAt(bias).pnEdge)} · nₚ = ${sci(diodeAt(bias).npEdge)} cm⁻³`} />
+      <Plot title="Ideal diode I–V" xLabel="Applied voltage (V)" yLabel={logGraphs ? 'log₁₀ |J| (A/cm²)' : 'J (A/cm²)'} xDomain={biasRange} yDomain={currentDomain} series={[{ name: logGraphs ? 'Current magnitude' : 'Current density', color: blue, points: pts(...biasRange, 180, currentY) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: currentY(v.VA), label: `J ${sci(result.J)} A/cm²`, color: blue }]} onInspect={bias => `J = ${sci(diodeAt(bias).J)} A/cm²`} />
+      <Plot title="Minority carriers at depletion edges" xLabel="Applied voltage (V)" yLabel={logGraphs ? 'log₁₀ density (cm⁻³)' : 'Density (cm⁻³)'} xDomain={biasRange} yDomain={carrierDomain} series={[{ name: 'Holes on n side', color: orange, points: pts(...biasRange, 180, holeY) }, { name: 'Electrons on p side', color: purple, points: pts(...biasRange, 180, electronY) }]} markers={[{ x: v.VA, label: `Vₐ ${fmt(v.VA, 3)} V` }]} points={[{ x: v.VA, y: holeY(v.VA), label: `pₙ ${sci(result.pnEdge)}`, color: orange }, { x: v.VA, y: electronY(v.VA), label: `nₚ ${sci(result.npEdge)}`, color: purple }]} onInspect={bias => `pₙ = ${sci(diodeAt(bias).pnEdge)} · nₚ = ${sci(diodeAt(bias).npEdge)} cm⁻³`} />
     </div>
     <Info intuition="Forward bias lowers the junction barrier, so minority-carrier injection grows exponentially. Reverse bias removes minority carriers from the edges and approaches a nearly constant reverse current." model="The ideal long-base step-junction model uses low-level injection, steady state, complete ionization, negligible depletion-region recombination, and constant 300 K reference mobilities scaled only through the Einstein relation." takeaway="A change of roughly 60 mV produces a decade of forward-current change near 300 K when the exponential term dominates." derivation={[String.raw`n_{p0}=\frac{n_i^2}{N_A},\quad p_{n0}=\frac{n_i^2}{N_D}`, String.raw`n_p(-x_p)=n_{p0}e^{V_A/V_T},\quad p_n(x_n)=p_{n0}e^{V_A/V_T}`, String.raw`J_0=qn_i^2\left(\frac{D_n}{L_nN_A}+\frac{D_p}{L_pN_D}\right)`, String.raw`J=J_0(e^{V_A/V_T}-1),\quad L_{n,p}=\sqrt{D_{n,p}\tau}`]} />
   </DemoLayout>;
@@ -183,8 +189,21 @@ export function ContinuityEquation() {
   const rates = [r.electronRate / scale, r.holeRate / scale, r.pairRate / scale];
   const rateMin = Math.min(0, ...rates), rateMax = Math.max(0, ...rates);
   const ratePadding = Math.max(1, rateMax - rateMin) * .18;
-  return <DemoLayout calculation={<Calculation
-    formula={'\\begin{aligned}\\frac{\\partial n}{\\partial t}&=\\frac{1}{q}\\frac{\\partial J_n}{\\partial x}+G-R\\\\\\frac{\\partial p}{\\partial t}&=-\\frac{1}{q}\\frac{\\partial J_p}{\\partial x}+G-R\\end{aligned}'}
+  return <DemoLayout calculation={<Calculation title="Continuity equations"
+    forms={[
+      { label: 'Current divergence', formula: String.raw`\begin{aligned}
+        \frac{\partial n}{\partial t}&=\frac{1}{q}\frac{\partial J_n}{\partial x}+G-R\\
+        \frac{\partial p}{\partial t}&=-\frac{1}{q}\frac{\partial J_p}{\partial x}+G-R
+      \end{aligned}` },
+      { label: 'Uniform-field drift and diffusion', formula: String.raw`\begin{aligned}
+        \frac{\partial n}{\partial t}&=\mu_n\mathcal E\frac{\partial n}{\partial x}+D_n\frac{\partial^2 n}{\partial x^2}+G-R\\
+        \frac{\partial p}{\partial t}&=-\mu_p\mathcal E\frac{\partial p}{\partial x}+D_p\frac{\partial^2 p}{\partial x^2}+G-R
+      \end{aligned}` },
+      { label: 'Across the 10 µm slice', formula: String.raw`\begin{aligned}
+        \dot n&=\frac{\Delta J_{n,\mathrm{drift}}+\Delta J_{n,\mathrm{diff}}}{q\,\Delta x}+G-R\\
+        \dot p&=-\frac{\Delta J_{p,\mathrm{drift}}+\Delta J_{p,\mathrm{diff}}}{q\,\Delta x}+G-R
+      \end{aligned}` },
+    ]}
     substitution={'\\begin{aligned}\\dot n&=\\frac{' + texSci(split.driftJn) + '+(' + texSci(split.diffJn) + ')}{' + texSci(P.q * lengthCm) + '}+(' + texSci(r.pairRate) + ')=' + texSci(r.electronRate) + '\\\\\\dot p&=-\\frac{' + texSci(split.driftJp) + '+(' + texSci(split.diffJp) + ')}{' + texSci(P.q * lengthCm) + '}+(' + texSci(r.pairRate) + ')=' + texSci(r.holeRate) + '\\end{aligned}\\;\\mathrm{cm^{-3}s^{-1}}'} />}
     controls={<Controls values={v} set={set} reset={reset} items={[
       { key: 'deltaJn', label: 'Electron current change ΔJₙ', min: -.02, max: .02, step: .0001, unit: 'A/cm²' },
@@ -219,6 +238,7 @@ export function ContinuityEquation() {
 }
 
 export function QuasiFermiLevels() {
+  const [logInjection, setLogInjection] = useState(true);
   const { v, set, reset } = useParams({ dopant: 1e16, excess: 1e14, T: 300 });
   const [type, setType] = useState<'n' | 'p'>('n');
   const [equilibrium, setEquilibrium] = useState(false);
@@ -226,8 +246,10 @@ export function QuasiFermiLevels() {
   const r = P.injectedQuasiFermi(base, equilibrium ? 0 : v.excess);
   const samples = pts(6, 18, 80, x => x);
   const states = samples.map(([x]) => P.injectedQuasiFermi(base, 10 ** x));
-  const fnCurve: [number, number][] = samples.map(([x], index) => [x, states[index].Fn]);
-  const fpCurve: [number, number][] = samples.map(([x], index) => [x, states[index].Fp]);
+  const fnCurve: [number, number][] = samples.map(([x], index) => [logInjection ? x : 10 ** x, states[index].Fn]);
+  const fpCurve: [number, number][] = samples.map(([x], index) => [logInjection ? x : 10 ** x, states[index].Fp]);
+  const injectionX = logInjection ? Math.log10(v.excess) : v.excess;
+  const injectionDomain: [number, number] = logInjection ? [6, 18] : [1e6, 1e18];
   const curveMin = Math.min(base.Ev - .1, ...fpCurve.map(point => point[1])) - .06;
   const curveMax = Math.max(base.Ec + .1, ...fnCurve.map(point => point[1])) + .06;
   const minEnergy = Math.min(base.Ev, r.Fp) - .16, maxEnergy = Math.max(base.Ec, r.Fn) + .16;
@@ -238,7 +260,7 @@ export function QuasiFermiLevels() {
   const distance = type === 'n' ? base.Ec - base.Ef : base.Ef - base.Ev;
   const setControl = (key: string, value: number) => { set(key, value); if (key === 'excess') setEquilibrium(false); };
   return <DemoLayout calculation={<Calculation formula={formula} substitution={substitution} />}
-    controls={<Controls values={v} set={setControl} reset={() => { reset(); setType('n'); setEquilibrium(false); }} items={[
+    controls={<Controls values={v} set={setControl} reset={() => { reset(); setType('n'); setEquilibrium(false); setLogInjection(true); }} items={[
       { key: 'dopant', label: type === 'n' ? 'Donor concentration Nᴅ' : 'Acceptor concentration Nₐ', min: 1e15, max: 1e19, step: 1e14, unit: 'cm⁻³', log: true },
       ...(!equilibrium ? [{ key: 'excess', label: 'Injected electron–hole pairs', min: 1e6, max: 1e18, step: 1e6, unit: 'cm⁻³', log: true }] : []),
       temperatureControl,
@@ -248,6 +270,7 @@ export function QuasiFermiLevels() {
         <button className={type === 'p' ? 'active' : ''} onClick={() => setType('p')}>P-type acceptors</button>
       </div>
       <Toggle label="Thermal equilibrium (no excess carriers)" checked={equilibrium} onChange={setEquilibrium} />
+      <Toggle label="Logarithmic injection axis" checked={logInjection} onChange={setLogInjection} />
     </Controls>}>
     <Metrics>
       <Metric label="Equilibrium Fermi level Eꜰ" value={fmt(base.Ef, 3)} unit="eV from Eᵢ" />
@@ -272,16 +295,16 @@ export function QuasiFermiLevels() {
           { x: -.65, y: r.Fp, label: 'Fₚ ' + fmt(r.Fp, 3) + ' eV', color: orange },
         ]}
         onInspect={() => 'Eᴄ ' + fmt(r.Ec) + ' · Fₙ ' + fmt(r.Fn) + ' · Fₚ ' + fmt(r.Fp) + ' · Eᴠ ' + fmt(r.Ev) + ' eV'} />
-      <Plot title="Quasi-Fermi levels with injection" xLabel="log₁₀ injected pairs (cm⁻³)" yLabel="Energy from Eᵢ (eV)" xDomain={[6, 18]} yDomain={[curveMin, curveMax]} series={[
+      <Plot title="Quasi-Fermi levels with injection" xLabel={logInjection ? 'log₁₀ injected pairs (cm⁻³)' : 'Injected pairs (cm⁻³)'} yLabel="Energy from Eᵢ (eV)" xDomain={injectionDomain} yDomain={[curveMin, curveMax]} series={[
         { name: 'Fₙ', color: blue, points: fnCurve },
         { name: 'Fₚ', color: orange, points: fpCurve },
-        { name: 'Equilibrium Eꜰ', color: purple, points: [[6, base.Ef], [18, base.Ef]], dash: true },
-      ]} markers={equilibrium ? [] : [{ x: Math.log10(v.excess), label: 'Selected Δ ' + sci(v.excess) + ' cm⁻³' }]}
+        { name: 'Equilibrium Eꜰ', color: purple, points: [[injectionDomain[0], base.Ef], [injectionDomain[1], base.Ef]], dash: true },
+      ]} markers={equilibrium ? [] : [{ x: injectionX, label: 'Selected Δ ' + sci(v.excess) + ' cm⁻³' }]}
         points={equilibrium ? [] : [
-          { x: Math.log10(v.excess), y: r.Fn, label: 'Fₙ ' + fmt(r.Fn, 3) + ' eV', color: blue },
-          { x: Math.log10(v.excess), y: r.Fp, label: 'Fₚ ' + fmt(r.Fp, 3) + ' eV', color: orange },
+          { x: injectionX, y: r.Fn, label: 'Fₙ ' + fmt(r.Fn, 3) + ' eV', color: blue },
+          { x: injectionX, y: r.Fp, label: 'Fₚ ' + fmt(r.Fp, 3) + ' eV', color: orange },
         ]}
-        onInspect={x => { const state = P.injectedQuasiFermi(base, 10 ** x); return 'Fₙ ' + fmt(state.Fn) + ' · Fₚ ' + fmt(state.Fp) + ' eV'; }} />
+        onInspect={x => { const state = P.injectedQuasiFermi(base, logInjection ? 10 ** x : x); return 'Fₙ ' + fmt(state.Fn) + ' · Fₚ ' + fmt(state.Fp) + ' eV'; }} />
     </div>
     <Info
       intuition={type === 'n' ? 'More donors move the equilibrium Fermi level toward the conduction band. Injection then separates the electron and hole quasi-Fermi levels.' : 'More acceptors move the equilibrium Fermi level toward the valence band. Injection then separates the electron and hole quasi-Fermi levels.'}

@@ -52,7 +52,7 @@ export default function Lab({ slug }: { slug: string }) {
         <span>Semiconductor Physics Lab</span>
       </header>
 
-      <main>
+      <main className={current ? `page-${slug}` : undefined}>
         {current ? <>
           <div className="page-heading">
             <Link href="/" className="back-link">← All experiments</Link>
