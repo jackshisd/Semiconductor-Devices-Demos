@@ -5,7 +5,7 @@ import { line } from 'd3-shape';
 import { useState } from 'react';
 import { useChangeHighlight } from './useChangeHighlight';
 
-export type Series = { name: string; color: string; points: [number, number][]; dash?: boolean };
+export type Series = { name: string; color: string; points: [number, number][]; dash?: boolean; areaTo?: number };
 type Marker = { x: number; label: string };
 type Zone = { from: number; to: number; color: string };
 export type EnergyBracket = { x: number; from: number; to: number; label: string; color?: string; dashed?: boolean; guideFromX?: number; guideToX?: number; side?: 'left' | 'right'; labelDy?: number };
@@ -106,7 +106,12 @@ export default function Plot({ title, series, xLabel = 'Position (µm)', yLabel 
       </g>)}
       <line x1={left} x2={w - right} y1={h - bottom} y2={h - bottom} stroke="#a9b3bb" />
       <line x1={left} x2={left} y1={top} y2={h - bottom} stroke="#a9b3bb" />
-      {series.map(item => <path key={item.name} d={makeLine(item.points) || ''} fill="none" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash ? '6 5' : undefined} vectorEffect="non-scaling-stroke" />)}
+      {series.map(item => <g key={item.name}>
+        {item.areaTo !== undefined && item.points.length > 1 && <path
+          d={makeLine([...item.points, [item.points[item.points.length - 1][0], item.areaTo], [item.points[0][0], item.areaTo]]) || ''}
+          fill={item.color} fillOpacity=".14" stroke="none" />}
+        <path d={makeLine(item.points) || ''} fill="none" stroke={item.color} strokeWidth="2.5" strokeDasharray={item.dash ? '6 5' : undefined} vectorEffect="non-scaling-stroke" />
+      </g>)}
       {spans.map((span, index) => {
         const y = Y(span.y), x1 = X(span.from), x2 = X(span.to), color = span.color ?? '#446a77';
         return <g key={`span-${index}`} stroke={color} fill={color}>

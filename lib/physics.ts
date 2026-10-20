@@ -251,3 +251,25 @@ export function quasiFermi(ND: number, excess: number, T: number) {
   return { n0, p0, n, p, Ec, Ei: 0, Ev, equilibriumFermi, Fn, Fp, split: Fn - Fp,
     boltzmannValid: Ec - Fn >= 3 * Vt && Fp - Ev >= 3 * Vt };
 }
+
+// Parabolic-band density of states per eV and occupied-state spectrum.
+// "energyFromEdge" is E−Ec for electrons or Ev−E for holes.
+export function carrierSpectrum(type: 'n' | 'p', energyFromEdge: number, fermiFromIntrinsic: number, T: number) {
+  requirePositive(T, 'Temperature');
+  if (!Number.isFinite(energyFromEdge) || energyFromEdge < 0) throw Error('Energy from band edge must be nonnegative.');
+  if (!Number.isFinite(fermiFromIntrinsic)) throw Error('Fermi energy must be finite.');
+  const Vt = thermalVoltage(T), Eg = bandgap(T);
+  const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
+  const edge = type === 'n' ? Ec : Ev;
+  const eta = type === 'n' ? (fermiFromIntrinsic - edge) / Vt : (edge - fermiFromIntrinsic) / Vt;
+  const states = 2 * (type === 'n' ? Nc(T) : Nv(T)) / (Math.sqrt(Math.PI) * Vt ** 1.5) * Math.sqrt(energyFromEdge);
+  const occupation = 1 / (1 + Math.exp(energyFromEdge / Vt - eta));
+  return { states, occupation, occupiedStates: states * occupation, edge, eta };
+}
+
+export function carrierDensitiesFromFermi(fermiFromIntrinsic: number, T: number) {
+  const electron = carrierSpectrum('n', 0, fermiFromIntrinsic, T);
+  const hole = carrierSpectrum('p', 0, fermiFromIntrinsic, T);
+  return { n: Nc(T) * fdHalf(electron.eta), p: Nv(T) * fdHalf(hole.eta),
+    Ec: electron.edge, Ev: hole.edge, electronEta: electron.eta, holeEta: hole.eta };
+}

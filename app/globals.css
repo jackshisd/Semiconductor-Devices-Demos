@@ -77,7 +77,7 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .calculation-pair > div + div { border-top: 1px solid #e5edeb; padding-top: 7px; }
 .calculation-pair > div > span { display: block; color: #7b898d; font-size: 10px; }
 .calculation-math { overflow-x: auto; padding: 8px 0 6px; color: #233d43; font-size: clamp(19px, 1.15vw, 27px); white-space: nowrap; transition: color .25s, background-color .25s; }
-.calculation-math.number-updated { color: #086b48; background: #e8f7ed; border-radius: 5px; }
+.calculation-math .formula-number-updated { color: #086b48; background: #d9f2e2; border-radius: 4px; box-shadow: 0 0 0 4px #d9f2e2; }
 .calculation-math .katex-display { margin: 0; text-align: left; }
 .calculation-math .katex-display > .katex { text-align: left; }
 .value-entry input:focus, .select-label select:focus { outline: 2px solid #bdd8f8; border-color: #2672d9; }

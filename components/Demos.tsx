@@ -1,10 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import katex from 'katex';
 import Plot, { EnergyBracket, PointLabel, Series, SpanLabel } from './Plot';
 import { Controls, Control, Toggle } from './Controls';
 import { useChangeHighlight } from './useChangeHighlight';
+import { highlightChangedNumbers } from '../lib/formulaHighlight';
 import * as P from '../lib/physics';
 export const blue = '#2672d9',
   orange = '#d56138',
@@ -32,13 +33,21 @@ export const texSci = (n: number) => {
   return `${Number(mantissa)}\\times10^{${Number(exponent)}}`;
 };
 export function Calculation({ formula, substitution, title = 'Live calculation' }: { formula: string; substitution: string; title?: string }) {
-  const highlighted = useChangeHighlight(substitution);
-  const render = (expression: string) => ({ __html: katex.renderToString(expression, { throwOnError: false, displayMode: true }) });
+  const previous = useRef(substitution);
+  const [displayed, setDisplayed] = useState(substitution);
+  useEffect(() => {
+    if (previous.current === substitution) return;
+    setDisplayed(highlightChangedNumbers(previous.current, substitution));
+    previous.current = substitution;
+    const timer = window.setTimeout(() => setDisplayed(substitution), 800);
+    return () => window.clearTimeout(timer);
+  }, [substitution]);
+  const render = (expression: string) => ({ __html: katex.renderToString(expression, { throwOnError: false, displayMode: true, trust: true, strict: 'ignore' }) });
   return <section className="calculation" aria-label={title}>
     <div className="calculation-heading">{title}</div>
     <div className="calculation-pair">
       <div><span>Formula</span><div className="calculation-math" dangerouslySetInnerHTML={render(formula)} /></div>
-      <div><span>With current values</span><div className={`calculation-math ${highlighted ? 'number-updated' : ''}`} dangerouslySetInnerHTML={render(substitution)} /></div>
+      <div><span>With current values</span><div className="calculation-math" dangerouslySetInnerHTML={render(displayed)} /></div>
     </div>
   </section>;
 }
