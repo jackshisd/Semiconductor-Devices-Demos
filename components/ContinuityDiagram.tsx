@@ -3,9 +3,9 @@
 import { fmt, sci } from './Demos';
 import { useChangeHighlight } from './useChangeHighlight';
 
-type Props = { deltaJn: number; deltaJp: number; driftJn: number; driftJp: number; generation: number; recombination: number; lengthUm: number };
+type Props = { deltaJn: number; deltaJp: number; driftJn: number; driftJp: number; field: number; generation: number; recombination: number; lengthUm: number };
 
-export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, generation, recombination, lengthUm }: Props) {
+export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, field, generation, recombination, lengthUm }: Props) {
   // The current profile is centered on zero: J(left) = -ΔJ/2, J(right) = ΔJ/2.
   // Electron particle flow points opposite conventional Jn; hole flow follows Jp.
   const electronIn = deltaJn >= 0;
@@ -17,6 +17,7 @@ export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, 
   const diffPUpdated = useChangeHighlight(diffJp);
   const generationUpdated = useChangeHighlight(generation);
   const recombinationUpdated = useChangeHighlight(recombination);
+  const fieldUpdated = useChangeHighlight(field);
   const signed = (value: number) => (value > 0 ? '+' : '') + sci(value);
   const faceArrow = (x: number, y: number, inward: boolean, left: boolean, color: string, id: string) => {
     const direction = inward ? (left ? 1 : -1) : (left ? -1 : 1);
@@ -38,7 +39,7 @@ export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, 
       <text x="164" y="79" fill="#2672d9" fontWeight="700" fontSize="16">Electrons</text>
       <text x="164" y="134" fill="#d56138" fontWeight="700" fontSize="16">Holes</text>
       {[79, 134].map((y, index) => <g key={y}>
-        <line x1={index === 0 ? 289 : 323} y1={y - 5} x2={index === 0 ? 323 : 289} y2={y - 5} stroke="#087e95" strokeWidth="3" markerEnd="url(#continuity-drift-arrow)" />
+        <line x1={(field > 0) === (index === 0) ? 323 : 289} y1={y - 5} x2={(field > 0) === (index === 0) ? 289 : 323} y2={y - 5} stroke="#087e95" strokeWidth="3" opacity={field === 0 ? .2 : 1} markerEnd="url(#continuity-drift-arrow)" />
         <text x="337" y={y} fill="#087e95" fontSize="14" fontWeight="700">drift</text>
         <text x="337" y={y + 18} fill="#087e95" fontSize="12" className={(index === 0 ? driftNUpdated : driftPUpdated) ? 'plot-number-updated' : undefined}>{signed(index === 0 ? driftJn : driftJp)}</text>
         <line x1={index === 0 ? 508 : 474} y1={y - 5} x2={index === 0 ? 474 : 508} y2={y - 5} stroke="#ac6b22" strokeWidth="3" markerEnd="url(#continuity-diffusion-arrow)" />
@@ -46,6 +47,7 @@ export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, 
         <text x="519" y={y + 18} fill="#ac6b22" fontSize="12" className={(index === 0 ? diffNUpdated : diffPUpdated) ? 'plot-number-updated' : undefined}>{signed(index === 0 ? diffJn : diffJp)}</text>
       </g>)}
       <text x="62" y="39" fill="#52636d" fontSize="14">left face</text>
+      <text x="270" y="39" fill="#52636d" fontSize="14" className={fieldUpdated ? 'plot-number-updated' : undefined}>ℰ {fmt(field, 0)} V/cm</text>
       <text x="856" y="39" fill="#52636d" fontSize="14">right face</text>
       {faceArrow(94, 79, electronIn, true, '#2672d9', 'continuity-electron-arrow')}
       {faceArrow(906, 79, electronIn, false, '#2672d9', 'continuity-electron-arrow')}
@@ -56,6 +58,6 @@ export default function ContinuityDiagram({ deltaJn, deltaJp, driftJn, driftJp, 
       <line x1="704" y1="164" x2="704" y2="190" stroke="#7654ba" strokeWidth="3" markerEnd="url(#continuity-recombination-arrow)" />
       <text x="723" y="190" fill="#7654ba" fontSize="14" fontWeight="700" className={recombinationUpdated ? 'plot-number-updated' : undefined}>R {sci(recombination)}</text>
     </svg>
-    <div className="plot-footer"><span className="spectrum-footnote">G: generation adds pairs · R: recombination removes pairs. Signed values are changes in conventional current density (ΔJ), with diffusion = net − drift. Arrow directions for drift and diffusion are illustrative; physical values require field and density-gradient data.</span></div>
+    <div className="plot-footer"><span className="spectrum-footnote">G: generation adds pairs · R: recombination removes pairs. Signed values are current changes across the slice: diffusion = selected total − field-driven drift. Diffusion arrows are illustrative because the density profile is not fully specified.</span></div>
   </div>;
 }

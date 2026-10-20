@@ -101,7 +101,8 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .metric span { display: block; color: #72808b; font-size: clamp(11px, .7vw, 15px); }
 .metric strong { display: inline-block; margin: 5px 5px 0 0; font-size: clamp(20px, 1.3vw, 30px); font-weight: 690; letter-spacing: -.025em; font-variant-numeric: tabular-nums; transition: color .25s, background-color .25s, box-shadow .25s; }
 .metric strong.number-updated { color: #086b48; background: #d9f2e2; border-radius: 4px; box-shadow: 0 0 0 5px #d9f2e2; }
-.plot-number-updated { fill: #086b48; stroke: #d9f2e2; stroke-width: 6px; }
+.plot-number-updated { fill: #086b48; stroke: #d9f2e2; stroke-width: 6px; stroke-linejoin: round; paint-order: stroke fill; }
+.continuity-card .plot-number-updated { stroke-width: 4px; }
 .metric small { color: #7b8792; font-size: clamp(11px, .65vw, 14px); }
 .graph-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 1vw, 24px); max-width: 1550px; margin: clamp(12px, .9vw, 20px) auto; }
 .schottky-case-grid { display: flex; flex-wrap: wrap; justify-content: center; }

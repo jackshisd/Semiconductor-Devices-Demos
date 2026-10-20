@@ -9,7 +9,6 @@ const blue = '#2672d9';
 const orange = '#d56138';
 const purple = '#7654ba';
 const W = 1120, H = 370, top = 45, bottom = 326;
-const conductionY = 150, valenceY = 225;
 
 type Point = [number, number];
 const path = (points: Point[]) => points.map(([x, y], index) => (index ? 'L' : 'M') + x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
@@ -26,15 +25,11 @@ export function HoleDistributionDemo() {
   const nearBandEdge = type === 'n' ? Ec - Ef < 3 * Vt : Ef - Ev < 3 * Vt;
   const edgeState = P.carrierDensitiesFromFermi(type === 'n' ? Ec : Ev, v.T);
   const edgeThreshold = type === 'n' ? edgeState.n - edgeState.p : edgeState.p - edgeState.n;
-  const span = Math.max(.38, 14 * Vt, Ef - Ec + .12, Ev - Ef + .12);
+  const span = Math.max(.55, 18 * Vt, Ef - Ec + .12, Ev - Ef + .12);
   const minEnergy = Ev - span, maxEnergy = Ec + span;
-  // The band gap is compressed; the two band windows remain linear in energy.
-  const Y = (energy: number) => energy >= Ec ? conductionY - (energy - Ec) / span * (conductionY - top)
-    : energy <= Ev ? valenceY + (Ev - energy) / span * (bottom - valenceY)
-      : conductionY + (Ec - energy) / (Ec - Ev) * (valenceY - conductionY);
-  const energyAtY = (y: number) => y <= conductionY ? Ec + (conductionY - y) / (conductionY - top) * span
-    : y >= valenceY ? Ev - (y - valenceY) / (bottom - valenceY) * span
-      : Ec - (y - conductionY) / (valenceY - conductionY) * (Ec - Ev);
+  const Y = (energy: number) => top + (maxEnergy - energy) / (maxEnergy - minEnergy) * (bottom - top);
+  const energyAtY = (y: number) => maxEnergy - (y - top) / (bottom - top) * (maxEnergy - minEnergy);
+  const conductionY = Y(Ec), valenceY = Y(Ev);
   const offsets = Array.from({ length: 161 }, (_, index) => span * index / 160);
   const holes = offsets.map(offset => P.carrierSpectrum('p', offset, Ef, v.T));
   const electrons = offsets.map(offset => P.carrierSpectrum('n', offset, Ef, v.T));
@@ -104,7 +99,7 @@ export function HoleDistributionDemo() {
           <line x1="53" x2="53" y1={top} y2={bottom} stroke="#a5b2ba" />
           <path d="M48 55 L53 45 L58 55" fill="none" stroke="#a5b2ba" />
           <text x="47" y="357" className="spectrum-axis">Energy E ↑</text>
-          <text x="323" y="191" className="spectrum-axis">gap compressed</text>
+          <text x="323" y={(conductionY + valenceY) / 2} className="spectrum-axis">Band gap {fmt(Ec - Ev, 3)} eV</text>
           <line x1="82" x2="207" y1={conductionY} y2={conductionY} stroke={blue} strokeWidth="3" />
           <line x1="82" x2="207" y1={valenceY} y2={valenceY} stroke={orange} strokeWidth="3" />
           <text x="88" y={conductionY - 9} fill={blue} className="spectrum-label">E꜀ {fmt(Ec, 3)} eV</text>
@@ -141,7 +136,7 @@ export function HoleDistributionDemo() {
           {hoverEnergy !== null && <line x1="280" x2="1045" y1={Y(hoverEnergy)} y2={Y(hoverEnergy)} stroke="#75828c" strokeDasharray="3 4" />}
         </svg>
       </div>
-      <div className="plot-footer"><span className="spectrum-footnote">{relative ? 'Carrier spectra use one shared scale; minority carriers may be hard to see.' : 'Each carrier spectrum is scaled to its own peak so both shapes are visible.'} Band gap compressed on the energy axis.</span><span className="inspect">{inspect}</span></div>
+      <div className="plot-footer"><span className="spectrum-footnote">{relative ? 'Carrier spectra use one shared scale; minority carriers may be hard to see.' : 'Each carrier spectrum is scaled to its own peak so both shapes are visible.'} Energy spacing is linear across the bands and gap.</span><span className="inspect">{inspect}</span></div>
     </div>
     <Info intuition="Allowed conduction-band states become electrons and empty valence-band states become holes. Doping moves the equilibrium Fermi level; temperature broadens the occupation transition." model="The electron spectrum is g꜀(E)f(E), and the hole spectrum is gᵥ(E)[1−f(E)]. Their energy integrals give n and p using Fermi–Dirac statistics." takeaway="More donors move Eꜰ toward E꜀ and favor electrons; more acceptors move Eꜰ toward Eᵥ and favor holes." derivation={[
       'n(E)=g_C(E)f(E),\\qquad p(E)=g_V(E)[1-f(E)]',

@@ -244,6 +244,21 @@ export function continuityRates(deltaJn: number, deltaJp: number, length: number
     currentDivergence: (deltaJn + deltaJp) / length };
 }
 
+// With a uniform electric field, the drift-current change across the slice is q μ E Δcarrier.
+// The total current changes are prescribed; diffusion is the remaining contribution.
+export function continuityCurrentSplit(deltaJn: number, deltaJp: number, field: number,
+  deltaN: number, deltaP: number, muN = 1400, muP = 470) {
+  for (const [value, name] of [[deltaJn, 'Electron current change'], [deltaJp, 'Hole current change'],
+    [field, 'Electric field'], [deltaN, 'Electron density change'], [deltaP, 'Hole density change']] as const) {
+    if (!Number.isFinite(value)) throw Error(name + ' must be finite.');
+  }
+  requirePositive(muN, 'Electron mobility');
+  requirePositive(muP, 'Hole mobility');
+  const driftJn = q * muN * field * deltaN;
+  const driftJp = q * muP * field * deltaP;
+  return { driftJn, driftJp, diffJn: deltaJn - driftJn, diffJp: deltaJp - driftJp, muN, muP };
+}
+
 // Solve uniform, fully ionized p- or n-type charge neutrality with Fermi-Dirac statistics.
 export function dopedFermi(type: 'n' | 'p', dopant: number, T: number) {
   requirePositive(dopant, 'Dopant concentration');
