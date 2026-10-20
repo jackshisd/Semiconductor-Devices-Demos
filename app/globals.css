@@ -104,8 +104,17 @@ main { width: 100%; max-width: 1940px; margin: auto; padding: clamp(22px, 1.7vw,
 .plot-number-updated { fill: #086b48; stroke: #d9f2e2; stroke-width: 6px; }
 .metric small { color: #7b8792; font-size: clamp(11px, .65vw, 14px); }
 .graph-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 1vw, 24px); max-width: 1550px; margin: clamp(12px, .9vw, 20px) auto; }
+.schottky-case-grid { display: flex; flex-wrap: wrap; justify-content: center; }
+.graph-grid.schottky-case-grid > .plot-card, .graph-grid.schottky-case-grid > .error-box { flex: 1 1 calc(50% - 12px); max-width: 760px; }
 .graph-grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1840px; }
 .plot-card { min-width: 0; max-width: 800px; width: 100%; margin-inline: auto; padding: clamp(14px, 1vw, 24px); border: 1px solid var(--line); border-radius: 12px; background: #fff; box-shadow: 0 10px 32px #294b4a08; }
+.spectrum-card { max-width: 1560px; }
+.spectrum-scroll { overflow-x: auto; }
+.spectrum-card svg { min-width: 820px; }
+.spectrum-heading { fill: #344650; font-size: 16px; font-weight: 700; }
+.spectrum-operator { fill: #647781; font-size: 20px; font-weight: 700; }
+.spectrum-label { font-size: 13px; font-weight: 680; paint-order: stroke; stroke: white; stroke-width: 3px; }
+.spectrum-axis, .spectrum-footnote { fill: #74838c; color: #74838c; font-size: 11px; }
 .graph-grid > .plot-card { max-width: none; }
 .plot-title { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; font-size: clamp(14px, .85vw, 20px); }
 .plot-title b { font-weight: 650; }
@@ -186,6 +195,7 @@ td { color: #2f3b45; }
 @media (max-width: 1100px) {
   .sidebar { width: 190px; }
   .graph-grid { grid-template-columns: 1fr; }
+  .schottky-case-grid > .plot-card, .schottky-case-grid > .error-box { flex-basis: 100%; }
   .experiment-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 850px) {

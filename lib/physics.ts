@@ -192,15 +192,23 @@ export function electronTransport(n: number, gradient: number, field: number, mo
 }
 
 // Steady-state excess minority holes in a uniformly doped n-type half-space.
-export function minorityHoles(x: number, excessAtEdge: number, mobility: number, lifetime: number, T: number) {
-  requirePositive(excessAtEdge, 'Excess hole concentration');
+export function minorityHoles(x: number, excessAtEdge: number, mobility: number, lifetime: number, T: number, field = 0) {
+  if (!Number.isFinite(x) || x < 0) throw Error('Distance must be finite and nonnegative.');
+  if (!Number.isFinite(excessAtEdge) || excessAtEdge < 0) throw Error('Excess hole concentration must be nonnegative.');
   requirePositive(mobility, 'Hole mobility');
   requirePositive(lifetime, 'Minority carrier lifetime');
   requirePositive(T, 'Temperature');
+  if (!Number.isFinite(field)) throw Error('Electric field must be finite.');
   const D = mobility * thermalVoltage(T);
-  const L = Math.sqrt(D * lifetime);
+  const L0 = Math.sqrt(D * lifetime);
+  const driftVelocity = mobility * field;
+  const root = Math.hypot(driftVelocity, 2 * Math.sqrt(D / lifetime));
+  const L = driftVelocity >= 0 ? lifetime * (root + driftVelocity) / 2 : 2 * D / (root - driftVelocity);
   const excess = excessAtEdge * Math.exp(-x / L);
-  return { D, L, excess, recombination: excess / lifetime, diffusionCurrent: q * D * excess / L };
+  const driftCurrent = q * driftVelocity * excess;
+  const diffusionCurrent = q * D * excess / L;
+  return { D, L0, L, excess, recombination: excess / lifetime, driftCurrent, diffusionCurrent,
+    excessCurrent: driftCurrent + diffusionCurrent };
 }
 
 // Ideal long-base step junction; complete ionization, low-level injection, no depletion recombination.
@@ -250,6 +258,19 @@ export function quasiFermi(ND: number, excess: number, T: number) {
   const Fp = -Vt * Math.log(p / intrinsic);
   return { n0, p0, n, p, Ec, Ei: 0, Ev, equilibriumFermi, Fn, Fp, split: Fn - Fp,
     boltzmannValid: Ec - Fn >= 3 * Vt && Fp - Ev >= 3 * Vt };
+}
+
+// Carrier populations set by independently positioned quasi-Fermi levels.
+// Complete Fermi-Dirac integrals remain valid when a level enters a band.
+export function quasiFermiFromLevels(Fn: number, Fp: number, T: number) {
+  requirePositive(T, 'Temperature');
+  if (!Number.isFinite(Fn) || !Number.isFinite(Fp)) throw Error('Quasi-Fermi energies must be finite.');
+  const Vt = thermalVoltage(T), Eg = bandgap(T);
+  const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
+  const electronEta = (Fn - Ec) / Vt, holeEta = (Ev - Fp) / Vt;
+  const n = Nc(T) * fdHalf(electronEta), p = Nv(T) * fdHalf(holeEta);
+  return { n, p, Ec, Ei: 0, Ev, Fn, Fp, split: Fn - Fp, electronEta, holeEta,
+    impliedDoping: n - p, boltzmannValid: electronEta <= -3 && holeEta <= -3 };
 }
 
 // Parabolic-band density of states per eV and occupied-state spectrum.
