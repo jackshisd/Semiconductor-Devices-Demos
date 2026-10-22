@@ -2474,6 +2474,10 @@ main:focus {
   display: block;
   width: 100%;
 }
+.transport-visual svg {
+  display: block;
+  width: 100%;
+}
 .scattering-caption {
   display: flex;
   flex-wrap: wrap;

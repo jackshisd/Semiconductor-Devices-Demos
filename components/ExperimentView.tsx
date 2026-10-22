@@ -9,6 +9,15 @@ const loading = (
   </div>
 );
 const demos: Record<ExperimentSlug, ComponentType> = {
+  'thermal-drift': lazy(() =>
+    import('./LectureThreeDemos').then((m) => ({ default: m.ThermalDrift })),
+  ),
+  'velocity-saturation': lazy(() =>
+    import('./LectureThreeDemos').then((m) => ({ default: m.VelocitySaturation })),
+  ),
+  'momentum-collisions': lazy(() =>
+    import('./LectureThreeDemos').then((m) => ({ default: m.MomentumCollisions })),
+  ),
   'phonon-scattering': lazy(() =>
     import('./ScatteringDemos').then((m) => ({ default: m.PhononScattering })),
   ),

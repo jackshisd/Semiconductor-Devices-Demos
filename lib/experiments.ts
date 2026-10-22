@@ -1,5 +1,23 @@
 const catalog = [
   {
+    slug: 'thermal-drift',
+    title: 'Thermal motion and drift',
+    subtitle: 'Compare random carrier motion with directed transport',
+    group: 'Carrier transport',
+  },
+  {
+    slug: 'velocity-saturation',
+    title: 'Velocity saturation',
+    subtitle: 'Watch carrier speeds reach their high-field limits',
+    group: 'Carrier transport',
+  },
+  {
+    slug: 'momentum-collisions',
+    title: 'Momentum and mean free path',
+    subtitle: 'Follow momentum gain, collisions and free-flight distance',
+    group: 'Carrier transport',
+  },
+  {
     slug: 'phonon-scattering',
     title: 'Phonon scattering',
     subtitle: 'Watch vibrating lattice atoms interrupt electron motion',

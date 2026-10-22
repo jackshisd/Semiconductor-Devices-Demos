@@ -4,6 +4,12 @@ import type { ExperimentSlug } from '../lib/experiments';
 import { lectureAssociations } from '../lib/slide-demo-assignments';
 
 const notes: Record<ExperimentSlug, string> = {
+  'thermal-drift':
+    'Lecture 3 distinguishes random thermal motion from average field-driven drift. The thermal speed uses vth = √(3kBT/m*) with Si conductivity masses 0.26m0 and 0.39m0. The drift comparison holds the tabulated 300 K mobilities fixed to isolate motion; displayed trajectories are schematic.',
+  'velocity-saturation':
+    'Lecture 3 gives silicon saturation speeds of 8 × 10⁶ cm/s for electrons and 6 × 10⁶ cm/s for holes. The low-field law is |vd| = μ|E|. A capped straight-line illustration connects these two limits; it is not a fitted high-field transport law.',
+  'momentum-collisions':
+    'Between scattering events, the field changes carrier momentum at rate q|E|. Average momentum balance gives μ = qτ/m*. Mean free path is thermal speed times mean scattering time. Scattering randomizes momentum without removing all thermal kinetic energy.',
   'phonon-scattering':
     'Phonons describe lattice vibrations. Increasing temperature increases lattice scattering and reduces phonon-limited mobility, with μphonon proportional to T⁻³ᐟ² in the course model. Individual electron paths are schematic, not a microscopic quantum simulation.',
   'impurity-scattering':

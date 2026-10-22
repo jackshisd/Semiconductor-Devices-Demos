@@ -6,6 +6,10 @@ Repeated slides now defer automatic demo opening to the later lecture. The table
 
 ## Added visual models
 
+- **Thermal motion versus drift (L3 p23–25):** RMS thermal speeds use √(3kBT/m*) and the slide conductivity masses. Two animated ensembles compare thermal-only motion with field-driven drift. Visual drift is exaggerated, while physical readouts retain cm/s units. The 300 K mobilities are held fixed to isolate the comparison.
+- **Velocity saturation (L3 p28):** animated electron/hole lanes share a speed scale. A capped μE illustration shows the slide's 8 × 10⁶ / 6 × 10⁶ cm/s limits, with uncapped low-field extrapolations. It is explicitly schematic rather than a fitted high-field law.
+- **Momentum and mean free path (L3 p29–32):** reproducible exponential waiting times illustrate field-gained momentum reset by scattering. μ = qτ/m* and ℓ = vthτ use SI conversion before displaying cm/s and nm. A flight-length ruler measures thermal path length, not net drift displacement.
+
 - **Electron versus hole transport (L2 p12; L3 p26):** eight schematic sites show a conduction electron moving against the field and neighboring bond electrons filling a vacancy. Each completed hop lands on a site; contacts restart a carrier. This is a slowed illustration, not a hopping-rate or band-transport calculation.
 - **Phonon scattering (L4 p4, repeated from L3 p33):** lattice vibrations increase with temperature. The qualitative trajectory sampler increases the direction-randomization rate as T³ᐟ² and thermal speed as √T, illustrating decreasing phonon-limited mobility.
 - **Ionized impurity scattering (L4 p5–8, repeated from L3 p34–37):** screened, softened Coulomb deflections show attraction to donors and repulsion from acceptors. Faster electrons deflect less. Displayed ion counts grow schematically with logarithmic doping; they are not spatially calibrated. The slide relationship μimpurity ∝ T³ᐟ²/(ND + NA) is shown separately from the illustrative dynamics.

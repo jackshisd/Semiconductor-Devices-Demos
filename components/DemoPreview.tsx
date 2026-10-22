@@ -21,6 +21,9 @@ type Kind =
   | 'metal'
   | 'capacitance';
 const kinds: Record<ExperimentSlug, Kind> = {
+  'thermal-drift': 'transport',
+  'velocity-saturation': 'temperature',
+  'momentum-collisions': 'field',
   'phonon-scattering': 'sand',
   'impurity-scattering': 'transport',
   'electron-hole-motion': 'transport',
