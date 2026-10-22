@@ -1,5 +1,11 @@
 const catalog = [
   {
+    slug: 'matthiessen-rule',
+    title: 'Matthiessen’s rule',
+    subtitle: 'Combine phonon and impurity scattering rates and mobility limits',
+    group: 'Carrier transport',
+  },
+  {
     slug: 'thermal-drift',
     title: 'Thermal motion and drift',
     subtitle: 'Compare random carrier motion with directed transport',

@@ -21,6 +21,7 @@ type Kind =
   | 'metal'
   | 'capacitance';
 const kinds: Record<ExperimentSlug, Kind> = {
+  'matthiessen-rule': 'spectrum',
   'thermal-drift': 'transport',
   'velocity-saturation': 'temperature',
   'momentum-collisions': 'field',

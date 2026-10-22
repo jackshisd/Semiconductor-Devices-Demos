@@ -6,6 +6,9 @@ Repeated slides now defer automatic demo opening to the later lecture. The table
 
 ## Added visual models
 
+- **Matthiessen's rule (L4 p6–8):** inverse mobilities add for independent scattering mechanisms with the same effective mass. The model uses μph = 1400(T/300)⁻³ᐟ² and μimp = 1400(T/300)³ᐟ²(10¹⁶/Nionized) in cm²/(V·s). Only the proportionalities are from the slides; reference constants are illustrative, not a fit. Three lanes compare isolated mechanisms with the selected combination. Physical readouts use uncapped mobilities; the animation is deliberately slowed and its event rates capped. The both-off state has no finite scattering-limited mobility and is shown without infinite chart values.
+- **Carrier distributions (L3 p8):** DOS and carrier spectra now use labeled absolute axes in cm⁻³/eV, shared by electrons and holes. No independent peak scaling is used. A log-axis toggle exposes minority carriers; occupation remains a probability from zero to one.
+
 - **Thermal motion versus drift (L3 p23–25):** RMS thermal speeds use √(3kBT/m*) and the slide conductivity masses. Two animated ensembles compare thermal-only motion with field-driven drift. Visual drift is exaggerated, while physical readouts retain cm/s units. The 300 K mobilities are held fixed to isolate the comparison.
 - **Velocity saturation (L3 p28):** animated electron/hole lanes share a speed scale. A capped μE illustration shows the slide's 8 × 10⁶ / 6 × 10⁶ cm/s limits, with uncapped low-field extrapolations. It is explicitly schematic rather than a fitted high-field law.
 - **Momentum and mean free path (L3 p29–32):** reproducible exponential waiting times illustrate field-gained momentum reset by scattering. μ = qτ/m* and ℓ = vthτ use SI conversion before displaying cm/s and nm. A flight-length ruler measures thermal path length, not net drift displacement.

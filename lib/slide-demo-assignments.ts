@@ -26,7 +26,8 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
   },
   'lecture-4': {
     'phonon-scattering': [4],
-    'impurity-scattering': [5, 6, 7, 8],
+    'impurity-scattering': [5],
+    'matthiessen-rule': [6, 7, 8],
     'drift-diffusion': [18, 9, 10, 16, 17, 19, 20, 21, 22, 23, 24],
   },
   'lecture-5': {

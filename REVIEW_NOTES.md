@@ -2,7 +2,7 @@
 
 ## Current result
 
-The website has 27 demos grouped into six contiguous topics, eight lecture readers, and a two-page LaTeX midterm sheet. Repeated teaching slides open their demos only in the later lecture. The navigation map and source notes remain separate so earlier source references do not silently reopen demos.
+The website has 28 demos grouped into six contiguous topics, eight lecture readers, and a two-page LaTeX midterm sheet. Repeated teaching slides open their demos only in the later lecture. The navigation map and source notes remain separate so earlier source references do not silently reopen demos.
 
 ## Bugs and inconsistencies fixed
 
@@ -20,8 +20,8 @@ Earlier review fixes retained: controls remain available on invalid physics sett
 
 ## Verification
 
-- 52 physics, mapping and animation tests pass, including site-aligned hops, both field directions, ion-charge reversal, temperature trends, invalid settings, bounded trajectories, carrier conservation and PDF page counts.
-- Strict TypeScript passes. Production export verifies all 27 demo routes, eight lecture readers, controls, KaTeX, finite graph geometry, referenced assets and the two-page guide.
+- 56 physics, mapping and animation tests pass, including site-aligned hops, both field directions, ion-charge reversal, temperature trends, invalid settings, bounded trajectories, carrier conservation and PDF page counts.
+- Strict TypeScript passes. Production export verifies all 28 demo routes, eight lecture readers, controls, KaTeX, finite graph geometry, referenced assets and the two-page guide.
 - Both final LaTeX pages were rendered and visually checked. The desktop LaTeX compiler also confirmed successful compilation.
 - Browser checks cover PDF rendering, bidirectional demo/slide navigation, fixed panel dimensions, empty pages, footer controls, scattering temperature/density/charge/playback, and conduction-electron positions on gray sites in both directions. Earlier checks cover all baseline demos, scientific input recovery, graph inspection, mobile navigation, doping, sand and Boltzmann interactions.
 
@@ -29,4 +29,4 @@ Earlier review fixes retained: controls remain available on invalid physics sett
 
 - Current npm audit reports 10 advisories: 6 high, 3 moderate and 1 low. Proposed full fixes require major Next.js, Tailwind and KaTeX migrations. Compatible audit fixes did not eliminate them. The static export does not run a Next.js server, but this does not make vulnerable dependencies harmless. A dedicated dependency migration remains necessary.
 - Scattering, sand, avalanche and tunneling animations are educational approximations. Source scope and units are documented in PHYSICS_NOTES.md; they are not calibrated device simulators.
-- DEMO_ROADMAP.md lists six proposed visual additions from the supplied slides. They are recommendations, not implemented features.
+- DEMO_ROADMAP.md lists five proposed visual additions from the supplied slides. They are recommendations, not implemented features.

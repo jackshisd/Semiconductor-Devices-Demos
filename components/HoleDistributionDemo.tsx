@@ -9,18 +9,22 @@ const blue = '#2672d9';
 const orange = '#d56138';
 const purple = '#7654ba';
 const W = 1120,
-  H = 370,
+  H = 390,
   top = 45,
   bottom = 326;
 
 type Point = [number, number];
 const path = (points: Point[]) =>
   points.map(([x, y], index) => (index ? 'L' : 'M') + x.toFixed(2) + ',' + y.toFixed(2)).join(' ');
+const axisMaximum = (value: number) => {
+  const power = 10 ** Math.floor(Math.log10(value));
+  return power * ([1, 2, 5, 10].find((step) => step * power >= value) ?? 10);
+};
 
 export function HoleDistributionDemo() {
   const { v, set, reset } = useParams({ dopant: 1e16, T: 300 });
   const [type, setType] = useState<'n' | 'p'>('n');
-  const [relative, setRelative] = useState(false);
+  const [logSpectrum, setLogSpectrum] = useState(false);
   const [hoverEnergy, setHoverEnergy] = useState<number | null>(null);
   const base = useMemo(() => P.dopedFermi(type, v.dopant, v.T), [type, v.dopant, v.T]);
   const Ef = base.Ef,
@@ -48,6 +52,20 @@ export function HoleDistributionDemo() {
   const sharedMax = Math.max(maxHole, maxElectron);
   const maxValenceStates = holes[holes.length - 1].states;
   const maxConductionStates = electrons[electrons.length - 1].states;
+  const dosMaximum = axisMaximum(Math.max(maxValenceStates, maxConductionStates));
+  const spectrumMaximum = axisMaximum(sharedMax);
+  const logMinimum = Math.floor(Math.log10(Math.min(maxHole, maxElectron))) - 3;
+  const logMaximum = Math.ceil(Math.log10(sharedMax));
+  const spectrumX = (value: number) =>
+    815 +
+    194 *
+      (logSpectrum
+        ? Math.max(
+            0,
+            (Math.log10(Math.max(value, 10 ** logMinimum)) - logMinimum) /
+              (logMaximum - logMinimum),
+          )
+        : value / spectrumMaximum);
   const peakIndex = holes.reduce(
     (best, point, index) => (point.occupiedStates > holes[best].occupiedStates ? index : best),
     0,
@@ -64,11 +82,11 @@ export function HoleDistributionDemo() {
         ? fermiY - 22
         : fermiY - 9;
   const holeCurve: Point[] = offsets.map((offset, index) => [
-    815 + (194 * holes[index].occupiedStates) / (relative ? sharedMax : maxHole),
+    spectrumX(holes[index].occupiedStates),
     Y(Ev - offset),
   ]);
   const electronCurve: Point[] = offsets.map((offset, index) => [
-    815 + (194 * electrons[index].occupiedStates) / (relative ? sharedMax : maxElectron),
+    spectrumX(electrons[index].occupiedStates),
     Y(Ec + offset),
   ]);
   const holeArea = path([[815, valenceY], ...holeCurve, [815, bottom]]);
@@ -121,7 +139,7 @@ export function HoleDistributionDemo() {
           reset={() => {
             reset();
             setType('n');
-            setRelative(false);
+            setLogSpectrum(false);
           }}
           items={[
             {
@@ -145,9 +163,9 @@ export function HoleDistributionDemo() {
             </button>
           </div>
           <Toggle
-            label="Compare electron and hole amounts on one scale"
-            checked={relative}
-            onChange={setRelative}
+            label="Log carrier-distribution axis"
+            checked={logSpectrum}
+            onChange={setLogSpectrum}
           />
         </Controls>
       }
@@ -194,7 +212,7 @@ export function HoleDistributionDemo() {
           <svg
             viewBox={'0 0 ' + W + ' ' + H}
             role="img"
-            aria-label="Energy bands, density of states, electron and hole occupation, and carrier energy distributions"
+            aria-label="Energy bands, absolute density of states, occupation probabilities, and electron and hole distributions on one absolute carrier-density axis"
             onMouseMove={(event) => {
               const rect = event.currentTarget.getBoundingClientRect();
               const energy = energyAtY(((event.clientY - rect.top) * H) / rect.height);
@@ -279,7 +297,7 @@ export function HoleDistributionDemo() {
             <path
               d={path(
                 offsets.map((offset, index) => [
-                  300 + (160 * electrons[index].states) / maxConductionStates,
+                  300 + (160 * electrons[index].states) / dosMaximum,
                   Y(Ec + offset),
                 ]),
               )}
@@ -290,7 +308,7 @@ export function HoleDistributionDemo() {
             <path
               d={path(
                 offsets.map((offset, index) => [
-                  300 + (160 * holes[index].states) / maxValenceStates,
+                  300 + (160 * holes[index].states) / dosMaximum,
                   Y(Ev - offset),
                 ]),
               )}
@@ -303,6 +321,18 @@ export function HoleDistributionDemo() {
             </text>
             <text x="312" y={valenceY + 23} fill={orange} className="spectrum-label">
               gᵥ(E)
+            </text>
+            <line x1="300" x2="460" y1="337" y2="337" stroke="#a5b2ba" />
+            {[0, 0.5, 1].map((f) => (
+              <g key={f}>
+                <line x1={300 + 160 * f} x2={300 + 160 * f} y1="337" y2="342" stroke="#a5b2ba" />
+                <text x={300 + 160 * f} y="356" textAnchor="middle" className="spectrum-axis">
+                  {sci(dosMaximum * f, 1)}
+                </text>
+              </g>
+            ))}
+            <text x="380" y="376" textAnchor="middle" className="spectrum-axis">
+              States (cm⁻³/eV)
             </text>
             <line x1="550" x2="550" y1={top} y2={bottom} stroke="#a5b2ba" />
             <path
@@ -357,6 +387,23 @@ export function HoleDistributionDemo() {
               stroke="white"
               strokeWidth="1.5"
             />
+            <line x1="815" x2="1009" y1="337" y2="337" stroke="#a5b2ba" />
+            {[0, 0.5, 1].map((f) => (
+              <g key={f}>
+                <line x1={815 + 194 * f} x2={815 + 194 * f} y1="337" y2="342" stroke="#a5b2ba" />
+                <text x={815 + 194 * f} y="356" textAnchor="middle" className="spectrum-axis">
+                  {sci(
+                    logSpectrum
+                      ? 10 ** (logMinimum + (logMaximum - logMinimum) * f)
+                      : spectrumMaximum * f,
+                    1,
+                  )}
+                </text>
+              </g>
+            ))}
+            <text x="912" y="376" textAnchor="middle" className="spectrum-axis">
+              {logSpectrum ? 'Log scale · ' : ''}Carriers (cm⁻³/eV)
+            </text>
             <circle
               cx={electronCurve[electronPeakIndex][0]}
               cy={electronCurve[electronPeakIndex][1]}
@@ -379,9 +426,9 @@ export function HoleDistributionDemo() {
         </div>
         <div className="plot-footer">
           <span className="spectrum-footnote">
-            {relative
-              ? 'Carrier spectra use one shared scale; minority carriers may be hard to see.'
-              : 'Each carrier spectrum is scaled to its own peak so both shapes are visible.'}{' '}
+            Electron and hole spectra share an absolute axis in cm⁻³/eV. Minority carriers may be
+            hard to see on the linear scale; switch to the log axis to inspect them.{' '}
+            {logSpectrum && 'Zero and values below the log range lie at the left edge. '}
             Energy spacing is linear across the bands and gap.
           </span>
           <span className="inspect">{inspect}</span>

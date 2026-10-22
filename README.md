@@ -35,7 +35,7 @@ All eight decks (260 pages) were scanned to make the initial assignments. `node 
 
 Repeated slides open demos in their later lecture. Introductory intrinsic-carrier slides therefore defer to Lecture 2. Lecture 2 includes intrinsic silicon, band formation, electron versus hole motion, doping, the vibrating-table equilibrium analogy and temperature-dependent occupation. The repeated Boltzmann approximation opens in Lecture 3. Phonon and ionized-impurity scattering open in Lecture 4, slides 4–8. Repeated Schottky electrostatics open in Lecture 6. Distinct slides developing the same subject can still share a demo.
 
-The 27 demos are ordered in contiguous topic groups: silicon fundamentals, carrier statistics, transport, metal contacts, PN junctions and reverse breakdown. Lecture 3 includes thermal motion versus drift (slides 23–25), velocity saturation (28), and momentum gain/mean free path (29–32). Junction Models was removed; PN depletion is the retained junction demo. Proposed additions are listed in `DEMO_ROADMAP.md`.
+The 28 demos are ordered in contiguous topic groups: silicon fundamentals, carrier statistics, transport, metal contacts, PN junctions and reverse breakdown. Lecture 3 includes thermal motion versus drift (slides 23–25), velocity saturation (28), and momentum gain/mean free path (29–32). Junction Models was removed; PN depletion is the retained junction demo. Proposed additions are listed in `DEMO_ROADMAP.md`.
 
 ## Midterm prep
 

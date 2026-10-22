@@ -9,6 +9,7 @@ const loading = (
   </div>
 );
 const demos: Record<ExperimentSlug, ComponentType> = {
+  'matthiessen-rule': lazy(() => import('./MatthiessenDemo')),
   'thermal-drift': lazy(() =>
     import('./LectureThreeDemos').then((m) => ({ default: m.ThermalDrift })),
   ),

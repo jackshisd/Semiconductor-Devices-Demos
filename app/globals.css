@@ -2478,6 +2478,25 @@ main:focus {
   display: block;
   width: 100%;
 }
+.matthiessen-budget h2 {
+  font-size: 14px;
+  margin: 14px 0 8px;
+}
+.matthiessen-budget p {
+  font-size: 12px;
+  line-height: 1.6;
+  color: #4e6874;
+}
+.matthiessen-rate-bar {
+  display: flex;
+  overflow: hidden;
+  height: 14px;
+  border-radius: 5px;
+  background: #e4ecee;
+}
+.matthiessen-rate-bar span {
+  transition: width 0.2s;
+}
 .scattering-caption {
   display: flex;
   flex-wrap: wrap;
