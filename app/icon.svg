@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="wafer" x2="1" y2="1">
+      <stop stop-color="#0f223d"/>
+      <stop offset="1" stop-color="#173c4d"/>
+    </linearGradient>
+    <linearGradient id="junction">
+      <stop stop-color="#5ee8ff"/>
+      <stop offset=".5" stop-color="#fff5cc"/>
+      <stop offset="1" stop-color="#ffb16b"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="15" fill="url(#wafer)"/>
+  <path d="M28 12H17a5 5 0 0 0-5 5v30a5 5 0 0 0 5 5h11Z" fill="#1689b5"/>
+  <path d="M36 12h11a5 5 0 0 1 5 5v30a5 5 0 0 1-5 5H36Z" fill="#dd743c"/>
+  <path d="M28 12h8v40h-8Z" fill="url(#junction)"/>
+  <path d="M6 32h8m36 0h8" stroke="#a4c8d7" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="21" cy="24" r="5" fill="#b7f5ff"/>
+  <path d="M19 24h4" stroke="#126085" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="21" cy="41" r="4" fill="#b7f5ff"/>
+  <path d="M19.5 41h3" stroke="#126085" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="44" cy="24" r="4" fill="none" stroke="#ffead2" stroke-width="2.5"/>
+  <circle cx="44" cy="41" r="5" fill="none" stroke="#ffead2" stroke-width="2.5"/>
+</svg>

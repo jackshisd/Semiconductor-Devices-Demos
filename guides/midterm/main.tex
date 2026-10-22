@@ -1,0 +1,133 @@
+\documentclass[9pt,letterpaper]{extarticle}
+\usepackage[margin=0.33in]{geometry}
+\usepackage{amsmath,amssymb,multicol,xcolor,fancyhdr}
+\usepackage[T1]{fontenc}\usepackage{lmodern}
+\definecolor{ink}{HTML}{173548}\definecolor{teal}{HTML}{176D72}\definecolor{muted}{HTML}{536570}
+\pagestyle{fancy}\fancyhf{}\fancyfoot[L]{\scriptsize L\# p\# = supplied lecture / PDF page. Check assumptions before substitution.}
+\fancyfoot[R]{\scriptsize\thepage/2}\renewcommand{\headrulewidth}{0pt}\renewcommand{\footrulewidth}{0.3pt}
+\setlength{\footskip}{13pt}\setlength{\parindent}{0pt}\setlength{\parskip}{2pt}\setlength{\columnsep}{18pt}
+\newcommand{\topic}[2]{\par\vspace{5pt}{\color{teal}\bfseries #1}\par{\scriptsize\color{muted}#2}\par\vspace{2pt}\hrule\vspace{3pt}}
+\newcommand{\note}[1]{{\footnotesize\color{muted}#1\par}}
+\newcommand{\eq}[1]{\(\displaystyle #1\)\par\vspace{1pt}}
+\newcommand{\E}{\mathcal E}\renewcommand{\ni}{n_i}\newcommand{\VT}{V_T}
+\newcommand{\header}[1]{{\Large\bfseries ECE 121B \quad Midterm formula sheet}\par{\color{muted}#1\hfill\small Professor Emaminejad / Lectures 1--8}\par\vspace{3pt}\hrule\vspace{3pt}}
+\begin{document}\color{ink}
+\header{Carriers, statistics and transport}
+\begin{multicols*}{2}
+\topic{Reference values at 300 K}{L1 p25; L3 p8--10}
+\eq{q=1.602\times10^{-19}\ \mathrm C,\quad k_B=8.617\times10^{-5}\ \mathrm{eV/K}}
+\eq{\VT=\frac{k_BT}{q}=25.85\ \mathrm{mV},\quad E_{g,\mathrm{Si}}=1.12\ \mathrm{eV}}
+\eq{\varepsilon_0=8.85\times10^{-14}\ \mathrm{F/cm},\quad\varepsilon_{\mathrm{Si}}=11.7\varepsilon_0}
+\eq{N_C=2.82\times10^{19},\quad N_V=1.83\times10^{19}\ \mathrm{cm^{-3}}}
+\eq{\ni\approx10^{10}\ \mathrm{cm^{-3}}\quad\text{(rounded course value)}}
+\note{Use $k_B=1.381\times10^{-23}$ J/K with $q$ in coulombs in $V_T$. Match energy units in every exponential.}
+\topic{1. Occupation and carrier statistics}{L2 p15,30--32; L3 p6--12}
+\eq{f(E)=\frac{1}{1+\exp[(E-E_F)/(k_BT)]}}
+\eq{f\approx e^{-(E-E_F)/(k_BT)}\quad(E-E_F\ge3k_BT)}
+\eq{1-f\approx e^{-(E_F-E)/(k_BT)}\quad(E_F-E\ge3k_BT)}
+\eq{g_C(E)\propto\sqrt{E-E_C},\quad g_V(E)\propto\sqrt{E_V-E}}
+\eq{n=\int_{E_C}^{\infty}g_Cf\,dE,\quad p=\int_{-\infty}^{E_V}g_V(1-f)\,dE}
+\eq{N_{C,V}=2\left(\frac{2\pi m^*_{n,p,\mathrm{DOS}}k_BT}{h^2}\right)^{3/2}\propto T^{3/2}}
+\eq{n=N_Ce^{-(E_C-E_F)/(k_BT)},\quad p=N_Ve^{-(E_F-E_V)/(k_BT)}}
+\eq{\ni=\sqrt{N_CN_V}\,e^{-E_g/(2k_BT)},\quad np=\ni^2}
+\eq{E_i=\frac{E_C+E_V}{2}+\frac{k_BT}{2}\ln\frac{N_V}{N_C}}
+\topic{2. Doping and charge neutrality}{L2 p23--26; L3 p13--20}
+\eq{n+N_A=p+N_D,\quad\Delta N=N_D-N_A}
+\eq{n=\frac{\Delta N+\sqrt{\Delta N^2+4\ni^2}}{2},\quad p=\frac{\ni^2}{n}}
+\eq{\text{n-type: }n\approx N_D-N_A,\quad p\approx\frac{\ni^2}{n}}
+\eq{\text{p-type: }p\approx N_A-N_D,\quad n\approx\frac{\ni^2}{p}}
+\eq{E_V+3k_BT\le E_F\le E_C-3k_BT\quad\text{(Boltzmann)}}
+\note{Full ionization assumed. Majority-carrier approximations need net doping $\gg n_i$. Freeze-out violates full ionization.}
+\note{At 300 K, degeneracy starts near $N_D>1.6\times10^{18}$ or $N_A>9.1\times10^{17}$ cm$^{-3}$. Heavy n$^+$: $E_F\approx E_C$; heavy p$^+$: $E_F\approx E_V$.}
+\eq{\Delta E_g\approx3.5\times10^{-8}N^{1/3}\frac{300}{T}\ \mathrm{eV}}
+\note{Bandgap narrowing estimate: $N$ in cm$^{-3}$, $N\ge10^{18}$ cm$^{-3}$.}
+\columnbreak
+\topic{3. Drift, diffusion and conductivity}{L3 p26--41; L4 p18--22}
+\eq{v_n=-\mu_n\E,\qquad v_p=+\mu_p\E}
+\eq{J_n=qn\mu_n\E+qD_n\frac{dn}{dx}}
+\eq{J_p=qp\mu_p\E-qD_p\frac{dp}{dx},\quad J=J_n+J_p}
+\eq{\frac{D_n}{\mu_n}=\frac{D_p}{\mu_p}=\VT\quad\text{(Einstein relation)}}
+\eq{\sigma=q(n\mu_n+p\mu_p),\quad\rho_{\rm res}=\frac1\sigma,\quad R=\frac{\rho_{\rm res}L}{A}}
+\eq{\E=-\frac{d\psi}{dx}=\frac1q\frac{dE_C}{dx}}
+\eq{\text{Equilibrium: }\E=-\frac{\VT}{n}\frac{dn}{dx}}
+\eq{\psi(x_2)-\psi(x_1)=\VT\ln\frac{n(x_2)}{n(x_1)}}
+\note{Electrons drift opposite $\E$; holes drift with $\E$. Conventional drift current is along $\E$ for both. In $(1/q)dE_C/dx$, use $E_C$ in joules.}
+\topic{4. Continuity and recombination}{L4 p29--30; L5 p5--17}
+\eq{\text{Pair generation: }\Delta n=\Delta p}
+\eq{\frac{\partial n}{\partial t}=\frac1q\frac{\partial J_n}{\partial x}+G-R}
+\eq{\frac{\partial p}{\partial t}=-\frac1q\frac{\partial J_p}{\partial x}+G-R}
+\eq{R_{\rm net}=\frac{np-\ni^2}{\tau_p(n+n_1)+\tau_n(p+p_1)}}
+\eq{n_1=\ni e^{(E_T-E_i)/(k_BT)},\quad p_1=\ni e^{(E_i-E_T)/(k_BT)}}
+\note{$R_{\rm net}>0$: net recombination. Low injection: $|\Delta n|\ll n_0$ in n-type; $|\Delta p|\ll p_0$ in p-type.}
+\eq{\frac{\partial\Delta p}{\partial t}=D_p\frac{\partial^2\Delta p}{\partial x^2}-\frac{\Delta p}{\tau_p}+G_L}
+\eq{L_p=\sqrt{D_p\tau_p},\quad L_n=\sqrt{D_n\tau_n}}
+\eq{\text{No current/source: }\Delta p(t)=\Delta p(0)e^{-t/\tau_p}}
+\eq{\text{Steady, }G_L=0:\ \Delta p(x)=\Delta p(0)e^{-x/L_p}}
+\note{Minority-diffusion forms assume a field-free neutral region and low injection. Swap $n\leftrightarrow p$ for electrons in p-type material.}
+\topic{5. Quasi-Fermi levels}{L5 p21--23}
+\eq{n=\ni e^{(F_n-E_i)/(k_BT)},\quad p=\ni e^{(E_i-F_p)/(k_BT)}}
+\eq{F_n=E_i+k_BT\ln\frac{n}{\ni},\quad F_p=E_i-k_BT\ln\frac{p}{\ni}}
+\eq{np=\ni^2\exp\left(\frac{F_n-F_p}{k_BT}\right)}
+\note{Boltzmann relations. At equilibrium $F_n=F_p=E_F$ and $np=n_i^2$.}
+\topic{Scattering and mobility}{L4 p4--8 (repeats L3 p33--37)}
+\eq{\mu_{\rm phonon}\propto T^{-3/2},\qquad\mu_{\rm impurity}\propto\frac{T^{3/2}}{N_D+N_A}}
+\eq{\mu=\frac{q\tau}{m^*},\qquad\frac1\mu=\frac1{\mu_{\rm phonon}}+\frac1{\mu_{\rm impurity}}}
+\note{Matthiessen's rule: the mechanism with the lower mobility dominates. More heat increases phonon scattering; faster carriers are deflected less by fixed ions.}
+\end{multicols*}\newpage
+\header{Junctions, contacts and diode current}
+\begin{multicols*}{2}
+\topic{6. Electrostatics and abrupt PN junctions}{L5 p24--25; L6 p17--29}
+\eq{\rho_{\rm ch}=q(p-n+N_D^+-N_A^-)}
+\eq{\frac{d\E}{dx}=\frac{\rho_{\rm ch}}{\varepsilon_s},\quad\E=-\frac{d\psi}{dx},\quad\frac{d^2\psi}{dx^2}=-\frac{\rho_{\rm ch}}{\varepsilon_s}}
+\eq{V_{bi}=\VT\ln\frac{N_AN_D}{\ni^2},\quad U=V_{bi}-V_A>0}
+\eq{W=\sqrt{\frac{2\varepsilon_s}{q}\left(\frac1{N_A}+\frac1{N_D}\right)U}}
+\eq{x_p=\frac{WN_D}{N_A+N_D},\quad x_n=\frac{WN_A}{N_A+N_D}}
+\eq{N_Ax_p=N_Dx_n,\quad W=x_p+x_n}
+\eq{|\E_{\max}|=\frac{qN_Ax_p}{\varepsilon_s}=\frac{qN_Dx_n}{\varepsilon_s}=\frac{2U}{W}}
+\eq{\text{p-side: }\E(x)=-\frac{qN_A}{\varepsilon_s}(x+x_p)}
+\eq{\text{n-side: }\E(x)=+\frac{qN_D}{\varepsilon_s}(x-x_n)}
+\eq{|Q|=qAN_Ax_p=qAN_Dx_n}
+\eq{\text{One-sided: }W\approx\sqrt{\frac{2\varepsilon_sU}{qN_{\rm light}}}}
+\eq{\text{p}^+\text{n / n}^+\text{p: }qV_{bi}\approx\frac{E_g}{2}+k_BT\ln\frac{N_{\rm light}}{\ni}}
+\note{$V_A>0$ is PN forward bias. Depletion has fixed dopant charge and negligible mobile charge. Ordinary $V_{bi}$ assumes nondegenerate statistics; the heavy-side approximation pins $E_F$ at its band edge.}
+\topic{7. Metal-semiconductor contacts}{L5 p27--39; L6 p4--8}
+\eq{\phi_{Bn}=\phi_M-\chi,\quad\phi_{Bp}=\frac{E_g}{q}-\phi_{Bn}\quad\text{(ideal)}}
+\eq{\text{n-type: }V_{bi}=\phi_{Bn}-\VT\ln\frac{N_C}{N_D}}
+\eq{\text{p-type: }V_{bi}=\phi_{Bp}-\VT\ln\frac{N_V}{N_A}}
+\eq{W_n=\sqrt{\frac{2\varepsilon_s(V_{bi}-V_A)}{qN_D}}}
+\eq{W_p=\sqrt{\frac{2\varepsilon_s(V_{bi}+V_A)}{qN_A}}}
+\note{$\phi$ and $\chi$ are energy/$q$ in volts; eV energies have the same numerical value. P-type polarity (L6 p8): $V_A>0$ is reverse bias.}
+\note{NiSi (L5 p33): electron barrier 0.65 eV; hole barrier 0.47 eV; work function 4.65 eV. Real interfaces can depart from ideal Schottky-Mott values.}
+\topic{Symbols and units}{Course notation}
+\note{$n,p$: electron/hole densities; $N_D,N_A$: donor/acceptor densities. $A$: area; $\mu$: mobility; $D$: diffusivity; $\tau$: lifetime; $L$: diffusion length.}
+\note{$E_F$: equilibrium Fermi level; $E_i$: intrinsic level; $E_C,E_V$: band edges; $\E$: electric field; $\phi_B$: barrier energy/$q$.}
+\note{$\rho_{\rm ch}$: charge density (C/cm$^3$); $\rho_{\rm res}$: resistivity ($\Omega\cdot$cm). $J$: A/cm$^2$; $I=AJ$: amperes.}
+\columnbreak
+\topic{8. Depletion capacitance and C--V}{L6 p9--11}
+\eq{C=\frac{\varepsilon_s A}{W},\quad i_{\rm ac}=C\frac{dv_{\rm ac}}{dt}}
+\eq{\frac1{C^2}=\frac{2(V_{bi}-V_A)}{q\varepsilon_s A^2N}}
+\eq{m=\frac{d(1/C^2)}{dV_A}=-\frac2{q\varepsilon_s A^2N}}
+\eq{N=-\frac2{q\varepsilon_s A^2m},\quad\text{voltage intercept}=V_{bi}}
+\note{Slope sign uses n-type Schottky or one-sided PN forward-bias convention. $A$ is area. Use consistent cm/F units.}
+\topic{9. Ideal PN diode}{L7 p6--20}
+\eq{n_{p0}=\frac{\ni^2}{N_A},\quad p_{n0}=\frac{\ni^2}{N_D}}
+\eq{n_p(-x_p)=n_{p0}e^{V_A/\VT},\quad p_n(x_n)=p_{n0}e^{V_A/\VT}}
+\eq{J=J_0\left(e^{V_A/\VT}-1\right),\quad I=AJ}
+\eq{J_0=q\ni^2\left(\frac{D_n}{L_nN_A}+\frac{D_p}{L_pN_D}\right)}
+\eq{\Delta p_n(x_n+x)=p_{n0}\left(e^{V_A/\VT}-1\right)e^{-x/L_p}}
+\eq{x\ge0,\quad \Delta V_{A,\rm decade}=\VT\ln10\approx59.5\ \mathrm{mV}}
+\note{At 300 K. Assumes long neutral regions, steady state, low injection, full ionization, nondegenerate statistics and no depletion-region recombination. Ideal reverse current tends to $-J_0$ before breakdown.}
+\topic{10. Nonideal current and breakdown}{L8 p4--16}
+\eq{\text{Reverse R--G: }I_{\rm R-G}\approx-\frac{qA\ni W}{2\tau_0}}
+\eq{\tau_0=\frac{\tau_pn_1+\tau_np_1}{2\ni}}
+\eq{\text{Forward R--G: }I_{\rm R-G}\propto\ni W e^{V_A/(2\VT)}}
+\eq{\text{Series resistance: }V_A=V_J+IR_S}
+\eq{V_{\rm BR}\approx\frac{\varepsilon_s\E_{\rm CR}^2}{2qN_{\rm light}}-V_{bi}}
+\note{Critical-field estimate for a one-sided junction. If $V_{\rm BR}\gg V_{bi}$, drop $V_{bi}$. This is not a breakdown-current law.}
+\note{\textbf{Avalanche:} impact ionization; $\E_{\rm CR}\sim10^5$--$10^6$ V/cm; $V_{\rm BR}$ generally rises with temperature.}
+\note{\textbf{Zener:} heavy doping, $W\lesssim10$ nm, $\E_{\rm CR}\sim10^6$ V/cm; typically $V_{\rm BR}<5$ V and falls with temperature.}
+\note{High injection and series resistance invalidate simple ideal-current assumptions.}
+\topic{Energy and sign checks}{Before substituting}
+\note{Use joules with $k_B$ in J/K when explicitly dividing energy by $q$. For eV energies, $k_B=8.617\times10^{-5}$ eV/K; energy/$q$ has the same numerical value in volts.}
+\note{Electron velocity and electron current have opposite signs. Label electric field, voltage reference and positive current direction before using a transport formula.}
+\end{multicols*}\end{document}

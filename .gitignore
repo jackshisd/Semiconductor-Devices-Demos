@@ -1,7 +1,17 @@
 node_modules
 .next
+.next-dev
 .next-build
 out
 *.tsbuildinfo
 semiconductor-physics-lab/
 class slides/
+public/pdfjs/
+.openai/slide-review/
+.openai/serve-preview.mjs
+tmp/
+output/
+guides/**/*.aux
+guides/**/*.log
+guides/**/*.synctex.gz
+guides/**/*.xdv

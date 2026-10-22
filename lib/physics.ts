@@ -5,14 +5,14 @@ export const kEV = 8.617333262145e-5; // eV/K
 export const kJ = 1.380649e-23;
 export const thermalVoltage = (T: number) => kEV * T;
 // The lecture values at 300 K are Eg = 1.12 eV, Nc = 2.82e19 and Nv = 1.83e19 cm^-3.
-// Keep Varshni's temperature dependence while anchoring the rounded course value at 300 K.
-const varshni = (T: number) => 1.17 - 4.73e-4 * T * T / (T + 636);
-export const bandgap = (T: number) => 1.12 + varshni(T) - varshni(300);
+export const bandgap = (_T: number) => 1.12; // Fixed silicon gap used in the lecture equations.
 export const Nc = (T: number) => 2.82e19 * (T / 300) ** 1.5;
 export const Nv = (T: number) => 1.83e19 * (T / 300) ** 1.5;
-export const ni = (T: number) => Math.sqrt(Nc(T) * Nv(T)) * Math.exp(-bandgap(T) / (2 * thermalVoltage(T)));
+export const ni = (T: number) =>
+  Math.sqrt(Nc(T) * Nv(T)) * Math.exp(-bandgap(T) / (2 * thermalVoltage(T)));
 // Intrinsic level relative to the middle of the gap, under Boltzmann statistics.
-export const intrinsicMidgapOffset = (T: number) => thermalVoltage(T) / 2 * Math.log(Nv(T) / Nc(T));
+export const intrinsicMidgapOffset = (T: number) =>
+  (thermalVoltage(T) / 2) * Math.log(Nv(T) / Nc(T));
 export function requirePositive(value: number, name: string) {
   if (!Number.isFinite(value) || value <= 0) throw Error(`${name} must be positive.`);
   return value;
@@ -21,48 +21,50 @@ export function builtIn(NA: number, ND: number, T: number) {
   requirePositive(NA, 'Acceptor concentration');
   requirePositive(ND, 'Donor concentration');
   requirePositive(T, 'Temperature');
-  const ratio = NA * ND / ni(T) ** 2;
-  if (!(ratio > 1)) throw Error('Doping must exceed intrinsic concentration for this PN approximation.');
+  const ratio = (NA * ND) / ni(T) ** 2;
+  if (!(ratio > 1))
+    throw Error('Doping must exceed intrinsic concentration for this PN approximation.');
   return thermalVoltage(T) * Math.log(ratio);
 }
 export function pnDepletion(NA: number, ND: number, T: number, VA: number) {
+  if (!Number.isFinite(VA)) throw Error('Applied voltage must be finite.');
   const vbi = builtIn(NA, ND, T),
     drop = vbi - VA;
-  if (drop <= 0) throw Error('Applied forward bias exceeds built-in voltage; depletion approximation is invalid.');
-  const W = Math.sqrt(2 * epsSi / q * (1 / NA + 1 / ND) * drop);
-  const xp = W * ND / (NA + ND),
-    xn = W * NA / (NA + ND);
+  if (drop <= 0)
+    throw Error(
+      'Applied forward bias exceeds built-in voltage; depletion approximation is invalid.',
+    );
+  const W = Math.sqrt(((2 * epsSi) / q) * (1 / NA + 1 / ND) * drop);
+  const xp = (W * ND) / (NA + ND),
+    xn = (W * NA) / (NA + ND);
   return {
     vbi,
     drop,
     W,
     xp,
     xn,
-    Emax: q * NA * xp / epsSi
+    Emax: (q * NA * xp) / epsSi,
   };
 }
 export function pnFields(x: number, NA: number, ND: number, T: number, VA: number) {
   const d = pnDepletion(NA, ND, T, VA);
-  const {
-    xp,
-    xn
-  } = d;
+  const { xp, xn } = d;
   let rho = 0,
     E = 0,
     V = 0;
   if (x >= -xp && x < 0) {
     rho = -q * NA;
-    E = -q * NA * (x + xp) / epsSi;
-    V = q * NA * (x + xp) ** 2 / (2 * epsSi);
+    E = (-q * NA * (x + xp)) / epsSi;
+    V = (q * NA * (x + xp) ** 2) / (2 * epsSi);
   } else if (x >= 0 && x <= xn) {
     rho = q * ND;
-    E = q * ND * (x - xn) / epsSi;
-    V = q * NA * xp * xp / (2 * epsSi) + q * ND * (xn * x - x * x / 2) / epsSi;
+    E = (q * ND * (x - xn)) / epsSi;
+    V = (q * NA * xp * xp) / (2 * epsSi) + (q * ND * (xn * x - (x * x) / 2)) / epsSi;
   } else if (x > xn) V = d.drop;
   return {
     rho,
     E,
-    V
+    V,
   };
 }
 export function doping(NA0: number, ND: number, L: number, x: number) {
@@ -74,10 +76,13 @@ export function doping(NA0: number, ND: number, L: number, x: number) {
     NA,
     ND,
     net: ND - NA,
-    type: NA > ND ? 'p-type' : ('n-type' as 'p-type' | 'n-type')
+    type: NA > ND ? 'p-type' : ('n-type' as 'p-type' | 'n-type'),
   };
 }
 export function junctionPosition(NA0: number, ND: number, L: number) {
+  requirePositive(NA0, 'Acceptor concentration');
+  requirePositive(ND, 'Donor concentration');
+  requirePositive(L, 'Diffusion length');
   return L * Math.log(NA0 / ND);
 }
 export function schottky(phiBn: number, ND: number, T: number, VA: number, epsilon = epsSi) {
@@ -89,14 +94,16 @@ export function schottky(phiBn: number, ND: number, T: number, VA: number, epsil
   const offset = thermalVoltage(T) * Math.log(Nc(T) / ND);
   const vbi = phiBn - offset;
   const drop = vbi - VA;
-  if (vbi <= 0) throw Error('Barrier and doping imply accumulation, not a depleted Schottky contact.');
-  if (drop <= 0) throw Error('Forward bias exceeds built-in voltage; depletion approximation is invalid.');
+  if (vbi <= 0)
+    throw Error('Barrier and doping imply accumulation, not a depleted Schottky contact.');
+  if (drop <= 0)
+    throw Error('Forward bias exceeds built-in voltage; depletion approximation is invalid.');
   return {
     phiBn,
     vbi,
     drop,
-    W: Math.sqrt(2 * epsilon * drop / (q * ND)),
-    offset
+    W: Math.sqrt((2 * epsilon * drop) / (q * ND)),
+    offset,
   };
 }
 export function schottkyP(phiBp: number, NA: number, T: number, epsilon = epsSi) {
@@ -111,8 +118,8 @@ export function schottkyP(phiBp: number, NA: number, T: number, epsilon = epsSi)
     phiBp,
     vbi,
     drop: vbi,
-    W: Math.sqrt(2 * epsilon * vbi / (q * NA)),
-    offset
+    W: Math.sqrt((2 * epsilon * vbi) / (q * NA)),
+    offset,
   };
 }
 export function capacitance(ND: number, area: number, vbi: number, VA: number, epsilon = epsSi) {
@@ -122,14 +129,14 @@ export function capacitance(ND: number, area: number, vbi: number, VA: number, e
   requirePositive(epsilon, 'Permittivity');
   if (!Number.isFinite(VA)) throw Error('Applied voltage must be finite.');
   if (vbi - VA <= 0) throw Error('Bias is outside the depletion-capacitance regime.');
-  const W = Math.sqrt(2 * epsilon * (vbi - VA) / (q * ND));
-  const C = epsilon * area / W;
+  const W = Math.sqrt((2 * epsilon * (vbi - VA)) / (q * ND));
+  const C = (epsilon * area) / W;
   return {
     W,
     C,
     invC2: 1 / (C * C),
     slope: -2 / (q * epsilon * area * area * ND),
-    intercept: vbi
+    intercept: vbi,
   };
 }
 // Complete Fermi–Dirac integral F_{1/2}(eta), with its standard 2/sqrt(pi) normalization.
@@ -140,10 +147,10 @@ export function fdHalf(eta: number) {
   let sum = 0;
   for (let i = 1; i < n; i++) {
     const s = i * h;
-    sum += (i % 2 ? 4 : 2) * 2 * s * s / (1 + Math.exp(s * s - eta));
+    sum += ((i % 2 ? 4 : 2) * 2 * s * s) / (1 + Math.exp(s * s - eta));
   }
-  const end = 2 * upper * upper / (1 + Math.exp(upper * upper - eta));
-  return 2 / Math.sqrt(Math.PI) * h * (sum + end) / 3;
+  const end = (2 * upper * upper) / (1 + Math.exp(upper * upper - eta));
+  return ((2 / Math.sqrt(Math.PI)) * h * (sum + end)) / 3;
 }
 export function inverseFdHalf(y: number) {
   requirePositive(y, 'Carrier concentration ratio');
@@ -152,12 +159,14 @@ export function inverseFdHalf(y: number) {
     hi = 100;
   for (let i = 0; i < 90; i++) {
     const mid = (lo + hi) / 2;
-    if (fdHalf(mid) < y) lo = mid;else hi = mid;
+    if (fdHalf(mid) < y) lo = mid;
+    else hi = mid;
   }
   return (lo + hi) / 2;
 }
 export function fermiOffset(type: 'n' | 'p', N: number, T: number) {
   requirePositive(N, 'Dopant concentration');
+  requirePositive(T, 'Temperature');
   const eta = inverseFdHalf(N / (type === 'n' ? Nc(T) : Nv(T)));
   const edge = eta * thermalVoltage(T);
   const approx = thermalVoltage(T) * Math.log(N / (type === 'n' ? Nc(T) : Nv(T)));
@@ -167,7 +176,7 @@ export function fermiOffset(type: 'n' | 'p', N: number, T: number) {
     approx,
     degenerate: eta > -3,
     insideBand: eta >= 0,
-    boltzmannValid: eta <= -3
+    boltzmannValid: eta <= -3,
   };
 }
 export function advancedJunction(NA: number, ND: number, T: number) {
@@ -176,26 +185,48 @@ export function advancedJunction(NA: number, ND: number, T: number) {
   return {
     vbi: bandgap(T) + p.edge + n.edge,
     p,
-    n
+    n,
   };
 }
 export const um = (cm: number) => cm * 1e4;
 
 // Low-field drift-diffusion, nondegenerate Einstein relation; densities in cm^-3.
-export function electronTransport(n: number, gradient: number, field: number, mobility: number, T: number) {
+export function electronTransport(
+  n: number,
+  gradient: number,
+  field: number,
+  mobility: number,
+  T: number,
+) {
+  if (!Number.isFinite(gradient) || !Number.isFinite(field))
+    throw Error('Density gradient and electric field must be finite.');
   requirePositive(n, 'Electron density');
   requirePositive(mobility, 'Electron mobility');
   requirePositive(T, 'Temperature');
   const D = mobility * thermalVoltage(T);
   const drift = q * mobility * n * field;
   const diffusion = q * D * gradient;
-  return { D, drift, diffusion, total: drift + diffusion, equilibriumField: -thermalVoltage(T) * gradient / n };
+  return {
+    D,
+    drift,
+    diffusion,
+    total: drift + diffusion,
+    equilibriumField: (-thermalVoltage(T) * gradient) / n,
+  };
 }
 
 // Steady-state excess minority holes in a uniformly doped n-type half-space.
-export function minorityHoles(x: number, excessAtEdge: number, mobility: number, lifetime: number, T: number, field = 0) {
+export function minorityHoles(
+  x: number,
+  excessAtEdge: number,
+  mobility: number,
+  lifetime: number,
+  T: number,
+  field = 0,
+) {
   if (!Number.isFinite(x) || x < 0) throw Error('Distance must be finite and nonnegative.');
-  if (!Number.isFinite(excessAtEdge) || excessAtEdge < 0) throw Error('Excess hole concentration must be nonnegative.');
+  if (!Number.isFinite(excessAtEdge) || excessAtEdge < 0)
+    throw Error('Excess hole concentration must be nonnegative.');
   requirePositive(mobility, 'Hole mobility');
   requirePositive(lifetime, 'Minority carrier lifetime');
   requirePositive(T, 'Temperature');
@@ -204,35 +235,78 @@ export function minorityHoles(x: number, excessAtEdge: number, mobility: number,
   const L0 = Math.sqrt(D * lifetime);
   const driftVelocity = mobility * field;
   const root = Math.hypot(driftVelocity, 2 * Math.sqrt(D / lifetime));
-  const L = driftVelocity >= 0 ? lifetime * (root + driftVelocity) / 2 : 2 * D / (root - driftVelocity);
+  const L =
+    driftVelocity >= 0 ? (lifetime * (root + driftVelocity)) / 2 : (2 * D) / (root - driftVelocity);
   const excess = excessAtEdge * Math.exp(-x / L);
   const driftCurrent = q * driftVelocity * excess;
-  const diffusionCurrent = q * D * excess / L;
-  return { D, L0, L, excess, recombination: excess / lifetime, driftCurrent, diffusionCurrent,
-    excessCurrent: driftCurrent + diffusionCurrent };
+  const diffusionCurrent = (q * D * excess) / L;
+  return {
+    D,
+    L0,
+    L,
+    excess,
+    recombination: excess / lifetime,
+    driftCurrent,
+    diffusionCurrent,
+    excessCurrent: driftCurrent + diffusionCurrent,
+  };
 }
 
 // Ideal long-base step junction; complete ionization, low-level injection, no depletion recombination.
-export function idealDiode(NA: number, ND: number, VA: number, T: number, lifetime: number, muN = 1400, muP = 470) {
+export function idealDiode(
+  NA: number,
+  ND: number,
+  VA: number,
+  T: number,
+  lifetime: number,
+  muN = 1400,
+  muP = 470,
+) {
+  if (!Number.isFinite(VA)) throw Error('Applied voltage must be finite.');
   requirePositive(NA, 'Acceptor concentration');
   requirePositive(ND, 'Donor concentration');
   requirePositive(T, 'Temperature');
   requirePositive(lifetime, 'Minority carrier lifetime');
   requirePositive(muN, 'Electron mobility');
   requirePositive(muP, 'Hole mobility');
-  const Dn = muN * thermalVoltage(T), Dp = muP * thermalVoltage(T);
-  const Ln = Math.sqrt(Dn * lifetime), Lp = Math.sqrt(Dp * lifetime);
-  const np0 = ni(T) ** 2 / NA, pn0 = ni(T) ** 2 / ND;
+  const Dn = muN * thermalVoltage(T),
+    Dp = muP * thermalVoltage(T);
+  const Ln = Math.sqrt(Dn * lifetime),
+    Lp = Math.sqrt(Dp * lifetime);
+  const np0 = ni(T) ** 2 / NA,
+    pn0 = ni(T) ** 2 / ND;
   const injection = Math.exp(VA / thermalVoltage(T));
-  const J0 = q * (Dn * np0 / Ln + Dp * pn0 / Lp);
+  if (!Number.isFinite(injection))
+    throw Error('Applied voltage exceeds the numerical range of the ideal diode model.');
+  const J0 = q * ((Dn * np0) / Ln + (Dp * pn0) / Lp);
   const J = J0 * Math.expm1(VA / thermalVoltage(T));
-  return { Dn, Dp, Ln, Lp, np0, pn0, injection, J0, J, npEdge: np0 * injection, pnEdge: pn0 * injection,
-    lowInjection: np0 * injection < .1 * NA && pn0 * injection < .1 * ND };
+  return {
+    Dn,
+    Dp,
+    Ln,
+    Lp,
+    np0,
+    pn0,
+    injection,
+    J0,
+    J,
+    npEdge: np0 * injection,
+    pnEdge: pn0 * injection,
+    lowInjection: np0 * injection < 0.1 * NA && pn0 * injection < 0.1 * ND,
+  };
 }
 
 // Illustrative reverse-breakdown extension, with an independently chosen knee and voltage scale.
-export function diodeWithBreakdown(NA: number, ND: number, VA: number, T: number, lifetime: number,
-  breakdownVoltage: number, kneeVoltage: number, kneeCurrent = 1e-3) {
+export function diodeWithBreakdown(
+  NA: number,
+  ND: number,
+  VA: number,
+  T: number,
+  lifetime: number,
+  breakdownVoltage: number,
+  kneeVoltage: number,
+  kneeCurrent = 1e-3,
+) {
   requirePositive(breakdownVoltage, 'Breakdown voltage');
   requirePositive(kneeVoltage, 'Breakdown knee voltage scale');
   requirePositive(kneeCurrent, 'Breakdown knee current density');
@@ -246,25 +320,53 @@ export function diodeWithBreakdown(NA: number, ND: number, VA: number, T: number
 }
 
 // Local 1D continuity balance over a slice of length cm. Delta J is right-face minus left-face current density.
-export function continuityRates(deltaJn: number, deltaJp: number, length: number, generation: number, recombination: number) {
+export function continuityRates(
+  deltaJn: number,
+  deltaJp: number,
+  length: number,
+  generation: number,
+  recombination: number,
+) {
   requirePositive(length, 'Slice length');
-  for (const [value, name] of [[deltaJn, 'Electron current difference'], [deltaJp, 'Hole current difference'],
-    [generation, 'Generation rate'], [recombination, 'Recombination rate']] as const) {
-    if (!Number.isFinite(value) || (name.endsWith('rate') && value < 0)) throw Error(`${name} must be finite and nonnegative where applicable.`);
+  for (const [value, name] of [
+    [deltaJn, 'Electron current difference'],
+    [deltaJp, 'Hole current difference'],
+    [generation, 'Generation rate'],
+    [recombination, 'Recombination rate'],
+  ] as const) {
+    if (!Number.isFinite(value) || (name.endsWith('rate') && value < 0))
+      throw Error(`${name} must be finite and nonnegative where applicable.`);
   }
   const pairRate = generation - recombination;
   const electronRate = deltaJn / (q * length) + pairRate;
   const holeRate = -deltaJp / (q * length) + pairRate;
-  return { pairRate, electronRate, holeRate, chargeRate: q * (holeRate - electronRate),
-    currentDivergence: (deltaJn + deltaJp) / length };
+  return {
+    pairRate,
+    electronRate,
+    holeRate,
+    chargeRate: q * (holeRate - electronRate),
+    currentDivergence: (deltaJn + deltaJp) / length,
+  };
 }
 
 // With a uniform electric field, the drift-current change across the slice is q μ E Δcarrier.
 // The total current changes are prescribed; diffusion is the remaining contribution.
-export function continuityCurrentSplit(deltaJn: number, deltaJp: number, field: number,
-  deltaN: number, deltaP: number, muN = 1400, muP = 470) {
-  for (const [value, name] of [[deltaJn, 'Electron current change'], [deltaJp, 'Hole current change'],
-    [field, 'Electric field'], [deltaN, 'Electron density change'], [deltaP, 'Hole density change']] as const) {
+export function continuityCurrentSplit(
+  deltaJn: number,
+  deltaJp: number,
+  field: number,
+  deltaN: number,
+  deltaP: number,
+  muN = 1400,
+  muP = 470,
+) {
+  for (const [value, name] of [
+    [deltaJn, 'Electron current change'],
+    [deltaJp, 'Hole current change'],
+    [field, 'Electric field'],
+    [deltaN, 'Electron density change'],
+    [deltaP, 'Hole density change'],
+  ] as const) {
     if (!Number.isFinite(value)) throw Error(name + ' must be finite.');
   }
   requirePositive(muN, 'Electron mobility');
@@ -278,14 +380,18 @@ export function continuityCurrentSplit(deltaJn: number, deltaJp: number, field: 
 export function dopedFermi(type: 'n' | 'p', dopant: number, T: number) {
   requirePositive(dopant, 'Dopant concentration');
   requirePositive(T, 'Temperature');
-  const Vt = thermalVoltage(T), Eg = bandgap(T);
-  const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
+  const Vt = thermalVoltage(T),
+    Eg = bandgap(T);
+  const Ec = Eg / 2 - intrinsicMidgapOffset(T),
+    Ev = Ec - Eg;
   const target = type === 'n' ? dopant : -dopant;
-  let lo = Ev - 2, hi = Ec + 2;
+  let lo = Ev - 2,
+    hi = Ec + 2;
   for (let i = 0; i < 70; i++) {
     const mid = (lo + hi) / 2;
     const charge = Nc(T) * fdHalf((mid - Ec) / Vt) - Nv(T) * fdHalf((Ev - mid) / Vt);
-    if (charge < target) lo = mid; else hi = mid;
+    if (charge < target) lo = mid;
+    else hi = mid;
   }
   const Ef = (lo + hi) / 2;
   const n0 = Nc(T) * fdHalf((Ef - Ec) / Vt);
@@ -295,25 +401,44 @@ export function dopedFermi(type: 'n' | 'p', dopant: number, T: number) {
 
 // Equal electron-hole pair injection preserves net charge while splitting quasi-Fermi levels.
 export function injectedQuasiFermi(base: ReturnType<typeof dopedFermi>, excess: number) {
-  if (!Number.isFinite(excess) || excess < 0) throw Error('Excess carrier density must be nonnegative.');
-  const n = base.n0 + excess, p = base.p0 + excess;
+  if (!Number.isFinite(excess) || excess < 0)
+    throw Error('Excess carrier density must be nonnegative.');
+  const n = base.n0 + excess,
+    p = base.p0 + excess;
   const Fn = base.Ec + base.Vt * inverseFdHalf(n / Nc(base.T));
   const Fp = base.Ev - base.Vt * inverseFdHalf(p / Nv(base.T));
-  return { ...base, n, p, Fn, Fp, split: Fn - Fp,
-    boltzmannValid: base.Ec - Fn >= 3 * base.Vt && Fp - base.Ev >= 3 * base.Vt };
+  return {
+    ...base,
+    n,
+    p,
+    Fn,
+    Fp,
+    split: Fn - Fp,
+    boltzmannValid: base.Ec - Fn >= 3 * base.Vt && Fp - base.Ev >= 3 * base.Vt,
+  };
 }
 
 // Parabolic-band density of states per eV and occupied-state spectrum.
 // "energyFromEdge" is E−Ec for electrons or Ev−E for holes.
-export function carrierSpectrum(type: 'n' | 'p', energyFromEdge: number, fermiFromIntrinsic: number, T: number) {
+export function carrierSpectrum(
+  type: 'n' | 'p',
+  energyFromEdge: number,
+  fermiFromIntrinsic: number,
+  T: number,
+) {
   requirePositive(T, 'Temperature');
-  if (!Number.isFinite(energyFromEdge) || energyFromEdge < 0) throw Error('Energy from band edge must be nonnegative.');
+  if (!Number.isFinite(energyFromEdge) || energyFromEdge < 0)
+    throw Error('Energy from band edge must be nonnegative.');
   if (!Number.isFinite(fermiFromIntrinsic)) throw Error('Fermi energy must be finite.');
-  const Vt = thermalVoltage(T), Eg = bandgap(T);
-  const Ec = Eg / 2 - intrinsicMidgapOffset(T), Ev = Ec - Eg;
+  const Vt = thermalVoltage(T),
+    Eg = bandgap(T);
+  const Ec = Eg / 2 - intrinsicMidgapOffset(T),
+    Ev = Ec - Eg;
   const edge = type === 'n' ? Ec : Ev;
   const eta = type === 'n' ? (fermiFromIntrinsic - edge) / Vt : (edge - fermiFromIntrinsic) / Vt;
-  const states = 2 * (type === 'n' ? Nc(T) : Nv(T)) / (Math.sqrt(Math.PI) * Vt ** 1.5) * Math.sqrt(energyFromEdge);
+  const states =
+    ((2 * (type === 'n' ? Nc(T) : Nv(T))) / (Math.sqrt(Math.PI) * Vt ** 1.5)) *
+    Math.sqrt(energyFromEdge);
   const occupation = 1 / (1 + Math.exp(energyFromEdge / Vt - eta));
   return { states, occupation, occupiedStates: states * occupation, edge, eta };
 }
@@ -321,6 +446,12 @@ export function carrierSpectrum(type: 'n' | 'p', energyFromEdge: number, fermiFr
 export function carrierDensitiesFromFermi(fermiFromIntrinsic: number, T: number) {
   const electron = carrierSpectrum('n', 0, fermiFromIntrinsic, T);
   const hole = carrierSpectrum('p', 0, fermiFromIntrinsic, T);
-  return { n: Nc(T) * fdHalf(electron.eta), p: Nv(T) * fdHalf(hole.eta),
-    Ec: electron.edge, Ev: hole.edge, electronEta: electron.eta, holeEta: hole.eta };
+  return {
+    n: Nc(T) * fdHalf(electron.eta),
+    p: Nv(T) * fdHalf(hole.eta),
+    Ec: electron.edge,
+    Ev: hole.edge,
+    electronEta: electron.eta,
+    holeEta: hole.eta,
+  };
 }

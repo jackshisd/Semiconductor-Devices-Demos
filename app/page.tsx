@@ -1,2 +1,4 @@
 import Lab from '../components/Lab';
-export default function Page(){return <Lab slug="home"/>}
+export default function Page() {
+  return <Lab slug="home" />;
+}

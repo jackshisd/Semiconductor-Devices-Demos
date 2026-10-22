@@ -1,0 +1,10 @@
+node_modules
+.next
+.next-dev
+.next-build
+out
+.openai
+class slides
+semiconductor-physics-lab
+package-lock.json
+public/pdfjs/

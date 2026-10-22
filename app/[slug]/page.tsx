@@ -1,4 +1,23 @@
+import type { Metadata } from 'next';
+import { notFound } from 'next/navigation';
 import Lab from '../../components/Lab';
-const slugs=['doping','junction-models','pn-depletion','built-in-potential','drift-diffusion','minority-diffusion','continuity','ideal-diode','avalanche-breakdown','zener-breakdown','quasi-fermi','hole-distribution','degenerate-doping','degenerate-junctions','schottky','schottky-bias','capacitance'];
-export function generateStaticParams(){return slugs.map(slug=>({slug}))}
-export default async function Page({params}:{params:Promise<{slug:string}>}){const {slug}=await params;return <Lab slug={slug}/>}
+import { experiments } from '../../lib/experiments';
+
+export const dynamicParams = false;
+export function generateStaticParams() {
+  return experiments.map(({ slug }) => ({ slug }));
+}
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const page = experiments.find((page) => page.slug === slug);
+  return page ? { title: page.title, description: page.subtitle } : {};
+}
+export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  if (!experiments.some((page) => page.slug === slug)) notFound();
+  return <Lab slug={slug} />;
+}

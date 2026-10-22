@@ -1,0 +1,58 @@
+[
+  {
+    "id": "lecture-1",
+    "title": "Introduction · Semiconductor refresher",
+    "file": "/lectures/lecture-1.pdf",
+    "pages": 28,
+    "sourceFile": "Introductory Lecture - Refresher on Semicondcutors.pdf"
+  },
+  {
+    "id": "lecture-2",
+    "title": "Lecture 2 · Energy bands and carriers",
+    "file": "/lectures/lecture-2.pdf",
+    "pages": 36,
+    "sourceFile": "Lecture 2.pdf"
+  },
+  {
+    "id": "lecture-3",
+    "title": "Lecture 3 · Carrier statistics and drift",
+    "file": "/lectures/lecture-3.pdf",
+    "pages": 49,
+    "sourceFile": "Lecture 3.pdf"
+  },
+  {
+    "id": "lecture-4",
+    "title": "Lecture 4 · Scattering and carrier actions",
+    "file": "/lectures/lecture-4.pdf",
+    "pages": 33,
+    "sourceFile": "Lecture 4.pdf"
+  },
+  {
+    "id": "lecture-5",
+    "title": "Lecture 5 · Continuity and metal contacts",
+    "file": "/lectures/lecture-5.pdf",
+    "pages": 41,
+    "sourceFile": "Lecture 5.pdf"
+  },
+  {
+    "id": "lecture-6",
+    "title": "Lecture 6 · Schottky and PN junctions",
+    "file": "/lectures/lecture-6.pdf",
+    "pages": 32,
+    "sourceFile": "Lecture 6.pdf"
+  },
+  {
+    "id": "lecture-7",
+    "title": "Lecture 7 · PN diode current",
+    "file": "/lectures/lecture-7.pdf",
+    "pages": 22,
+    "sourceFile": "Lecture 7.pdf"
+  },
+  {
+    "id": "lecture-8",
+    "title": "Lecture 8 · Nonideal diodes and breakdown",
+    "file": "/lectures/lecture-8.pdf",
+    "pages": 19,
+    "sourceFile": "Lecture 8.pdf"
+  }
+]
