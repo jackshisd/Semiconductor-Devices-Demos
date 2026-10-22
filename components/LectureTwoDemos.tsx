@@ -267,20 +267,24 @@ export function BandFormation() {
 }
 
 export function DopingCarriers() {
-  const { v, set, reset } = useParams({ N: 1e16 });
+  const { v, set, reset } = useParams({ N: 1e16, T: 300 });
   const [type, setType] = useState<'n' | 'p'>('n');
   const [log, setLog] = useState(true);
-  const state = equilibriumDoping(type, v.N);
+  const state = equilibriumDoping(type, v.N, v.T);
   const donor = type === 'n';
-  const Ei = P.intrinsicMidgapOffset(300),
+  const Ei = P.intrinsicMidgapOffset(v.T),
     Ec = 0.56,
     Ev = -0.56;
-  const Ef = Ei + P.thermalVoltage(300) * Math.log(state.n / state.intrinsic);
+  const Ef = Ei + P.thermalVoltage(v.T) * Math.log(state.n / state.intrinsic);
+  const logMinimum = Math.min(
+    2,
+    Math.floor(Math.log10(equilibriumDoping(type, 1e17, v.T).minority)) - 1,
+  );
   const transform = (value: number) => (log ? Math.log10(value) : value);
   const curves = (carrier: 'n' | 'p') =>
     pts(12, 17, 160, (x) => x).map(
       ([x]) =>
-        [log ? x : 10 ** x, transform(equilibriumDoping(type, 10 ** x)[carrier])] as [
+        [log ? x : 10 ** x, transform(equilibriumDoping(type, 10 ** x, v.T)[carrier])] as [
           number,
           number,
         ],
@@ -307,6 +311,7 @@ export function DopingCarriers() {
               unit: 'cm⁻³',
               log: true,
             },
+            { key: 'T', label: 'Temperature', min: 200, max: 450, step: 1, unit: 'K' },
           ]}
         >
           <div className="doping-type-choice" role="group" aria-label="Dopant type">
@@ -328,14 +333,16 @@ export function DopingCarriers() {
             { label: 'Mass action', formula: String.raw`np=n_i^2` },
             { label: 'Fermi-level position', formula: String.raw`E_F-E_i=kT\ln(n/n_i)` },
           ]}
-          substitution={String.raw`n=${texSci(state.n)},\quad p=${texSci(state.p)}\;\mathrm{cm^{-3}},\quad E_F-E_i=${fmt(Ef - Ei, 3)}\;\mathrm{eV}`}
+          substitution={String.raw`T=${v.T}\;\mathrm{K},\quad n=${texSci(state.n)},\quad p=${texSci(state.p)}\;\mathrm{cm^{-3}},\quad E_F-E_i=${fmt(Ef - Ei, 3)}\;\mathrm{eV}`}
         />
       }
     >
       <div className="doping-demo">
         <div className={`doping-summary ${donor ? 'is-donor' : 'is-acceptor'}`}>
           <strong>{donor ? 'N-type silicon' : 'P-type silicon'}</strong>
-          <span>{donor ? 'Arsenic donors' : 'Boron acceptors'} · 300 K</span>
+          <span>
+            {donor ? 'Arsenic donors' : 'Boron acceptors'} · {v.T} K
+          </span>
           <p>
             {donor
               ? 'Donors supply mobile electrons and leave fixed positive ions.'
@@ -369,8 +376,8 @@ export function DopingCarriers() {
                   [
                     log ? x : 10 ** x,
                     Ei +
-                      P.thermalVoltage(300) *
-                        Math.log(equilibriumDoping(type, 10 ** x).n / state.intrinsic),
+                      P.thermalVoltage(v.T) *
+                        Math.log(equilibriumDoping(type, 10 ** x, v.T).n / state.intrinsic),
                   ] as [number, number],
               ),
             },
@@ -413,7 +420,7 @@ export function DopingCarriers() {
         <Plot
           title="Carrier concentrations vs doping"
           xDomain={log ? [12, 17] : [1e12, 1e17]}
-          yDomain={log ? [2, 18] : [0, 1.05e17]}
+          yDomain={log ? [logMinimum, 18] : [0, 1.05e17]}
           xLabel={log ? 'log₁₀ dopant density (cm⁻³)' : 'Dopant density (cm⁻³)'}
           yLabel={log ? 'log₁₀ carriers (cm⁻³)' : 'Carriers (cm⁻³)'}
           series={[
@@ -435,7 +442,7 @@ export function DopingCarriers() {
             { x: selectedX, y: transform(state.p), label: 'p', color: '#d47748' },
           ]}
           onInspect={(x) => {
-            const r = equilibriumDoping(type, log ? 10 ** x : x);
+            const r = equilibriumDoping(type, log ? 10 ** x : x, v.T);
             return `n = ${sci(r.n)} · p = ${sci(r.p)} cm⁻³`;
           }}
         />
