@@ -433,18 +433,18 @@ main {
   font-size: 11px;
   font-weight: 650;
 }
-.calculation-form .calculation-math {
-  font-size: clamp(15px, 0.95vw, 19px);
-}
 .calculation-math {
   overflow-x: auto;
   padding: 8px 0 6px;
   color: #233d43;
-  font-size: clamp(19px, 1.15vw, 27px);
+  font-size: var(--equation-font-size, 17px);
   white-space: nowrap;
   transition:
     color 0.25s,
     background-color 0.25s;
+}
+.calculation-math .katex {
+  font-size: 1em;
 }
 .calculation-math .formula-number-updated {
   color: #086b48;
@@ -2235,6 +2235,7 @@ main:focus {
   font-size: 12px;
 }
 .lecture-linked-demo .calculation {
+  --equation-font-size: 15px;
   padding: 12px;
   margin-top: 12px;
 }
@@ -2400,16 +2401,12 @@ main:focus {
   margin: 12px 0;
 }
 .calculation-current-values .calculation-math {
-  font-size: 13px;
   white-space: normal;
   padding: 4px 0;
   line-height: 1.8;
 }
 .calculation-current-values .katex {
   white-space: normal;
-}
-.lecture-linked-demo .calculation-current-values .calculation-math {
-  font-size: 11px;
 }
 .midterm-prep h1 {
   font-size: 28px;
