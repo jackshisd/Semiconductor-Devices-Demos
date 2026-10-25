@@ -2079,6 +2079,17 @@ main:focus {
   max-width: 1550px;
   margin: 14px auto 20px;
 }
+.plot-card.electrostatic-scene {
+  max-width: 1550px;
+  margin: 14px auto 20px;
+}
+.electrostatic-scene .teaching-scene-scroll svg {
+  min-width: 760px;
+}
+.concentration-temperature-caption {
+  max-width: 800px;
+  margin: 12px auto 20px;
+}
 .teaching-scene-head {
   display: flex;
   flex-wrap: wrap;

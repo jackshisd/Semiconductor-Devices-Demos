@@ -12,6 +12,11 @@ const W = 1120,
   H = 390,
   top = 45,
   bottom = 326;
+const energySpan = 0.55;
+const offsets = Array.from({ length: 161 }, (_, index) => (energySpan * index) / 160);
+const referenceEc = P.bandgap(300) / 2 - P.intrinsicMidgapOffset(300);
+const minEnergy = referenceEc - P.bandgap(300) - energySpan;
+const maxEnergy = referenceEc + energySpan;
 
 type Point = [number, number];
 const path = (points: Point[]) =>
@@ -35,27 +40,38 @@ export function HoleDistributionDemo() {
   const nearBandEdge = type === 'n' ? Ec - Ef < 3 * Vt : Ef - Ev < 3 * Vt;
   const edgeState = P.carrierDensitiesFromFermi(type === 'n' ? Ec : Ev, v.T);
   const edgeThreshold = type === 'n' ? edgeState.n - edgeState.p : edgeState.p - edgeState.n;
-  const span = Math.max(0.55, 18 * Vt, Ef - Ec + 0.12, Ev - Ef + 0.12);
-  const minEnergy = Ev - span,
-    maxEnergy = Ec + span;
   const Y = (energy: number) =>
     top + ((maxEnergy - energy) / (maxEnergy - minEnergy)) * (bottom - top);
   const energyAtY = (y: number) =>
     maxEnergy - ((y - top) / (bottom - top)) * (maxEnergy - minEnergy);
   const conductionY = Y(Ec),
     valenceY = Y(Ev);
-  const offsets = Array.from({ length: 161 }, (_, index) => (span * index) / 160);
   const holes = offsets.map((offset) => P.carrierSpectrum('p', offset, Ef, v.T));
   const electrons = offsets.map((offset) => P.carrierSpectrum('n', offset, Ef, v.T));
-  const maxHole = Math.max(...holes.map((point) => point.occupiedStates));
-  const maxElectron = Math.max(...electrons.map((point) => point.occupiedStates));
-  const sharedMax = Math.max(maxHole, maxElectron);
   const maxValenceStates = holes[holes.length - 1].states;
   const maxConductionStates = electrons[electrons.length - 1].states;
   const dosMaximum = axisMaximum(Math.max(maxValenceStates, maxConductionStates));
-  const spectrumMaximum = axisMaximum(sharedMax);
-  const logMinimum = Math.floor(Math.log10(Math.min(maxHole, maxElectron))) - 3;
-  const logMaximum = Math.ceil(Math.log10(sharedMax));
+  const { spectrumMaximum, logMinimum, logMaximum } = useMemo(() => {
+    let largestPeak = 0;
+    let smallestPeak = Infinity;
+    for (const T of [200, 300, 450]) {
+      const referenceEf = P.dopedFermi(type, v.dopant, T).Ef;
+      for (const carrier of ['n', 'p'] as const) {
+        const peak = Math.max(
+          ...offsets.map(
+            (offset) => P.carrierSpectrum(carrier, offset, referenceEf, T).occupiedStates,
+          ),
+        );
+        largestPeak = Math.max(largestPeak, peak);
+        smallestPeak = Math.min(smallestPeak, peak);
+      }
+    }
+    return {
+      spectrumMaximum: axisMaximum(largestPeak * 1.05),
+      logMinimum: Math.floor(Math.log10(smallestPeak)) - 3,
+      logMaximum: Math.ceil(Math.log10(largestPeak * 1.05)),
+    };
+  }, [type, v.dopant]);
   const spectrumX = (value: number) =>
     815 +
     194 *
@@ -429,7 +445,8 @@ export function HoleDistributionDemo() {
             Electron and hole spectra share an absolute axis in cm⁻³/eV. Minority carriers may be
             hard to see on the linear scale; switch to the log axis to inspect them.{' '}
             {logSpectrum && 'Zero and values below the log range lie at the left edge. '}
-            Energy spacing is linear across the bands and gap.
+            Energy and density scales stay fixed as temperature changes, so the Fermi occupation
+            visibly broadens.
           </span>
           <span className="inspect">{inspect}</span>
         </div>

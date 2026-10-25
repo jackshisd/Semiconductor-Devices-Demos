@@ -20,6 +20,12 @@ const notes: Record<ExperimentSlug, string> = {
     'Conduction electrons are mobile negative charge. A valence-band hole is an unoccupied state: when a neighboring electron fills it, the vacancy moves in the opposite direction. Under an electric field electrons drift opposite the field and holes drift with it; both contribute conventional current along the field. Lecture 2 introduces the two carriers; Lecture 3 develops drift current.',
   'band-formation':
     'Silicon’s isolated 3s and 3p states become closely spaced bands in a crystal. N atoms contribute 4N valence states and 4N conduction states. Near each band edge, the three-dimensional density of states grows as the square root of the energy measured from that edge.',
+  'electrostatic-potential':
+    'Lecture 2 slide 13 relates the electrostatic potential to band-edge energy: Ec(x) = Ec,reference − qV(x), and the electric field is −dV/dx. The demo uses an illustrative uniform 10 µm silicon slab. Electrons drift opposite the field, while holes drift with it; the displayed motion is slowed and schematic.',
+  'material-band-comparison':
+    'Lecture 2 slide 16 compares SiO₂ with a roughly 9 eV gap, silicon with a 1.12 eV gap, and metal with no band gap and a partially filled band. A filled band has no nearby empty states for current flow. The moving dots illustrate accessible carriers under an applied field; their counts and speeds are schematic.',
+  'carrier-temperature-regions':
+    'Lecture 2 slide 26 shows donor freeze-out, an extrinsic region with n close to ND, and an intrinsic region where thermal generation dominates. The demo extends this qualitative figure with an uncompensated donor ionization model using a 54 meV donor level and nondegenerate carrier statistics. At very low temperature this is an illustration rather than a calibrated material fit.',
   'doping-carriers':
     'Donors supply electrons and acceptors supply holes. With complete ionization, charge neutrality and np = ni² determine the equilibrium carrier concentrations. The slides give donor and acceptor energies of 54 meV for As and 45 meV for B.',
   'thermal-equilibrium':
@@ -36,6 +42,16 @@ const notes: Record<ExperimentSlug, string> = {
     'In a nondegenerate PN junction at equilibrium, the Fermi level is flat and Vbi = VT ln(NA ND / ni²). Heavily doped junction approximations are treated separately on the following slide.',
   'drift-diffusion':
     'Total carrier current combines drift in an electric field and diffusion down a concentration gradient. Electron and hole diffusion terms have opposite signs. The Einstein relation is D/μ = kT/q.',
+  'conductivity-resistivity':
+    'Lecture 3 slide 39 adds electron and hole drift currents: J = q(nμn + pμp)E = σE. Both carrier types contribute conventional current in the field direction, even though electrons move against the field. Resistivity is ρ = 1/σ, with units Ω·cm when conductivity is in S/cm. This demo holds mobilities fixed while varying the selected carrier densities and field.',
+  'einstein-relation':
+    'Lecture 4 slide 22 derives Dn/μn = Dp/μp = kT/q by requiring drift and diffusion current to cancel at equilibrium. Slide 23 gives Dp ≈ 11 cm²/s for μp = 410 cm²/(V·s) at room temperature. The demo uses an illustrative local carrier density and opposite electron and hole gradients; its Einstein relation assumes nondegenerate carrier statistics.',
+  'generation-processes':
+    'Lecture 4 slide 26 illustrates band-to-band generation by light or heat, trap-assisted generation through an R–G center, and impact ionization driven by energetic carriers under a high electric field. Each event creates one electron–hole pair; the animation shows the sequence qualitatively.',
+  'recombination-processes':
+    'Lecture 4 slide 27 compares direct radiative recombination, trap-assisted recombination through an R–G center, and Auger recombination that transfers energy to another carrier. The slide notes that R–G centers are important in silicon, while Auger recombination matters in heavily doped material. Animation timing is illustrative.',
+  'direct-indirect-bandgap':
+    'Lecture 4 slide 28 compares E–k diagrams. In direct-gap materials such as GaAs and InP, conduction-band minima and valence-band maxima align in momentum, permitting photon emission with little momentum change. In indirect-gap Si and Ge, a phonon is needed to conserve crystal momentum along with photon emission. The drawn paths are schematic.',
   'minority-diffusion':
     'For a steady, low-level excess minority population in a field-free neutral region, recombination and diffusion give an exponential spatial decay with diffusion length L = √(Dτ).',
   continuity:

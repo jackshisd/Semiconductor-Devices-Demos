@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Controls } from './Controls';
+import { Controls, Toggle } from './Controls';
 import { DemoLayout, Calculation, useParams } from './Demos';
 import { advanceCarriers, ions, makeCarriers, type ScatteringKind } from '../lib/scattering';
 
@@ -102,14 +102,11 @@ function Scattering({ kind }: { kind: ScatteringKind }) {
             </button>
           </div>
           {!phonon && (
-            <div className="chips" role="group" aria-label="Ion charge">
-              <button aria-pressed={charge === 1} onClick={() => setCharge(1)}>
-                Donor ions +
-              </button>
-              <button aria-pressed={charge === -1} onClick={() => setCharge(-1)}>
-                Acceptor ions −
-              </button>
-            </div>
+            <Toggle
+              label={`Ion type: ${charge === 1 ? 'donor ions +' : 'acceptor ions −'}`}
+              checked={charge === -1}
+              onChange={(acceptors) => setCharge(acceptors ? -1 : 1)}
+            />
           )}
           <div className="breakdown-playback">
             <button className="breakdown-action" onClick={() => setRunning((x) => !x)}>

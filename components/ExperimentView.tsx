@@ -31,6 +31,17 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'band-formation': lazy(() =>
     import('./LectureTwoDemos').then((m) => ({ default: m.BandFormation })),
   ),
+  'electrostatic-potential': lazy(() =>
+    import('./ElectrostaticBandDemos').then((m) => ({ default: m.ElectrostaticPotential })),
+  ),
+  'material-band-comparison': lazy(() =>
+    import('./ElectrostaticBandDemos').then((m) => ({ default: m.MaterialBandComparison })),
+  ),
+  'carrier-temperature-regions': lazy(() =>
+    import('./CarrierConcentrationTemperature').then((m) => ({
+      default: m.CarrierConcentrationTemperature,
+    })),
+  ),
   'doping-carriers': lazy(() =>
     import('./LectureTwoDemos').then((m) => ({ default: m.DopingCarriers })),
   ),
@@ -48,6 +59,21 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'built-in-potential': lazy(() => import('./Demos').then((m) => ({ default: m.BuiltIn }))),
   'drift-diffusion': lazy(() =>
     import('./TransportDemos').then((m) => ({ default: m.DriftDiffusion })),
+  ),
+  'conductivity-resistivity': lazy(() =>
+    import('./ConductivityResistivity').then((m) => ({ default: m.ConductivityResistivity })),
+  ),
+  'einstein-relation': lazy(() =>
+    import('./EinsteinRelation').then((m) => ({ default: m.EinsteinRelation })),
+  ),
+  'generation-processes': lazy(() =>
+    import('./GenerationBandGapDemos').then((m) => ({ default: m.GenerationProcesses })),
+  ),
+  'recombination-processes': lazy(() =>
+    import('./GenerationBandGapDemos').then((m) => ({ default: m.RecombinationProcesses })),
+  ),
+  'direct-indirect-bandgap': lazy(() =>
+    import('./GenerationBandGapDemos').then((m) => ({ default: m.DirectIndirectBandGap })),
   ),
   'minority-diffusion': lazy(() =>
     import('./TransportDemos').then((m) => ({ default: m.MinorityDiffusion })),
