@@ -2657,6 +2657,19 @@ main:focus {
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+.practice-badges {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+.practice-applied {
+  border-radius: 999px;
+  padding: 4px 8px;
+  background: #e9eef8;
+  color: #3e5685;
+}
 .practice-difficulty {
   border-radius: 999px;
   padding: 4px 8px;

@@ -158,7 +158,7 @@ export default function PracticeProblems() {
           <span className="eyebrow">ACTIVE PRACTICE</span>
           <h2 id="practice-heading">Problems by lecture</h2>
           <p>
-            Ten problems per lecture progress from easy to challenging. Enter your answer in the
+            Fifteen problems per lecture progress from easy to challenging. Enter your answer in the
             format shown, then check your work. Solutions and scores can be revealed at any time.
           </p>
         </div>
@@ -180,7 +180,9 @@ export default function PracticeProblems() {
         ))}
       </div>
       <div className="practice-summary">
-        <span>Lecture {lectureIds.indexOf(lectureId) + 1} · 10 problems</span>
+        <span>
+          Lecture {lectureIds.indexOf(lectureId) + 1} · {problems.length} problems
+        </span>
         <div>
           <button
             type="button"
@@ -227,10 +229,13 @@ export default function PracticeProblems() {
             <article className="practice-problem" key={key}>
               <div className="practice-problem-heading">
                 <span>Problem {index + 1}</span>
-                <span
-                  className={`practice-difficulty difficulty-${problemDifficulty(index).toLowerCase()}`}
-                >
-                  {problemDifficulty(index)}
+                <span className="practice-badges">
+                  {problem.applied && <span className="practice-applied">Word problem</span>}
+                  <span
+                    className={`practice-difficulty difficulty-${problemDifficulty(index).toLowerCase()}`}
+                  >
+                    {problemDifficulty(index)}
+                  </span>
                 </span>
               </div>
               <h3>{problem.prompt}</h3>

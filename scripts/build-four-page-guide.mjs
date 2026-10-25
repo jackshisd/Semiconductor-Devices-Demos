@@ -214,6 +214,16 @@ const pages = [
         'Hole balance in one dimension.',
       ),
       formula(
+        String.raw`\frac{\partial n}{\partial t}=\mu_n\frac{\partial(n\mathcal E)}{\partial x}+D_n\frac{\partial^2 n}{\partial x^2}+G-R`,
+        'Expanded electron form: drift, diffusion, generation and loss.',
+        true,
+      ),
+      formula(
+        String.raw`\frac{\partial p}{\partial t}=-\mu_p\frac{\partial(p\mathcal E)}{\partial x}+D_p\frac{\partial^2 p}{\partial x^2}+G-R`,
+        'Expanded hole form for constant mobility and diffusivity.',
+        true,
+      ),
+      formula(
         String.raw`\Delta n=\Delta p`,
         'Pair generation changes both carrier populations equally.',
       ),
@@ -225,8 +235,18 @@ const pages = [
         String.raw`n=n_0+\Delta n,\quad p=p_0+\Delta p`,
         'Total density during illumination.',
       ),
+      formula(
+        String.raw`\frac{\partial\Delta p}{\partial t}=D_p\frac{\partial^2\Delta p}{\partial x^2}-\frac{\Delta p}{\tau_p}+G_L`,
+        'Field-free low-injection excess-hole generation equation.',
+        true,
+      ),
+      formula(
+        String.raw`\frac{\partial\Delta n}{\partial t}=D_n\frac{\partial^2\Delta n}{\partial x^2}-\frac{\Delta n}{\tau_n}+G_L`,
+        'Electron counterpart for a p-type neutral region.',
+        true,
+      ),
       note(
-        'Low injection: excess carriers ≪ equilibrium majority density. For p-type Si, compare Δn with p₀.',
+        'Expanded forms assume constant μ and D. Low injection: excess carriers ≪ equilibrium majority density; in p-type Si compare Δn with p₀.',
       ),
       topic('Minority diffusion and illuminated bar', 'L4 p29–32; L5 p5–17; HW2 P2'),
       formula(

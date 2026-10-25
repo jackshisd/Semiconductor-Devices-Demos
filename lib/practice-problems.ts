@@ -5,6 +5,7 @@ export type PracticeProblem =
       options: [string, string, string, string];
       answer: number;
       solution: string;
+      applied?: boolean;
     }
   | {
       kind: 'number';
@@ -13,6 +14,7 @@ export type PracticeProblem =
       unit: string;
       solution: string;
       tolerance: number;
+      applied?: boolean;
     };
 
 const choice = (
@@ -20,16 +22,43 @@ const choice = (
   options: [string, string, string, string],
   answer: number,
   solution: string,
-): PracticeProblem => ({ kind: 'choice', prompt, options, answer, solution });
+): Extract<PracticeProblem, { kind: 'choice' }> => ({
+  kind: 'choice',
+  prompt,
+  options,
+  answer,
+  solution,
+});
 const number = (
   prompt: string,
   answer: number,
   unit: string,
   solution: string,
   tolerance = 0.03,
-): PracticeProblem => ({ kind: 'number', prompt, answer, unit, solution, tolerance });
+): Extract<PracticeProblem, { kind: 'number' }> => ({
+  kind: 'number',
+  prompt,
+  answer,
+  unit,
+  solution,
+  tolerance,
+});
 
-export const practiceProblems: Record<string, PracticeProblem[]> = {
+const appliedChoice = (
+  prompt: string,
+  options: [string, string, string, string],
+  answer: number,
+  solution: string,
+): PracticeProblem => ({ ...choice(prompt, options, answer, solution), applied: true });
+const appliedNumber = (
+  prompt: string,
+  answer: number,
+  unit: string,
+  solution: string,
+  tolerance = 0.03,
+): PracticeProblem => ({ ...number(prompt, answer, unit, solution, tolerance), applied: true });
+
+const corePracticeProblems: Record<string, PracticeProblem[]> = {
   'lecture-1': [
     choice(
       'How many nearest neighbors does a silicon atom have in the diamond lattice?',
@@ -638,8 +667,403 @@ export const practiceProblems: Record<string, PracticeProblem[]> = {
   ],
 };
 
+type AppliedSet = {
+  easy: PracticeProblem[];
+  moderate: PracticeProblem[];
+  challenging: PracticeProblem[];
+};
+
+const appliedPracticeProblems: Record<string, AppliedSet> = {
+  'lecture-1': {
+    easy: [
+      appliedNumber(
+        'A short light pulse creates 4.0 × 10⁸ electron–hole pairs in a 0.020 cm³ intrinsic silicon chip. What excess electron density does the pulse create?',
+        2e10,
+        'cm⁻³',
+        'Every generated pair contributes one excess electron. Divide 4.0 × 10⁸ electrons by 0.020 cm³ to obtain Δn = 2.0 × 10¹⁰ cm⁻³.',
+      ),
+      appliedChoice(
+        'An electrically isolated intrinsic silicon chip absorbs light and creates many electron–hole pairs, with no carriers entering or leaving. What happens to the chip’s net electric charge?',
+        [
+          'It becomes positive',
+          'It becomes negative',
+          'It remains neutral',
+          'It doubles in magnitude',
+        ],
+        2,
+        'Each promotion creates one negative mobile electron and one positive hole. The charges cancel, so pair generation changes carrier counts but not the chip’s net charge.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'An intrinsic sample has nᵢ = 2.0 × 10¹⁰ cm⁻³ and volume 0.10 cm³. Counting the magnitudes of both electron and hole charges, how much mobile charge is present? Use q = 1.6 × 10⁻¹⁹ C.',
+        6.4e-10,
+        'C',
+        'There are nᵢV = 2.0 × 10⁹ electrons and the same number of holes. Add their charge magnitudes: 2(2.0 × 10⁹)(1.6 × 10⁻¹⁹ C) = 6.4 × 10⁻¹⁰ C. The net charge is still zero.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'Before a light pulse, an intrinsic region has n = p = 1.0 × 10¹⁰ cm⁻³. The pulse adds 5.0 × 10⁹ electron–hole pairs per cm³. Immediately afterward, what is the total mobile-carrier density n + p?',
+        3e10,
+        'cm⁻³',
+        'Generation raises each population by 5.0 × 10⁹ cm⁻³. Thus n = p = 1.5 × 10¹⁰ cm⁻³ and n + p = 3.0 × 10¹⁰ cm⁻³; do not count a pair as only one mobile carrier.',
+      ),
+      appliedChoice(
+        'In one silicon region, light creates 2.0 × 10⁷ electron–hole pairs while exactly 2.0 × 10⁷ other pairs recombine during the same interval. No carrier crosses the region boundary. What is the net change in its electron and hole counts?',
+        [
+          'Both rise by 2.0 × 10⁷',
+          'Both fall by 2.0 × 10⁷',
+          'Neither count changes',
+          'Electrons rise while holes fall',
+        ],
+        2,
+        'Generation adds equal numbers of electrons and holes; recombination removes equal numbers. Since the two pair counts are equal, both net changes are zero.',
+      ),
+    ],
+  },
+  'lecture-2': {
+    easy: [
+      appliedNumber(
+        'A state in silicon is exactly kT above the Fermi level. Using the Fermi–Dirac occupation function, what fraction of such states are occupied?',
+        1 / (1 + Math.E),
+        'fraction',
+        'Substitute E − E_F = kT into f(E) = 1/[1 + exp((E − E_F)/kT)]. This gives f = 1/(1 + e) ≈ 0.269.',
+      ),
+      appliedChoice(
+        'A compensated silicon sample contains 4.0 × 10¹⁶ donors and 1.0 × 10¹⁶ acceptors per cm³. Assume full ionization and nᵢ is negligible. Which description is consistent with charge neutrality?',
+        [
+          'It is p-type with 3.0 × 10¹⁶ holes/cm³',
+          'It is n-type with about 3.0 × 10¹⁶ electrons/cm³',
+          'It has no mobile carriers',
+          'It has a net positive charge of 3.0 × 10¹⁶ q/cm³',
+        ],
+        1,
+        'Donors outnumber acceptors by 3.0 × 10¹⁶ cm⁻³, so electrons are the majority carriers at approximately that density. Fixed ion charges and mobile electron charge balance overall.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'At 300 K a nondegenerate sample has N꜀ = 2.8 × 10¹⁹ cm⁻³, E꜀ − Eꜰ = 0.120 eV, and kT = 0.026 eV. Estimate its electron density.',
+        2.7715e17,
+        'cm⁻³',
+        'Use n = N꜀ exp[−(E꜀ − Eꜰ)/kT]. The exponent is −0.120/0.026 = −4.615, so n ≈ (2.8 × 10¹⁹)e⁻⁴·⁶¹⁵ = 2.77 × 10¹⁷ cm⁻³.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'A silicon sample has Nᴅ = 7.0 × 10¹⁶ cm⁻³, Nᴀ = 2.0 × 10¹⁶ cm⁻³, and nᵢ = 1.0 × 10¹⁰ cm⁻³. Assuming complete ionization, estimate the equilibrium minority hole density.',
+        2e3,
+        'cm⁻³',
+        'First find majority electrons from net doping: n ≈ Nᴅ − Nᴀ = 5.0 × 10¹⁶ cm⁻³. Then use mass action: p = nᵢ²/n = 10²⁰/(5.0 × 10¹⁶) = 2.0 × 10³ cm⁻³.',
+      ),
+      appliedNumber(
+        'Silicon is heated from 300 K to 600 K while E₉ stays at 1.068 eV. Assume N꜀ and Nᵥ each scale as T³ᐟ² and use kᴮ = 8.617 × 10⁻⁵ eV/K. By what factor does nᵢ increase?',
+        8.652e4,
+        'unitless',
+        'Use nᵢ(600)/nᵢ(300) = (600/300)³ᐟ² exp{−E₉/(2kᴮ)[1/600 − 1/300]}. The prefactor is 2.828 and the exponential is about 3.06 × 10⁴, giving 8.65 × 10⁴.',
+      ),
+    ],
+  },
+  'lecture-3': {
+    easy: [
+      appliedChoice(
+        'Two silicon samples have the same carrier effective mass. In sample B, carriers travel twice as long on average between collisions as in sample A. In the low-field Drude picture, how do their mobilities compare?',
+        [
+          'B has half the mobility',
+          'B has twice the mobility',
+          'They have equal mobility',
+          'B has four times the mobility',
+        ],
+        1,
+        'Mobility is μ = qτ/m*. With q and m* fixed, doubling the mean scattering time τ doubles μ; it does not directly double thermal speed.',
+      ),
+      appliedNumber(
+        'A carrier travels at a thermal speed of 3.0 × 10⁷ cm/s and scatters every 4.0 × 10⁻¹³ s on average. Estimate the distance traveled between collisions in centimeters.',
+        1.2e-5,
+        'cm',
+        'Mean free path is ℓ = vₜₕτ = (3.0 × 10⁷ cm/s)(4.0 × 10⁻¹³ s) = 1.2 × 10⁻⁵ cm, or 120 nm.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'In a low-field measurement, the electron drift-speed magnitude is 4.5 × 10⁴ cm/s when the applied field magnitude is 75 V/cm. What electron mobility does the measurement imply?',
+        600,
+        'cm²/(V·s)',
+        'Use |vₙ| = μₙ|E|. Dividing 4.5 × 10⁴ cm/s by 75 V/cm gives μₙ = 600 cm²/(V·s).',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'At one temperature a sample has phonon-limited mobility 1500 and impurity-limited mobility 750 cm²/(V·s). Under an 80 V/cm field, what low-field drift-speed magnitude results when both mechanisms act?',
+        4e4,
+        'cm/s',
+        'Matthiessen’s rule gives 1/μ = 1/1500 + 1/750, hence μ = 500 cm²/(V·s). Then |v| = μ|E| = 500 × 80 = 4.0 × 10⁴ cm/s.',
+      ),
+      appliedChoice(
+        'A measured electron drift speed grows almost linearly at weak field, but raising a strong field from 50 to 100 kV/cm changes the speed only slightly. Which inference best fits the observation?',
+        [
+          'The electron has become neutral',
+          'Velocity saturation limits further speed growth',
+          'The electric field has reversed',
+          'The thermal speed must be zero',
+        ],
+        1,
+        'Low-field drift follows |v| ≈ μ|E|. At strong fields, increased energy loss and scattering make the drift velocity approach a saturation value, so doubling field gives much less than double speed.',
+      ),
+    ],
+  },
+  'lecture-4': {
+    easy: [
+      appliedChoice(
+        'Two materials have similar gaps. In material A an electron can recombine with a hole without changing crystal momentum; in material B a phonon is needed. Which material should emit light more efficiently?',
+        [
+          'Material A, the direct-gap material',
+          'Material B, the indirect-gap material',
+          'Both equally, because the gaps match',
+          'Neither can emit a photon',
+        ],
+        0,
+        'A direct-gap transition can conserve momentum while emitting a photon. Requiring an additional phonon makes radiative recombination less likely in an indirect-gap material.',
+      ),
+      appliedChoice(
+        'Electron density rises toward +x across a silicon bar and the electric field is zero. Which way does the conventional electron diffusion current point?',
+        [
+          'Toward +x',
+          'Toward −x',
+          'There is no diffusion current',
+          'It alternates direction in time',
+        ],
+        0,
+        'The diffusion term is Jₙ,diff = qDₙ dn/dx. Since dn/dx is positive, conventional electron current points toward +x even though electrons themselves diffuse toward −x.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'In one region n = 1.0 × 10¹⁶ cm⁻³, μₙ = 1000 cm²/(V·s), E = +10 V/cm, Dₙ = 26 cm²/s, and dn/dx = +1.0 × 10¹⁸ cm⁻⁴. Using q = 1.6 × 10⁻¹⁹ C, find total electron current density.',
+        20.16,
+        'A/cm²',
+        'Add electron drift and diffusion: qnμₙE = 16 A/cm² and qDₙ(dn/dx) = 4.16 A/cm². Both point toward +x, giving Jₙ = 20.16 A/cm².',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'At equilibrium an electron density is n = 1.0 × 10¹⁶ cm⁻³ with gradient dn/dx = +2.0 × 10¹⁹ cm⁻⁴. At 300 K take Vᴛ = 0.026 V. What signed electric field cancels electron diffusion current?',
+        -52,
+        'V/cm',
+        'Set Jₙ = qnμₙE + qDₙ dn/dx = 0, then use Dₙ/μₙ = Vᴛ. Thus E = −(Vᴛ/n)(dn/dx) = −0.026(2.0 × 10¹⁹/10¹⁶) = −52 V/cm.',
+      ),
+      appliedChoice(
+        'A moderately doped sample warms through a temperature range where ionized-impurity and phonon scattering are both important. Why can its total mobility have a maximum rather than change monotonically?',
+        [
+          'Both scattering mechanisms vanish at the same temperature',
+          'Impurity-limited mobility can rise while phonon-limited mobility falls',
+          'Carrier charge reverses at the maximum',
+          'Matthiessen’s rule makes mobilities add directly',
+        ],
+        1,
+        'Hotter carriers are less strongly deflected by fixed impurity ions, while phonon scattering grows with temperature. Their inverse-mobility contributions compete, so the total can peak.',
+      ),
+    ],
+  },
+  'lecture-5': {
+    easy: [
+      appliedNumber(
+        'A p-type silicon wafer has Nᴀ = 1.0 × 10¹⁶ cm⁻³. Uniform light generates 1.0 × 10¹⁹ pairs/(cm³·s), and the minority-electron lifetime is 2.0 µs. In steady low-level injection, estimate excess electron density.',
+        2e13,
+        'cm⁻³',
+        'With negligible transport in the uniformly lit region, steady excess minority density is Δn = Gᴸτₙ = (1.0 × 10¹⁹)(2.0 × 10⁻⁶) = 2.0 × 10¹³ cm⁻³. This is much less than majority p₀ ≈ 10¹⁶ cm⁻³.',
+      ),
+      appliedChoice(
+        'Both ends of an n-type bar are illuminated, but the light does not reach its interior. Conditions are steady and the interior field is negligible. Which equation should determine excess minority holes inside?',
+        [
+          'Dₚ d²Δp/dx² − Δp/τₚ = 0',
+          'Δp = Gᴸτₚ everywhere inside',
+          'dΔp/dx = 0 everywhere',
+          'Jₚ = qpμₚE only',
+        ],
+        0,
+        'The interior has no optical generation and little drift. Steady continuity leaves diffusion balanced by recombination: Dₚ d²Δp/dx² − Δp/τₚ = 0, with illuminated-end boundary conditions.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'A uniformly illuminated p-type region reaches steady excess minority-electron density Δn = 5.0 × 10¹³ cm⁻³ under generation rate Gᴸ = 2.5 × 10¹⁹ pairs/(cm³·s). If transport is negligible, infer the minority lifetime in seconds.',
+        2e-6,
+        's',
+        'Steady low-injection continuity gives Δn = Gᴸτₙ. Divide 5.0 × 10¹³ by 2.5 × 10¹⁹ to obtain τₙ = 2.0 × 10⁻⁶ s.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'An n-type wafer has nᵢ = 1.0 × 10¹⁰ cm⁻³. Illumination makes its hole density p ≈ 1.0 × 10¹² cm⁻³. At 300 K, kT = 0.026 eV. How far below Eᵢ is the hole quasi-Fermi level Fₚ?',
+        0.11973,
+        'eV',
+        'Use Eᵢ − Fₚ = kT ln(p/nᵢ). The ratio is 100, so the separation is 0.026 ln(100) = 0.1197 eV. A larger hole density moves Fₚ farther below Eᵢ.',
+      ),
+      appliedNumber(
+        'An n-type bar has Nᴅ = 1.0 × 10¹⁷ cm⁻³ and equal illuminated ends imposing Δp(0) = Δp(L) = γNᴅ with γ = 10⁻⁴. If L = 20 µm, Lₚ = 10 µm, Dₚ = 10 cm²/s, q = 1.6 × 10⁻¹⁹ C, and tanh(1) = 0.762, estimate the hole current density at x = 0.',
+        0.01219,
+        'A/cm²',
+        'For equal end injection, Jₚ(0) = qDₚγNᴅ tanh[L/(2Lₚ)]/Lₚ. Here γNᴅ = 10¹³ cm⁻³, Lₚ = 10⁻³ cm and L/(2Lₚ) = 1. Substitution gives +0.0122 A/cm² into the bar.',
+      ),
+    ],
+  },
+  'lecture-6': {
+    easy: [
+      appliedChoice(
+        'A pn junction is reverse biased while its area and temperature stay fixed. A capacitance meter probes the depletion region. Which paired change should it see?',
+        [
+          'Width rises and capacitance falls',
+          'Width falls and capacitance rises',
+          'Both width and capacitance rise',
+          'Neither changes',
+        ],
+        0,
+        'Reverse bias increases the voltage dropped across depletion and therefore widens W. Since C = εₛA/W, the depletion capacitance decreases.',
+      ),
+      appliedNumber(
+        'A depletion capacitor has εₛ = 1.0 × 10⁻¹² F/cm, area 0.010 cm², and measured C = 1.0 × 10⁻¹⁰ F. What depletion width does C = εₛA/W imply in micrometers?',
+        1,
+        'µm',
+        'Rearrange to W = εₛA/C = (1.0 × 10⁻¹²)(0.010)/(1.0 × 10⁻¹⁰) = 1.0 × 10⁻⁴ cm = 1.0 µm.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'For a one-sided silicon junction use εₛ = 1.0 × 10⁻¹² F/cm, q = 1.6 × 10⁻¹⁹ C, lightly doped density N = 1.0 × 10¹⁶ cm⁻³, and depletion voltage U = 0.80 V. Estimate W in micrometers.',
+        0.31623,
+        'µm',
+        'Use W ≈ sqrt[2εₛU/(qN)]. The quantity under the root is 1.0 × 10⁻⁹ cm²; W = 3.16 × 10⁻⁵ cm = 0.316 µm.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'In an abrupt junction, the depleted p-side has Nᴀ = 1.0 × 10¹⁷ cm⁻³, xₚ = 0.020 µm and area A = 0.010 cm². With q = 1.6 × 10⁻¹⁹ C, find the magnitude of fixed charge on that side.',
+        3.2e-10,
+        'C',
+        'Use |Q| = qANᴀxₚ. Convert 0.020 µm to 2.0 × 10⁻⁶ cm, then multiply (1.6 × 10⁻¹⁹)(0.010)(1.0 × 10¹⁷)(2.0 × 10⁻⁶) = 3.2 × 10⁻¹⁰ C.',
+      ),
+      appliedNumber(
+        'A one-sided junction has C–V slope m = d(1/C²)/dVᴀ = −1.25 × 10¹⁹ F⁻²/V. Given q = 1.6 × 10⁻¹⁹ C, εₛ = 1.0 × 10⁻¹² F/cm, and area A = 0.010 cm², find the lightly doped density.',
+        1e16,
+        'cm⁻³',
+        'For this voltage convention m = −2/(qεₛA²N). Rearranging gives N = −2/(qεₛA²m). Substituting the negative slope yields 1.0 × 10¹⁶ cm⁻³.',
+      ),
+    ],
+  },
+  'lecture-7': {
+    easy: [
+      appliedChoice(
+        'A pn diode is forward biased. Electrons cross from its n side into the p-side neutral region, while holes cross the other way. Which description of the injected carriers is correct?',
+        [
+          'Both are minority carriers in the regions they enter',
+          'Both remain majority carriers after crossing',
+          'Only the electrons carry charge',
+          'They stop at the depletion edge',
+        ],
+        0,
+        'Electrons entering p-type material and holes entering n-type material are minority carriers there. Their injected excess decays through diffusion and recombination away from the junction.',
+      ),
+      appliedNumber(
+        'An n-side neutral region has Nᴅ = 1.0 × 10¹⁶ cm⁻³ and nᵢ = 1.0 × 10¹⁰ cm⁻³. Forward bias makes exp(Vᴀ/Vᴛ) = 10. Find the hole density pₙ right at the depletion edge.',
+        1e5,
+        'cm⁻³',
+        'First pₙ₀ = nᵢ²/Nᴅ = 10⁴ cm⁻³. The ideal junction boundary condition gives pₙ(edge) = pₙ₀ exp(Vᴀ/Vᴛ) = 10⁴ × 10 = 1.0 × 10⁵ cm⁻³.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'A diode has saturation current I₀ = 1.0 nA. At one forward voltage, exp(Vᴀ/Vᴛ) = 101. What current does the ideal diode law predict in nanoamperes?',
+        100,
+        'nA',
+        'Use I = I₀[exp(Vᴀ/Vᴛ) − 1]. The bracket is 101 − 1 = 100, so I = 100 nA. Retaining the −1 matters when the exponential is not enormous.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'For a long pn diode, take nᵢ = 1.0 × 10¹⁰ cm⁻³, Nᴀ = Nᴅ = 1.0 × 10¹⁶ cm⁻³, Dₙ = 20 and Dₚ = 10 cm²/s, Lₙ = 0.0020 and Lₚ = 0.0010 cm, area A = 0.010 cm², and q = 1.6 × 10⁻¹⁹ C. Find saturation current I₀.',
+        3.2e-13,
+        'A',
+        'Compute J₀ = qnᵢ²[Dₙ/(LₙNᴀ) + Dₚ/(LₚNᴅ)]. Each bracket term is 1.0 × 10⁻¹² cm⁴/s, giving J₀ = 3.2 × 10⁻¹¹ A/cm². Multiply by 0.010 cm² for I₀ = 3.2 × 10⁻¹³ A.',
+      ),
+      appliedNumber(
+        'Injected minority holes at the n-side depletion edge have excess Δp(0) = 1.0 × 10¹⁴ cm⁻³. With Dₚ = 10 cm²/s, Lₚ = 10 µm and q = 1.6 × 10⁻¹⁹ C, find hole diffusion current density one diffusion length into the neutral region.',
+        0.05886,
+        'A/cm²',
+        'For Δp(x) = Δp(0)e⁻ˣ/ᴸ, Jₚ(x) = qDₚΔp(0)e⁻ˣ/ᴸ/Lₚ. Convert Lₚ = 10⁻³ cm and set x = Lₚ; the result is (1.6 × 10⁻¹⁹)(10)(10¹⁴)e⁻¹/(10⁻³) = 0.0589 A/cm².',
+      ),
+    ],
+  },
+  'lecture-8': {
+    easy: [
+      appliedChoice(
+        'Two otherwise similar reverse-biased diodes differ mainly in trap density inside the depletion region. Diode B has many more active traps. Which observation is most plausible before breakdown?',
+        [
+          'B has more generation leakage',
+          'B has no reverse current',
+          'B becomes a metal',
+          'Both must have exactly the ideal −I₀ current',
+        ],
+        0,
+        'Depletion-region traps can generate electron–hole pairs that the field sweeps apart. More active traps generally increase reverse generation current above ideal minority-diffusion leakage.',
+      ),
+      appliedNumber(
+        'A diode terminal is held at 0.80 V while 20 mA flows through an internal series resistance of 5.0 Ω. Estimate the voltage across the junction itself.',
+        0.7,
+        'V',
+        'The series drop is IRₛ = (0.020 A)(5.0 Ω) = 0.10 V. Subtract it from the terminal voltage: Vⱼ = 0.80 − 0.10 = 0.70 V.',
+      ),
+    ],
+    moderate: [
+      appliedNumber(
+        'For reverse depletion generation, use Iᴿᴳ ≈ qAnᵢW/(2τ₀). Take q = 1.6 × 10⁻¹⁹ C, area A = 0.010 cm², nᵢ = 1.0 × 10¹⁰ cm⁻³, W = 2.0 µm and τ₀ = 1.0 µs. Find the current magnitude.',
+        1.6e-9,
+        'A',
+        'Convert W = 2.0 × 10⁻⁴ cm and τ₀ = 1.0 × 10⁻⁶ s. Then qAnᵢW/(2τ₀) = (1.6 × 10⁻¹⁹)(0.010)(10¹⁰)(2.0 × 10⁻⁴)/(2.0 × 10⁻⁶) = 1.6 × 10⁻⁹ A.',
+      ),
+    ],
+    challenging: [
+      appliedNumber(
+        'Estimate breakdown voltage for a one-sided junction using εₛ = 1.0 × 10⁻¹² F/cm, critical field Eᴄʀ = 3.0 × 10⁵ V/cm, lightly doped density N = 1.0 × 10¹⁶ cm⁻³, q = 1.6 × 10⁻¹⁹ C and Vᵦᵢ = 0.70 V.',
+        27.425,
+        'V',
+        'Use Vᴮᴿ ≈ εₛEᴄʀ²/(2qN) − Vᵦᵢ. The field term is (1.0 × 10⁻¹²)(3.0 × 10⁵)²/[2(1.6 × 10⁻¹⁹)(10¹⁶)] = 28.125 V. Subtract 0.70 V to obtain 27.425 V.',
+      ),
+      appliedChoice(
+        'A very heavily doped junction has an extremely narrow depletion region. Its measured breakdown voltage falls as temperature rises. Which mechanism best explains the observation?',
+        [
+          'Zener tunneling',
+          'Avalanche impact ionization',
+          'Ordinary ideal reverse saturation',
+          'Series resistance alone',
+        ],
+        0,
+        'Heavy doping narrows the barrier enough for tunneling, and Zener-dominated breakdown commonly has a negative temperature coefficient. Avalanche breakdown generally shows the opposite trend.',
+      ),
+    ],
+  },
+};
+
+export const practiceProblems: Record<string, PracticeProblem[]> = Object.fromEntries(
+  Object.entries(corePracticeProblems).map(([lecture, core]) => {
+    const applied = appliedPracticeProblems[lecture];
+    return [
+      lecture,
+      [
+        ...core.slice(0, 3),
+        ...applied.easy,
+        ...core.slice(3, 7),
+        ...applied.moderate,
+        ...core.slice(7),
+        ...applied.challenging,
+      ],
+    ];
+  }),
+);
+
 export function problemDifficulty(index: number): 'Easy' | 'Moderate' | 'Challenging' {
-  return index < 3 ? 'Easy' : index < 7 ? 'Moderate' : 'Challenging';
+  return index < 5 ? 'Easy' : index < 10 ? 'Moderate' : 'Challenging';
 }
 
 export function practiceAnswerFormat(
