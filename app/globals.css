@@ -2701,6 +2701,58 @@ main:focus {
   color: #667c84;
   font-weight: 500;
 }
+.practice-scientific-answer {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 13px;
+}
+.practice-scientific-answer legend {
+  margin-bottom: 7px;
+  font-weight: 650;
+}
+.practice-scientific-answer > div {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.practice-scientific-answer label {
+  display: grid;
+  gap: 5px;
+  color: #526a6d;
+  font-size: 12px;
+  font-weight: 600;
+}
+.practice-scientific-answer input {
+  width: 94px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #bfd2d7;
+  border-radius: 6px;
+  color: #263f49;
+  font: inherit;
+  font-size: 14px;
+}
+.practice-scientific-answer label:first-child input {
+  width: 114px;
+}
+.practice-scientific-symbol {
+  padding-bottom: 9px;
+  color: #263f49;
+  font-size: 17px;
+  font-weight: 650;
+}
+.practice-scientific-answer small {
+  padding-bottom: 11px;
+  color: #667c84;
+}
+.practice-scientific-answer p {
+  margin: 7px 0 0;
+  color: #667c84;
+  font-size: 11px;
+}
 .practice-problem-actions {
   margin-top: 18px;
 }

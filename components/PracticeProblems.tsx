@@ -3,12 +3,39 @@
 import { useState } from 'react';
 import {
   isPracticeAnswerCorrect,
+  isPracticeResponseComplete,
   practiceProblems,
+  practiceAnswerFormat,
   problemDifficulty,
   type PracticeProblem,
 } from '../lib/practice-problems';
 
 const lectureIds = Object.keys(practiceProblems);
+const superscriptDigits: Record<string, string> = {
+  '-': '⁻',
+  '0': '⁰',
+  '1': '¹',
+  '2': '²',
+  '3': '³',
+  '4': '⁴',
+  '5': '⁵',
+  '6': '⁶',
+  '7': '⁷',
+  '8': '⁸',
+  '9': '⁹',
+};
+
+function displayedNumberAnswer(problem: Extract<PracticeProblem, { kind: 'number' }>) {
+  if (practiceAnswerFormat(problem) === 'scientific') {
+    const [coefficient, exponent] = problem.answer.toExponential(3).split('e');
+    const power = String(Number(exponent))
+      .split('')
+      .map((digit) => superscriptDigits[digit])
+      .join('');
+    return `${Number(coefficient)} × 10${power} ${problem.unit}`;
+  }
+  return `${Number(problem.answer.toPrecision(4))} ${problem.unit}`;
+}
 
 function AnswerField({
   problem,
@@ -39,9 +66,54 @@ function AnswerField({
         ))}
       </fieldset>
     );
+  if (practiceAnswerFormat(problem) === 'scientific') {
+    const separator = value.search(/[eE]/);
+    const coefficient = separator < 0 ? value : value.slice(0, separator);
+    const exponent = separator < 0 ? '' : value.slice(separator + 1);
+    return (
+      <fieldset className="practice-scientific-answer">
+        <legend>Your answer</legend>
+        <div>
+          <label htmlFor={`${id}-coefficient`}>
+            Coefficient
+            <input
+              id={`${id}-coefficient`}
+              type="text"
+              inputMode="decimal"
+              value={coefficient}
+              onChange={(event) => {
+                const entered = event.target.value;
+                const multiplied = entered.match(/^(.+?)\s*[*×]\s*10\s*\^\s*([+-]?\d+)$/);
+                if (multiplied) onChange(`${multiplied[1]}e${multiplied[2]}`);
+                else if (/[eE]/.test(entered)) onChange(entered);
+                else onChange(`${entered}e${exponent}`);
+              }}
+              placeholder="2"
+            />
+          </label>
+          <span className="practice-scientific-symbol" aria-hidden="true">
+            × 10
+          </span>
+          <label htmlFor={`${id}-exponent`}>
+            Power of 10
+            <input
+              id={`${id}-exponent`}
+              type="text"
+              inputMode="decimal"
+              value={exponent}
+              onChange={(event) => onChange(`${coefficient}e${event.target.value}`)}
+              placeholder="8"
+            />
+          </label>
+          <small>{problem.unit}</small>
+        </div>
+        <p>For 2 × 10⁸, enter 2 and 8.</p>
+      </fieldset>
+    );
+  }
   return (
     <label className="practice-number-answer">
-      Your answer
+      {practiceAnswerFormat(problem) === 'fraction' ? 'Fraction (0 to 1)' : 'Your answer'}
       <span>
         <input
           id={id}
@@ -49,7 +121,9 @@ function AnswerField({
           inputMode="decimal"
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          placeholder="Enter a number, e.g. 2e8"
+          placeholder={
+            practiceAnswerFormat(problem) === 'fraction' ? 'e.g. 0.368' : 'Enter a number'
+          }
         />
         <small>{problem.unit}</small>
       </span>
@@ -84,8 +158,8 @@ export default function PracticeProblems() {
           <span className="eyebrow">ACTIVE PRACTICE</span>
           <h2 id="practice-heading">Problems by lecture</h2>
           <p>
-            Ten problems per lecture progress from easy to challenging. Enter a number or choose an
-            answer, then check your work. Solutions and scores can be revealed at any time.
+            Ten problems per lecture progress from easy to challenging. Enter your answer in the
+            format shown, then check your work. Solutions and scores can be revealed at any time.
           </p>
         </div>
       </div>
@@ -169,7 +243,7 @@ export default function PracticeProblems() {
               <div className="practice-problem-actions">
                 <button
                   type="button"
-                  disabled={!value.trim()}
+                  disabled={!isPracticeResponseComplete(problem, value)}
                   onClick={() => setChecked((current) => ({ ...current, [key]: true }))}
                 >
                   Check answer
@@ -193,7 +267,7 @@ export default function PracticeProblems() {
                 >
                   {correct
                     ? 'Correct.'
-                    : value
+                    : isPracticeResponseComplete(problem, value)
                       ? 'Not quite. Try again or reveal the solution.'
                       : 'No answer entered.'}
                 </p>
@@ -204,7 +278,7 @@ export default function PracticeProblems() {
                     Answer:{' '}
                     {problem.kind === 'choice'
                       ? problem.options[problem.answer]
-                      : `${problem.answer.toPrecision(4)} ${problem.unit}`}
+                      : displayedNumberAnswer(problem)}
                   </strong>
                   <p>{problem.solution}</p>
                 </div>

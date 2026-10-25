@@ -642,13 +642,40 @@ export function problemDifficulty(index: number): 'Easy' | 'Moderate' | 'Challen
   return index < 3 ? 'Easy' : index < 7 ? 'Moderate' : 'Challenging';
 }
 
+export function practiceAnswerFormat(
+  problem: PracticeProblem,
+): 'choice' | 'scientific' | 'fraction' | 'decimal' {
+  if (problem.kind === 'choice') return 'choice';
+  if (problem.unit === 'fraction') return 'fraction';
+  const magnitude = Math.abs(problem.answer);
+  return magnitude >= 1e4 || (magnitude > 0 && magnitude < 1e-3) ? 'scientific' : 'decimal';
+}
+
+export function parsePracticeNumber(response: string): number | null {
+  const value = response.trim().replace(/,/g, '');
+  const coefficient = '[+-]?(?:\\d+(?:\\.\\d*)?|\\.\\d+)';
+  const multiplied = value.match(
+    new RegExp(`^(${coefficient})\\s*[*×]\\s*10\\s*\\^\\s*([+-]?\\d+)$`),
+  );
+  const number = multiplied
+    ? Number(multiplied[1]) * 10 ** Number(multiplied[2])
+    : new RegExp(`^${coefficient}(?:[eE][+-]?\\d+)?$`).test(value)
+      ? Number(value)
+      : NaN;
+  return Number.isFinite(number) ? number : null;
+}
+
+export function isPracticeResponseComplete(problem: PracticeProblem, response: string): boolean {
+  if (problem.kind === 'choice') return /^[0-3]$/.test(response);
+  return parsePracticeNumber(response) !== null;
+}
+
 export function isPracticeAnswerCorrect(problem: PracticeProblem, response: string): boolean {
-  if (response.trim() === '') return false;
+  if (!isPracticeResponseComplete(problem, response)) return false;
   if (problem.kind === 'choice') return Number(response) === problem.answer;
-  const value = Number(response.trim().replace(/,/g, ''));
+  const value = parsePracticeNumber(response)!;
   return (
-    Number.isFinite(value) &&
     Math.abs(value - problem.answer) <=
-      Math.max(Math.abs(problem.answer) * problem.tolerance, 1e-12)
+    Math.max(Math.abs(problem.answer) * problem.tolerance, 1e-12)
   );
 }

@@ -68,6 +68,7 @@ console.log(`Verified ${lectures.length} lecture readers, bundled PDFs, and defa
 const prepHtml = readFileSync(resolve(root, 'midterm-prep.html'), 'utf8');
 assert.match(prepHtml, /Midterm prep/, 'Missing midterm preparation page.');
 assert.match(prepHtml, /Open the cheat sheet/, 'Missing cheat sheet navigation.');
+assert.match(prepHtml, /Power of 10/, 'Missing structured scientific notation input.');
 assert.doesNotMatch(
   prepHtml,
   /Download cheat sheet/,
