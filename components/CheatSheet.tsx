@@ -10,8 +10,7 @@ const sheets = [
     title: 'Four-page cheat sheet',
     file: '/guides/ece121b-four-page-cheat-sheet.pdf',
     pages: 4,
-    description:
-      'Expanded formulas with brief use notes, homework references and selected compact graphs.',
+    description: 'Expanded formulas with brief use notes and homework references.',
   },
   {
     id: 'short',

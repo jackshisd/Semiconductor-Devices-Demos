@@ -39,7 +39,7 @@ The 28 demos are ordered in contiguous topic groups: silicon fundamentals, carri
 
 ## Midterm prep
 
-`/midterm-prep` contains ten interactive practice problems per lecture, ordered from easy to challenging. `/cheat-sheet` offers two downloadable PDFs: a four-page sheet with brief formula-use notes, selected graphs, and references to lecture slides and HW 1–2, plus the original two-page **Short cheat sheet**.
+`/midterm-prep` contains ten interactive practice problems per lecture, ordered from easy to challenging. `/cheat-sheet` offers two downloadable PDFs: a four-page equation-focused sheet with brief formula-use notes and references to lecture slides and HW 1–2, plus the original two-page **Short cheat sheet**.
 
 The four-page source is `scripts/build-four-page-guide.mjs`; run `npm run cheat-sheet:build` to regenerate it with Chrome and Python `pypdf`. The two-page source remains `guides/midterm/main.tex`. To regenerate that original, install Tectonic (or set `TECTONIC`) and run `node scripts/build-midterm-guide.mjs`. Website builds use the committed PDFs and require neither PDF-generation tool.
 

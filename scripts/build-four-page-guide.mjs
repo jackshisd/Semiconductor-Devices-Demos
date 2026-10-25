@@ -20,72 +20,6 @@ const formula = (tex, purpose, compact = false) =>
 const topic = (title, reference) =>
   `<div class="topic"><strong>${title}</strong><span>${reference}</span></div>`;
 const note = (body) => `<div class="note">${body}</div>`;
-const plot = (svg, caption) =>
-  `<figure class="plot">${svg}<figcaption>${caption}</figcaption></figure>`;
-
-function fermiPlot() {
-  const path = (thermal) => {
-    const points = [];
-    for (let i = 0; i <= 80; i++) {
-      const energy = -4 + (8 * i) / 80;
-      const occupancy = 1 / (1 + Math.exp(energy / thermal));
-      points.push(`${30 + i * 3.52},${91 - occupancy * 68}`);
-    }
-    return points.join(' ');
-  };
-  return `<svg viewBox="0 0 346 112" role="img" aria-label="Fermi occupation broadens with temperature">
-    <line x1="30" y1="91" x2="329" y2="91" stroke="#536570"/>
-    <line x1="30" y1="17" x2="30" y2="91" stroke="#536570"/>
-    <line x1="171" y1="18" x2="171" y2="91" stroke="#9caeb4" stroke-dasharray="3 3"/>
-    <polyline points="${path(0.58)}" fill="none" stroke="#176d72" stroke-width="2.5"/>
-    <polyline points="${path(1.35)}" fill="none" stroke="#b76b39" stroke-width="2.3"/>
-    <text x="2" y="26">1</text><text x="9" y="95">0</text><text x="158" y="106">E<tspan baseline-shift="sub" font-size="7">F</tspan></text>
-    <text x="235" y="31" fill="#176d72">lower T</text><text x="235" y="47" fill="#b76b39">higher T</text>
-  </svg>`;
-}
-
-function diffusionPlot() {
-  const points = [];
-  for (let i = 0; i <= 80; i++) {
-    const x = (4 * i) / 80;
-    const value = Math.cosh(x - 2) / Math.cosh(2);
-    points.push(`${30 + i * 3.52},${91 - value * 67}`);
-  }
-  return `<svg viewBox="0 0 346 112" role="img" aria-label="Equal illumination at both ends produces a symmetric excess-carrier profile">
-    <line x1="30" y1="91" x2="329" y2="91" stroke="#536570"/>
-    <line x1="30" y1="17" x2="30" y2="91" stroke="#536570"/>
-    <polyline points="${points.join(' ')}" fill="none" stroke="#176d72" stroke-width="2.5"/>
-    <text x="21" y="106">0</text><text x="167" y="106">L/2</text><text x="318" y="106">L</text>
-    <text x="31" y="19">γN<tspan baseline-shift="sub" font-size="7">D</tspan></text>
-  </svg>`;
-}
-
-function junctionPlot() {
-  return `<svg viewBox="0 0 346 112" role="img" aria-label="Abrupt PN junction electric field has a triangular profile">
-    <line x1="26" y1="35" x2="331" y2="35" stroke="#536570"/>
-    <line x1="176" y1="15" x2="176" y2="93" stroke="#9caeb4" stroke-dasharray="3 3"/>
-    <polyline points="43,35 176,88 313,35" fill="none" stroke="#176d72" stroke-width="2.5"/>
-    <text x="34" y="53">−x<tspan baseline-shift="sub" font-size="7">p</tspan></text>
-    <text x="172" y="106">0</text><text x="301" y="53">x<tspan baseline-shift="sub" font-size="7">n</tspan></text>
-    <text x="187" y="79">−|E<tspan baseline-shift="sub" font-size="7">max</tspan>|</text>
-  </svg>`;
-}
-
-function schottkyPlot() {
-  const points = [];
-  for (let i = 0; i <= 80; i++) {
-    const bias = -1 + (1.3 * i) / 80;
-    const normalized = Math.sqrt((0.5 - bias) / 1.5);
-    points.push(`${30 + i * 3.52},${91 - normalized * 67}`);
-  }
-  return `<svg viewBox="0 0 346 112" role="img" aria-label="An n-type Schottky contact widens under reverse bias and narrows under forward bias">
-    <line x1="30" y1="91" x2="329" y2="91" stroke="#536570"/>
-    <line x1="30" y1="17" x2="30" y2="91" stroke="#536570"/>
-    <line x1="247" y1="19" x2="247" y2="91" stroke="#9caeb4" stroke-dasharray="3 3"/>
-    <polyline points="${points.join(' ')}" fill="none" stroke="#176d72" stroke-width="2.5"/>
-    <text x="5" y="26">W</text><text x="29" y="106">reverse</text><text x="234" y="106">0</text><text x="275" y="106">forward</text>
-  </svg>`;
-}
 
 const pages = [
   {
@@ -118,10 +52,19 @@ const pages = [
         'Probability that an electron state is occupied.',
       ),
       formula(String.raw`f(E_F)=\frac12`, 'At the Fermi level, regardless of temperature.'),
+      formula(String.raw`f(E_F+k_BT)=\frac1{1+e}\approx0.269`, 'One-kT occupation check; HW1 P2.'),
       formula(String.raw`f(E)\approx e^{-(E-E_F)/(k_BT)}`, 'Boltzmann tail when E − E_F ≥ 3k_BT.'),
       formula(String.raw`1-f(E)\approx e^{-(E_F-E)/(k_BT)}`, 'Empty-state probability below E_F.'),
-      plot(fermiPlot(), 'Higher temperature broadens f(E) around E_F; its midpoint stays fixed.'),
       topic('Density of states and thermal carriers', 'L2 p8–10, 26; L3 p6–12'),
+      formula(
+        String.raw`g_C(E)\propto\sqrt{E-E_C},\quad g_V(E)\propto\sqrt{E_V-E}`,
+        'Allowed-state density near each band edge.',
+      ),
+      formula(
+        String.raw`n=\int_{E_C}^{\infty}g_Cf\,dE,\quad p=\int_{-\infty}^{E_V}g_V(1-f)\,dE`,
+        'Count occupied conduction and empty valence states.',
+        true,
+      ),
       formula(
         String.raw`N_{C,V}(T)=N_{C,V}(300\,\mathrm K)\left(\frac{T}{300\,\mathrm K}\right)^{3/2}`,
         'Scale effective state densities with T; fixed DOS mass.',
@@ -164,6 +107,7 @@ const pages = [
         String.raw`n=\frac{\Delta N+\sqrt{\Delta N^2+4n_i^2}}{2}`,
         'Exact neutrality result near intrinsic or compensated conditions.',
       ),
+      formula(String.raw`p=\frac{n_i^2}{n}`, 'Recover the exact hole density at equilibrium.'),
       note('HW1 P5: net doping sets n or p; total ionized impurities N_D + N_A affect mobility.'),
       topic('Fermi-level location', 'L3 p11–20; HW2 P3'),
       formula(
@@ -179,6 +123,10 @@ const pages = [
         'Conduction-edge separation in Boltzmann regime.',
       ),
       formula(String.raw`E_F-E_V=k_BT\ln(N_V/p)`, 'Valence-edge separation in Boltzmann regime.'),
+      formula(
+        String.raw`E_i=\frac{E_C+E_V}{2}+\frac{k_BT}{2}\ln\!\frac{N_V}{N_C}`,
+        'Intrinsic level when conduction and valence DOS differ.',
+      ),
       formula(
         String.raw`E_V+3k_BT\lesssim E_F\lesssim E_C-3k_BT`,
         'Check nondegenerate approximation before using exponentials.',
@@ -234,12 +182,24 @@ const pages = [
         'Hole diffusion current from density gradient.',
       ),
       formula(
+        String.raw`J_n=qn\mu_n\mathcal E+qD_n\frac{dn}{dx}`,
+        'Total electron current: drift plus diffusion.',
+      ),
+      formula(
+        String.raw`J_p=qp\mu_p\mathcal E-qD_p\frac{dp}{dx}`,
+        'Total hole current: drift plus diffusion.',
+      ),
+      formula(
         String.raw`\frac{D_n}{\mu_n}=\frac{D_p}{\mu_p}=V_T`,
         'Einstein relation for nondegenerate carriers.',
       ),
       formula(
         String.raw`\mathcal E=-\frac{d\psi}{dx}=\frac1q\frac{dE_C}{dx}`,
         'Electric field from potential or band-edge slope.',
+      ),
+      formula(
+        String.raw`\mathcal E=-\frac{V_T}{n}\frac{dn}{dx}`,
+        'Equilibrium field that cancels electron diffusion.',
       ),
       note('For the band-edge slope, E_C must be in joules when q is in coulombs.'),
     ].join(''),
@@ -298,7 +258,14 @@ const pages = [
         String.raw`\Delta p(x)=\Delta p(0)e^{-x/L_p}`,
         'Single-edge decay into a long neutral region.',
       ),
-      plot(diffusionPlot(), 'Equal end injection gives a minimum near the bar center.'),
+      formula(
+        String.raw`\Delta p(t)=\Delta p(0)e^{-t/\tau_p}`,
+        'Time decay after generation stops; no spatial current.',
+      ),
+      formula(
+        String.raw`J_p(0)=\frac{qD_p\gamma N_D}{L_p}\tanh\!\frac{L}{2L_p}`,
+        'Hole diffusion current entering the equally lit bar.',
+      ),
       note(
         'In HW2 P2, γ is stated as 10⁻⁴. Use the stated boundary value when checking the worked solution.',
       ),
@@ -332,6 +299,10 @@ const pages = [
         String.raw`\mathcal E=-\frac{d\psi}{dx},\quad\frac{d^2\psi}{dx^2}=-\frac{\rho_{\rm ch}}{\varepsilon_s}`,
         'Potential slope and curvature.',
       ),
+      formula(
+        String.raw`\psi(x_2)-\psi(x_1)=V_T\ln\!\frac{n(x_2)}{n(x_1)}`,
+        'Equilibrium potential difference from electron densities.',
+      ),
       topic('6. Abrupt PN junction: voltage and width', 'L6 p17–29'),
       formula(
         String.raw`V_{bi}=V_T\ln\!\left(\frac{N_AN_D}{n_i^2}\right)`,
@@ -346,6 +317,10 @@ const pages = [
       formula(
         String.raw`W\approx\sqrt{\frac{2\varepsilon_sU}{qN_{\rm light}}}`,
         'One-sided junction approximation.',
+      ),
+      formula(
+        String.raw`W\propto\sqrt{V_{bi}-V_A}`,
+        'Forward bias narrows; reverse bias widens depletion.',
       ),
       note(
         'Depletion approximation: fixed dopant charge dominates, mobile carriers are neglected inside W.',
@@ -364,9 +339,24 @@ const pages = [
         true,
       ),
       formula(String.raw`|Q|=qAN_Ax_p=qAN_Dx_n`, 'Magnitude of charge on either side.'),
-      plot(junctionPlot(), 'Abrupt junction field: triangle area equals V_bi − V_A.'),
-      topic('8. Depletion capacitance and C–V', 'L6 p9–11'),
+      formula(
+        String.raw`\mathcal E_p(x)=-\frac{qN_A}{\varepsilon_s}(x+x_p)`,
+        'Field on the depleted p side: −x_p ≤ x ≤ 0.',
+      ),
+      formula(
+        String.raw`\mathcal E_n(x)=\frac{qN_D}{\varepsilon_s}(x-x_n)`,
+        'Field on the depleted n side: 0 ≤ x ≤ x_n.',
+      ),
+      formula(
+        String.raw`U=-\int_{-x_p}^{x_n}\mathcal E(x)\,dx=\frac{|\mathcal E_{\max}|W}{2}`,
+        'Voltage equals the triangular field area.',
+      ),
+      topic('7. Depletion capacitance and C–V', 'L6 p9–11'),
       formula(String.raw`C=\frac{\varepsilon_s A}{W}`, 'Small-signal depletion capacitance.'),
+      formula(
+        String.raw`i_{\rm ac}=C\frac{dv_{\rm ac}}{dt}`,
+        'AC displacement current through depletion.',
+      ),
       formula(
         String.raw`\frac1{C^2}=\frac{2(V_{bi}-V_A)}{q\varepsilon_s A^2N}`,
         'Linear C⁻² plot for a one-sided junction.',
@@ -391,7 +381,7 @@ const pages = [
   {
     subtitle: 'Contacts, diode current and breakdown',
     left: [
-      topic('7. Metal–semiconductor contacts', 'L5 p27–39; L6 p4–8; HW2 P4'),
+      topic('8. Metal–semiconductor contacts', 'L5 p27–39; L6 p4–8; HW2 P4'),
       formula(
         String.raw`\phi_{Bn}=\phi_M-\chi,\quad\phi_{Bp}=E_g/q-\phi_{Bn}`,
         'Ideal Schottky–Mott barrier estimates.',
@@ -420,7 +410,11 @@ const pages = [
       note(
         'At fixed metal and semiconductor, applied bias changes band bending and W, not the interface barrier height.',
       ),
-      plot(schottkyPlot(), 'n-type contact: reverse bias widens W; forward bias narrows it.'),
+      formula(
+        String.raw`\frac{W_n(V_A)}{W_n(0)}=\sqrt{1-\frac{V_A}{V_{bi,n}}}`,
+        'Compare n-type contact widths across biases; HW2 P4.',
+      ),
+      formula(String.raw`|Q_s|=qN_DAW_n`, 'Depletion charge magnitude in an n-type contact.'),
       topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
       formula(
         String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
@@ -449,6 +443,7 @@ const pages = [
         String.raw`J=J_0\big(e^{V_A/V_T}-1\big),\quad I=AJ`,
         'Ideal current density and terminal current.',
       ),
+      formula(String.raw`J(V_A\ll -V_T)\approx-J_0`, 'Reverse saturation before breakdown.'),
       formula(
         String.raw`J_0=qn_i^2\left(\frac{D_n}{L_nN_A}+\frac{D_p}{L_pN_D}\right)`,
         'Reverse saturation density for long neutral regions.',
@@ -462,6 +457,10 @@ const pages = [
       formula(
         String.raw`\Delta V_{\rm decade}=V_T\ln 10\approx59.5\,\mathrm{mV}`,
         'Ideal 300 K semilog forward-current slope.',
+      ),
+      formula(
+        String.raw`r_d\approx\frac{V_T}{I}`,
+        'Small-signal resistance at strong ideal forward bias.',
       ),
       note(
         'Ideal law assumes low injection, steady state, long neutral regions and negligible depletion-region recombination.',
@@ -532,9 +531,6 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .formula.compact .math { font-size: 8.5pt; }
 .formula .purpose { margin-top: 1px; color: #536570; font-size: 7.4pt; line-height: 1.2; }
 .note { margin: 5px 0 7px; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.5pt; line-height: 1.25; }
-.plot { margin: 6px 0 8px; padding: 4px 5px 3px; border: 1px solid #d0dfdf; background: #fbfdfc; }
-.plot svg { display: block; width: 100%; height: 1.05in; font: 10px Georgia, serif; fill: #536570; }
-.plot figcaption { margin-top: 2px; color: #536570; font-size: 7.2pt; line-height: 1.2; }
 footer { position: absolute; bottom: .17in; left: .33in; right: .33in; padding-top: 3px; border-top: .5px solid #173548; display: flex; justify-content: space-between; font-size: 7pt; }
 </style></head><body>`;
 
