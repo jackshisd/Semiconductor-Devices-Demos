@@ -2,33 +2,43 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, Download, ExternalLink, List, Minus, Plus } from 'lucide-react';
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import lectures from '../lib/lectures.json';
 import { experiments, type ExperimentSlug } from '../lib/experiments';
 import { demoForSlide, slideForDemo, lectureDemos } from '../lib/slide-demo-assignments';
+import { explanationForSlide } from '../lib/slide-explanations';
 import ExperimentView from './ExperimentView';
 import { ControlsHostContext } from './DemoPresentation';
 
 type Lecture = (typeof lectures)[number];
+export type PdfAnnotation = { x: number; y: number; text: string; label?: string };
 
 export function PdfSlide({
   document,
   slide,
   zoom,
   onAspectRatio,
+  explanation,
+  annotations,
 }: {
   document: PDFDocumentProxy;
   slide: number;
   zoom: number;
   onAspectRatio: (ratio: number) => void;
+  explanation?: string;
+  annotations?: PdfAnnotation[];
 }) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const [width, setWidth] = useState(800);
   const [rendering, setRendering] = useState(true);
   const [error, setError] = useState('');
+  const [surface, setSurface] = useState({ width: 800, height: 600 });
+  const [dot, setDot] = useState({ x: 0.7, y: 0.45 });
+  const [openAnnotation, setOpenAnnotation] = useState<number | null>(null);
+  const explanationId = useId();
   useEffect(() => {
     if (!container.current) return;
     const observer = new ResizeObserver((entries) =>
@@ -42,12 +52,44 @@ export function PdfSlide({
     let task: RenderTask | undefined;
     setRendering(true);
     setError('');
+    setOpenAnnotation(null);
     const render = async () => {
       const page = await document.getPage(slide);
       if (disposed || !canvas.current) return;
       const original = page.getViewport({ scale: 1 });
       onAspectRatio(original.width / original.height);
       const viewport = page.getViewport({ scale: (width / original.width) * zoom });
+      setSurface({ width: viewport.width, height: viewport.height });
+      if (explanation) {
+        const content = await page.getTextContent();
+        const candidates = content.items
+          .filter(
+            (
+              item,
+            ): item is (typeof content.items)[number] & {
+              str: string;
+              width: number;
+              transform: number[];
+            } => 'str' in item,
+          )
+          .map((item) => {
+            const [x, y] = original.convertToViewportPoint(item.transform[4], item.transform[5]);
+            return {
+              x: x / original.width,
+              y: y / original.height,
+              length: item.str.trim().length,
+            };
+          })
+          .filter((item) => item.length > 12 && item.y > 0.18 && item.y < 0.82);
+        const anchor = candidates.sort(
+          (a, b) => Math.abs(a.y - 0.48) - Math.abs(b.y - 0.48) + (b.length - a.length) * 0.0005,
+        )[0];
+        setDot(
+          anchor
+            ? { x: Math.max(0.12, Math.min(0.82, anchor.x)), y: anchor.y }
+            : { x: 0.7, y: 0.45 },
+        );
+      }
       const pixelRatio = Math.min(
         window.devicePixelRatio || 1,
         2,
@@ -79,16 +121,50 @@ export function PdfSlide({
       disposed = true;
       task?.cancel();
     };
-  }, [document, slide, width, zoom, onAspectRatio]);
+  }, [document, slide, width, zoom, onAspectRatio, explanation]);
+  const visibleAnnotations = annotations ?? (explanation ? [{ ...dot, text: explanation }] : []);
   return (
     <div ref={container} className="pdf-slide-container" aria-busy={rendering}>
       <div className="pdf-canvas-scroll">
-        <canvas
-          ref={canvas}
-          role="img"
-          aria-label={`Slide ${slide} of ${document.numPages}`}
-          style={{ visibility: rendering || error ? 'hidden' : 'visible' }}
-        />
+        <div className="pdf-slide-surface" style={surface}>
+          <canvas
+            ref={canvas}
+            role="img"
+            aria-label={`Slide ${slide} of ${document.numPages}`}
+            style={{ visibility: rendering || error ? 'hidden' : 'visible' }}
+          />
+          {!rendering &&
+            !error &&
+            visibleAnnotations.map((annotation, index) => (
+              <div
+                key={`${slide}-${index}`}
+                className={`slide-explanation ${openAnnotation === index ? 'is-open' : ''}`}
+                style={{ left: `${annotation.x * 100}%`, top: `${annotation.y * 100}%` }}
+              >
+                <button
+                  type="button"
+                  className="slide-explanation-dot"
+                  aria-label={annotation.label ?? `Explanation for slide ${slide}`}
+                  aria-describedby={`${explanationId}-${index}`}
+                  aria-expanded={openAnnotation === index}
+                  onClick={() => setOpenAnnotation((open) => (open === index ? null : index))}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Escape') setOpenAnnotation(null);
+                  }}
+                >
+                  ?
+                </button>
+                <div
+                  id={`${explanationId}-${index}`}
+                  className={`slide-explanation-popover ${annotation.x > 0.58 ? 'align-right' : ''} ${annotation.y > 0.55 ? 'align-above' : ''}`}
+                  role="tooltip"
+                >
+                  <strong>{annotation.label ?? `Slide ${slide} explained`}</strong>
+                  <p>{annotation.text}</p>
+                </div>
+              </div>
+            ))}
+        </div>
       </div>
       {rendering && (
         <div className="pdf-loading" role="status">
@@ -120,6 +196,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
   const studyLayout = useRef<HTMLDivElement>(null);
   const reader = useRef<HTMLElement>(null);
   const assignedDemo = demoForSlide(lecture.id, slide);
+  const explanation = explanationForSlide(lecture.id, slide);
   const choices = lectureDemos[lecture.id] ?? [];
   const demo = experiments.find((item) => item.slug === assignedDemo);
   useEffect(() => {
@@ -359,6 +436,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
                 slide={slide}
                 zoom={zoom}
                 onAspectRatio={setSlideAspectRatio}
+                explanation={explanation}
               />
             ) : (
               <div className="pdf-loading" role="status">
@@ -401,9 +479,11 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
             <div className="lecture-empty-demo">
               <p>No demo on this slide.</p>
               <p>
-                {choices.length
-                  ? 'Keep reading—a demo will appear when you reach a slide with one.'
-                  : 'These introductory slides are repeated in Lecture 2, where their demos appear.'}
+                {explanation
+                  ? 'Hover or select the blue dot on the slide to read its explanation.'
+                  : choices.length
+                    ? 'Keep reading—a demo will appear when you reach a slide with one.'
+                    : 'These introductory slides are repeated in Lecture 2, where their demos appear.'}
               </p>
             </div>
           )}

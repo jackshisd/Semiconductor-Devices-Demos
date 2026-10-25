@@ -57,29 +57,29 @@ export function IntrinsicCarriers() {
         <Metric label="Valence-band effective density Nv" value={sci(nv)} unit="cm⁻³" />
         <Metric label="Temperature" value={fmt(v.T, 0)} unit={`K · ${fmt(v.T - 273.15, 1)} °C`} />
       </Metrics>
-      <Plot
-        title="Intrinsic carrier concentration in silicon"
-        xLabel="Temperature (K)"
-        yLabel={log ? 'log₁₀ ni (cm⁻³)' : 'ni (cm⁻³)'}
-        xDomain={[200, 600]}
-        yDomain={
-          log
-            ? [Math.floor(Math.log10(P.ni(200))), Math.ceil(Math.log10(P.ni(600)))]
-            : [0, P.ni(600) * 1.05]
-        }
-        series={[
-          {
-            name: log ? 'log₁₀ intrinsic concentration' : 'Intrinsic concentration',
-            color: '#176fa9',
-            points: curve,
-          },
-        ]}
-        markers={[{ x: v.T, label: `T = ${fmt(v.T, 0)} K` }]}
-        points={[{ x: v.T, y, label: `ni = ${sci(concentration)} cm⁻³`, color: '#176fa9' }]}
-        height={320}
-        onInspect={(T) => `${fmt(T, 0)} K · ni = ${sci(P.ni(T))} cm⁻³`}
-      />
-      <div className="graph-grid">
+      <div className="graph-grid intrinsic-graphs">
+        <Plot
+          title="Intrinsic carrier concentration in silicon"
+          xLabel="Temperature (K)"
+          yLabel={log ? 'log₁₀ ni (cm⁻³)' : 'ni (cm⁻³)'}
+          xDomain={[200, 600]}
+          yDomain={
+            log
+              ? [Math.floor(Math.log10(P.ni(200))), Math.ceil(Math.log10(P.ni(600)))]
+              : [0, P.ni(600) * 1.05]
+          }
+          series={[
+            {
+              name: log ? 'log₁₀ intrinsic concentration' : 'Intrinsic concentration',
+              color: '#176fa9',
+              points: curve,
+            },
+          ]}
+          markers={[{ x: v.T, label: `T = ${fmt(v.T, 0)} K` }]}
+          points={[{ x: v.T, y, label: `ni = ${sci(concentration)} cm⁻³`, color: '#176fa9' }]}
+          height={320}
+          onInspect={(T) => `${fmt(T, 0)} K · ni = ${sci(P.ni(T))} cm⁻³`}
+        />
         <Plot
           title="Conduction-band effective density of states Nc"
           xLabel="Temperature (K)"

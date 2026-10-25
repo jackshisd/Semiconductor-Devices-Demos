@@ -7,7 +7,14 @@ import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 const lectures = JSON.parse(readFileSync(new URL('../lib/lectures.json', import.meta.url), 'utf8'));
 
 const root = resolve('out');
-const routes = new Set(['index', '404', 'midterm-prep', ...experiments.map((page) => page.slug)]);
+const routes = new Set([
+  'index',
+  '404',
+  'midterm-prep',
+  'homework-solutions',
+  'credits',
+  ...experiments.map((page) => page.slug),
+]);
 for (const file of readdirSync(root).filter((name) => name.endsWith('.html'))) {
   assert.ok(routes.has(file.slice(0, -5)), `Unexpected stale route: ${file}`);
 }
@@ -71,3 +78,11 @@ try {
   await guide.destroy();
 }
 console.log('Verified midterm preparation page and two-page formula sheet.');
+const homeworkHtml = readFileSync(resolve(root, 'homework-solutions.html'), 'utf8');
+assert.match(homeworkHtml, /Homework solutions/, 'Missing homework solutions page.');
+for (const name of ['hw1-solutions.pdf', 'hw2-solutions.pdf']) {
+  const bytes = readFileSync(resolve(root, 'homework', name));
+  assert.equal(bytes.subarray(0, 4).toString(), '%PDF', `${name}: invalid PDF asset`);
+}
+assert.match(readFileSync(resolve(root, 'credits.html'), 'utf8'), /Jack Shi, 2026 Fall/);
+console.log('Verified homework solutions, both PDFs, and credits page.');

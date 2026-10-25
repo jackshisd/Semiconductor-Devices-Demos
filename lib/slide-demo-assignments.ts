@@ -3,7 +3,6 @@ import type { ExperimentSlug } from './experiments';
 // One-based PDF pages, checked against all eight supplied lecture decks.
 // The first page in each group is the destination when its demo is selected.
 export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, number[]>>> = {
-  // Introductory recap slides are repeated in Lecture 2; demos live there.
   'lecture-1': {},
   'lecture-2': {
     'intrinsic-carriers': [7, 8, 4],
@@ -33,7 +32,8 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'phonon-scattering': [4],
     'impurity-scattering': [5],
     'matthiessen-rule': [6, 7, 8],
-    'drift-diffusion': [18, 9, 10, 16, 17, 19, 20, 21, 24],
+    'drift-diffusion': [18, 9, 16, 17, 19, 20, 21, 24],
+    'conductivity-resistivity': [10],
     'einstein-relation': [22, 23],
     'generation-processes': [26, 25],
     'recombination-processes': [27],
@@ -65,6 +65,125 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'zener-breakdown': [8],
   },
 };
+
+type SlideRef = readonly [lectureId: string, page: number];
+
+// Repeated teaching pages across lecture PDFs share their demo assignment.
+export const duplicateSlideGroups: readonly (readonly SlideRef[])[] = [
+  [
+    ['lecture-1', 23],
+    ['lecture-2', 5],
+  ],
+  [
+    ['lecture-1', 24],
+    ['lecture-2', 6],
+  ],
+  [
+    ['lecture-1', 25],
+    ['lecture-2', 7],
+  ],
+  [
+    ['lecture-1', 26],
+    ['lecture-2', 8],
+  ],
+  [
+    ['lecture-1', 27],
+    ['lecture-2', 4],
+  ],
+  [
+    ['lecture-2', 15],
+    ['lecture-3', 4],
+  ],
+  [
+    ['lecture-2', 32],
+    ['lecture-3', 5],
+  ],
+  [
+    ['lecture-3', 33],
+    ['lecture-4', 4],
+  ],
+  [
+    ['lecture-3', 34],
+    ['lecture-4', 5],
+  ],
+  [
+    ['lecture-3', 35],
+    ['lecture-4', 6],
+  ],
+  [
+    ['lecture-3', 36],
+    ['lecture-4', 7],
+  ],
+  [
+    ['lecture-3', 37],
+    ['lecture-4', 8],
+  ],
+  [
+    ['lecture-3', 38],
+    ['lecture-4', 9],
+  ],
+  [
+    ['lecture-3', 39],
+    ['lecture-4', 10],
+  ],
+  [
+    ['lecture-3', 40],
+    ['lecture-4', 11],
+  ],
+  [
+    ['lecture-3', 41],
+    ['lecture-4', 12],
+  ],
+  [
+    ['lecture-3', 42],
+    ['lecture-4', 13],
+  ],
+  [
+    ['lecture-3', 43],
+    ['lecture-4', 14],
+  ],
+  [
+    ['lecture-3', 44],
+    ['lecture-4', 15],
+  ],
+  [
+    ['lecture-3', 48],
+    ['lecture-4', 31],
+  ],
+  [
+    ['lecture-4', 30],
+    ['lecture-5', 4],
+  ],
+  [
+    ['lecture-5', 34],
+    ['lecture-6', 4],
+  ],
+  [
+    ['lecture-5', 35],
+    ['lecture-6', 5],
+  ],
+  [
+    ['lecture-5', 36],
+    ['lecture-6', 6],
+  ],
+];
+
+for (const group of duplicateSlideGroups) {
+  const demos = new Set<ExperimentSlug>();
+  for (const [lecture, page] of group) {
+    for (const [slug, pages] of Object.entries(lectureAssociations[lecture] ?? {})) {
+      if (pages?.includes(page)) demos.add(slug as ExperimentSlug);
+    }
+  }
+  if (demos.size > 1)
+    throw new Error(`Conflicting demos for duplicate slides: ${JSON.stringify(group)}`);
+  const [demo] = demos;
+  if (!demo) continue;
+  for (const [lecture, page] of group) {
+    const pages = ((lectureAssociations[lecture] ??= {})[demo] ??= []);
+    if (!pages.includes(page)) pages.push(page);
+  }
+}
 
 export const slideDemoAssignments: Record<string, Partial<Record<number, ExperimentSlug>>> = {};
 export const lectureDemos: Record<string, ExperimentSlug[]> = {};

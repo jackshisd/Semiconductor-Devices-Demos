@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { PdfSlide } from './LectureReader';
+import PracticeProblems from './PracticeProblems';
 const file = '/guides/ece121b-midterm-formula-sheet.pdf';
 function SheetPage({ document, page }: { document: PDFDocumentProxy; page: number }) {
   const [ratio, setRatio] = useState(612 / 792);
@@ -71,6 +72,7 @@ export default function MidtermPrep() {
       ) : (
         <p role="status">Loading formula sheet…</p>
       )}
+      <PracticeProblems />
     </section>
   );
 }

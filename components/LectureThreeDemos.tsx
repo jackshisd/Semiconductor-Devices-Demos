@@ -113,7 +113,7 @@ export function ThermalDrift() {
     >
       <p className="carrier-motion-summary">
         Random thermal motion continues even with no field. A field adds a much smaller average
-        drift.
+        drift. Follow the gold-outlined {holes ? 'hole' : 'electron'} in each view.
       </p>
       <Metrics>
         <Metric label="Thermal speed (RMS)" value={sci(m.thermal)} unit="cm/s" />
@@ -145,7 +145,7 @@ export function ThermalDrift() {
                 rx="10"
                 fill={lane ? '#fff6ee' : '#eff6fa'}
               />
-              {Array.from({ length: 28 }, (_, i) => {
+              {Array.from({ length: 28 }, (_, offset) => (offset + 1) % 28).map((i) => {
                 const drift = lane ? ((sign * v.E) / 200) * playback.time * 38 : 0;
                 const x =
                   25 +
@@ -167,7 +167,22 @@ export function ThermalDrift() {
                       stroke={holes ? '#d47748' : '#247da5'}
                       opacity=".4"
                     />
-                    <circle cx={x} cy={y} r="5" fill={holes ? '#d47748' : '#247da5'} />
+                    {i === 0 && (
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="12"
+                        fill="#f9df7666"
+                        stroke="#a26800"
+                        strokeWidth="2"
+                      />
+                    )}
+                    <circle
+                      cx={x}
+                      cy={y}
+                      r={i === 0 ? 6 : 5}
+                      fill={holes ? '#d47748' : '#247da5'}
+                    />
                   </g>
                 );
               })}

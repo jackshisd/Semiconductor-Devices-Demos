@@ -194,9 +194,9 @@ function Scattering({ kind }: { kind: ScatteringKind }) {
               <polyline
                 points={p.trail.map(([x, y]) => `${x},${y}`).join(' ')}
                 fill="none"
-                stroke={i === 0 ? '#166b95' : '#559fbe'}
-                strokeWidth={i === 0 ? 2.5 : 1.2}
-                opacity={i === 0 ? 0.9 : 0.5}
+                stroke="#559fbe"
+                strokeWidth="1.2"
+                opacity="0.5"
               />
               {p.flash > 0 && (
                 <circle
@@ -208,14 +208,7 @@ function Scattering({ kind }: { kind: ScatteringKind }) {
                   opacity={p.flash}
                 />
               )}
-              <circle
-                cx={p.x}
-                cy={p.y}
-                r={i === 0 ? 6 : 3.5}
-                fill="#247da5"
-                stroke="white"
-                strokeWidth="1"
-              />
+              <circle cx={p.x} cy={p.y} r="3.5" fill="#247da5" stroke="white" strokeWidth="1" />
             </g>
           ))}
         </svg>

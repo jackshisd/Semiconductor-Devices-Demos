@@ -29,7 +29,9 @@ if (!existsSync(source)) {
 }
 mkdirSync(destination, { recursive: true });
 const files = readdirSync(source)
-  .filter((name) => /\.pdf$/i.test(name))
+  .filter(
+    (name) => /\.pdf$/i.test(name) && (/^introductory/i.test(name) || /^lecture\s*\d+/i.test(name)),
+  )
   .sort((a, b) => {
     const order = (name) =>
       /introductory/i.test(name) ? 1 : Number(name.match(/lecture\s*(\d+)/i)?.[1] ?? 1000);
