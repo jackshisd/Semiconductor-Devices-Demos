@@ -4,7 +4,23 @@ import { useEffect, useState } from 'react';
 import type { PDFDocumentProxy } from 'pdfjs-dist';
 import { PdfSlide } from './LectureReader';
 
-const file = '/guides/ece121b-midterm-formula-sheet.pdf';
+const sheets = [
+  {
+    id: 'full',
+    title: 'Four-page cheat sheet',
+    file: '/guides/ece121b-four-page-cheat-sheet.pdf',
+    pages: 4,
+    description:
+      'Expanded formulas with brief use notes, homework references and selected compact graphs.',
+  },
+  {
+    id: 'short',
+    title: 'Short cheat sheet',
+    file: '/guides/ece121b-short-cheat-sheet.pdf',
+    pages: 2,
+    description: 'The original two-page formula sheet for a faster overview.',
+  },
+] as const;
 
 function SheetPage({ document, page }: { document: PDFDocumentProxy; page: number }) {
   const [ratio, setRatio] = useState(612 / 792);
@@ -16,18 +32,23 @@ function SheetPage({ document, page }: { document: PDFDocumentProxy; page: numbe
 }
 
 export default function CheatSheet() {
+  const [sheetId, setSheetId] = useState<(typeof sheets)[number]['id']>('full');
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
+  const [loadedFile, setLoadedFile] = useState('');
   const [error, setError] = useState('');
+  const sheet = sheets.find((item) => item.id === sheetId)!;
 
   useEffect(() => {
     let disposed = false;
     let destroy: (() => Promise<void>) | undefined;
+    setDocument(null);
+    setError('');
     const load = async () => {
       const pdfjs = await import('pdfjs-dist');
       if (disposed) return;
       pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
       const task = pdfjs.getDocument({
-        url: file,
+        url: sheet.file,
         standardFontDataUrl: '/pdfjs/standard_fonts/',
         cMapUrl: '/pdfjs/cmaps/',
         cMapPacked: true,
@@ -35,7 +56,10 @@ export default function CheatSheet() {
       });
       destroy = () => task.destroy();
       const pdf = await task.promise;
-      if (!disposed) setDocument(pdf);
+      if (!disposed) {
+        setDocument(pdf);
+        setLoadedFile(sheet.file);
+      }
     };
     load().catch((reason) => {
       if (!disposed)
@@ -45,37 +69,45 @@ export default function CheatSheet() {
       disposed = true;
       void destroy?.();
     };
-  }, []);
+  }, [sheet.file]);
 
   return (
     <section className="cheat-sheet">
-      <h1>Cheat sheet</h1>
-      <p>A two-page formula sheet based on the supplied lecture slides, covering Lectures 1–8.</p>
+      <h1>Cheat sheets</h1>
+      <p>Choose the expanded four-page version or the original short sheet for Lectures 1–8.</p>
+      <div className="cheat-sheet-tabs" role="group" aria-label="Choose a cheat sheet">
+        {sheets.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={sheetId === item.id}
+            onClick={() => setSheetId(item.id)}
+          >
+            {item.title} · {item.pages} pages
+          </button>
+        ))}
+      </div>
+      <p className="midterm-prep-note">{sheet.description}</p>
       <div className="midterm-prep-actions">
-        <a className="primary-link" href={file} download>
-          Download cheat sheet · PDF · 2 pages
+        <a className="primary-link" href={sheet.file} download>
+          Download {sheet.title.toLowerCase()} · PDF
         </a>
-        <a href={file} target="_blank" rel="noreferrer">
+        <a href={sheet.file} target="_blank" rel="noreferrer">
           Open PDF ↗
         </a>
       </div>
-      <p className="midterm-prep-note">
-        Includes carrier statistics, doping, drift and diffusion, continuity, quasi-Fermi levels,
-        junction electrostatics, Schottky contacts, capacitance, diode current and breakdown.
-        Assumptions and slide references are included.
-      </p>
       {error ? (
         <div className="notice" role="alert">
           {error} You can still download the PDF above.
         </div>
-      ) : document ? (
-        <div className="midterm-sheet-pages" aria-label="Two-page cheat sheet">
+      ) : document && loadedFile === sheet.file ? (
+        <div className="midterm-sheet-pages" aria-label={sheet.title}>
           {Array.from({ length: document.numPages }, (_, i) => (
             <SheetPage key={i} document={document} page={i + 1} />
           ))}
         </div>
       ) : (
-        <p role="status">Loading cheat sheet…</p>
+        <p role="status">Loading {sheet.title.toLowerCase()}…</p>
       )}
     </section>
   );

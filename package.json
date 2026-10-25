@@ -11,6 +11,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "check:export": "node --experimental-strip-types scripts/check-export.mjs",
+    "cheat-sheet:build": "node scripts/build-four-page-guide.mjs",
     "slides:sync": "node scripts/sync-slides.mjs",
     "predev": "npm run slides:sync",
     "prebuild": "npm run slides:sync"

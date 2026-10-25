@@ -67,25 +67,31 @@ assert.ok(existsSync(resolve(root, 'pdfjs/pdf.worker.min.mjs')), 'Missing PDF re
 console.log(`Verified ${lectures.length} lecture readers, bundled PDFs, and default demos.`);
 const prepHtml = readFileSync(resolve(root, 'midterm-prep.html'), 'utf8');
 assert.match(prepHtml, /Midterm prep/, 'Missing midterm preparation page.');
-assert.match(prepHtml, /Open the cheat sheet/, 'Missing cheat sheet navigation.');
+assert.match(prepHtml, /Open the cheat sheets/, 'Missing cheat sheet navigation.');
 assert.match(prepHtml, /Power of 10/, 'Missing structured scientific notation input.');
 assert.doesNotMatch(
   prepHtml,
-  /Download cheat sheet/,
+  /Download four-page cheat sheet/,
   'Cheat sheet is still embedded in midterm prep.',
 );
 const cheatSheetHtml = readFileSync(resolve(root, 'cheat-sheet.html'), 'utf8');
-assert.match(cheatSheetHtml, /Download cheat sheet/, 'Missing cheat sheet download.');
-const guide = getDocument({
-  data: new Uint8Array(readFileSync(resolve(root, 'guides/ece121b-midterm-formula-sheet.pdf'))),
-  verbosity: 0,
-});
-try {
-  assert.equal((await guide.promise).numPages, 2, 'The midterm formula sheet must have two pages.');
-} finally {
-  await guide.destroy();
+assert.match(cheatSheetHtml, /Four-page cheat sheet/, 'Missing expanded cheat sheet.');
+assert.match(cheatSheetHtml, /Short cheat sheet/, 'Missing short cheat sheet.');
+for (const [name, pages] of [
+  ['ece121b-four-page-cheat-sheet.pdf', 4],
+  ['ece121b-short-cheat-sheet.pdf', 2],
+]) {
+  const guide = getDocument({
+    data: new Uint8Array(readFileSync(resolve(root, 'guides', name))),
+    verbosity: 0,
+  });
+  try {
+    assert.equal((await guide.promise).numPages, pages, `${name}: wrong page count`);
+  } finally {
+    await guide.destroy();
+  }
 }
-console.log('Verified midterm preparation and standalone two-page cheat sheet.');
+console.log('Verified midterm preparation and both cheat sheets (four and two pages).');
 const homeworkHtml = readFileSync(resolve(root, 'homework-solutions.html'), 'utf8');
 assert.match(homeworkHtml, /Homework solutions/, 'Missing homework solutions page.');
 for (const name of ['hw1-solutions.pdf', 'hw2-solutions.pdf']) {

@@ -2533,6 +2533,28 @@ main:focus {
 .midterm-prep-actions .primary-link {
   margin: 0;
 }
+.cheat-sheet-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin: 20px 0 12px;
+}
+.cheat-sheet-tabs button {
+  border: 1px solid #bfd2d7;
+  border-radius: 7px;
+  padding: 10px 14px;
+  background: #fff;
+  color: #245e72;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.cheat-sheet-tabs button[aria-pressed='true'] {
+  border-color: #176fa9;
+  background: #176fa9;
+  color: #fff;
+}
 .cheat-sheet .midterm-prep-note {
   font-size: 12px;
   margin-bottom: 24px;

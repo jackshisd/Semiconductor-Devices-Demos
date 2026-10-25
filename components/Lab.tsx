@@ -85,7 +85,7 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
             aria-current={cheatSheet ? 'page' : undefined}
             onClick={closeOnMobile}
           >
-            Cheat sheet
+            Cheat sheets
           </Link>
           <Link
             href="/homework-solutions"
@@ -153,7 +153,7 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
           <Link href="/">{siteName}</Link>
           <span className="topbar-current">
             {(midtermPrep ? 'Midterm prep' : undefined) ??
-              (cheatSheet ? 'Cheat sheet' : undefined) ??
+              (cheatSheet ? 'Cheat sheets' : undefined) ??
               (homeworkSolutions ? 'Homework solutions' : undefined) ??
               lecture?.title ??
               current?.title ??

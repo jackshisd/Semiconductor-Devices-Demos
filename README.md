@@ -39,9 +39,9 @@ The 28 demos are ordered in contiguous topic groups: silicon fundamentals, carri
 
 ## Midterm prep
 
-`/midterm-prep` displays and downloads a two-page LaTeX formula sheet. Its editable source is `guides/midterm/main.tex`; the committed website asset is `public/guides/ece121b-midterm-formula-sheet.pdf`. It includes assumptions, units and PDF page references for the eight supplied lectures.
+`/midterm-prep` contains ten interactive practice problems per lecture, ordered from easy to challenging. `/cheat-sheet` offers two downloadable PDFs: a four-page sheet with brief formula-use notes, selected graphs, and references to lecture slides and HW 1–2, plus the original two-page **Short cheat sheet**.
 
-To regenerate it, install Tectonic (or set the `TECTONIC` environment variable to its executable) and run `node scripts/build-midterm-guide.mjs`. The script requires exactly two pages and updates the public asset and `output/pdf/` deliverable. Normal website builds use the committed PDF and do not require TeX.
+The four-page source is `scripts/build-four-page-guide.mjs`; run `npm run cheat-sheet:build` to regenerate it with Chrome and Python `pypdf`. The two-page source remains `guides/midterm/main.tex`. To regenerate that original, install Tectonic (or set `TECTONIC`) and run `node scripts/build-midterm-guide.mjs`. Website builds use the committed PDFs and require neither PDF-generation tool.
 
 ## Simulation layout
 

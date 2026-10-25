@@ -22,6 +22,8 @@ try {
 }
 for (const path of [
   'output/pdf/ece121b-midterm-formula-sheet.pdf',
+  'output/pdf/ece121b-short-cheat-sheet.pdf',
   'public/guides/ece121b-midterm-formula-sheet.pdf',
+  'public/guides/ece121b-short-cheat-sheet.pdf',
 ])
   copyFileSync('output/pdf/main.pdf', path);

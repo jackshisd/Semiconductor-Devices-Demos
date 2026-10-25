@@ -2,8 +2,8 @@ import type { Metadata } from 'next';
 import Lab from '../../components/Lab';
 
 export const metadata: Metadata = {
-  title: 'Cheat sheet',
-  description: 'Two-page ECE 121B formula sheet for Lectures 1–8.',
+  title: 'Cheat sheets',
+  description: 'Four-page and short ECE 121B formula sheets for Lectures 1–8.',
 };
 
 export default function CheatSheetPage() {
