@@ -11,6 +11,7 @@ export default function HomeworkSolutions() {
   const [setId, setSetId] = useState(homeworkSets[0].id);
   const [page, setPage] = useState(1);
   const [ratio, setRatio] = useState(612 / 792);
+  const [showExplanations, setShowExplanations] = useState(true);
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [error, setError] = useState('');
   const homework = homeworkSets.find((item) => item.id === setId)!;
@@ -77,6 +78,14 @@ export default function HomeworkSolutions() {
         <a href={homework.file} download>
           Download solutions
         </a>
+        <button
+          type="button"
+          className="reader-annotation-toggle"
+          aria-pressed={showExplanations}
+          onClick={() => setShowExplanations((visible) => !visible)}
+        >
+          {showExplanations ? 'Hide explanation dots' : 'Show explanation dots'}
+        </button>
       </div>
       <div className="homework-reader-layout">
         <div className="homework-pdf-reader">
@@ -110,6 +119,7 @@ export default function HomeworkSolutions() {
                 slide={page}
                 zoom={1}
                 onAspectRatio={setRatio}
+                showAnnotations={showExplanations}
                 annotations={homework.annotations
                   .filter((annotation) => annotation.page === page)
                   .map(({ x, y, text, label }) => ({ x, y, text, label }))}

@@ -11,6 +11,7 @@ import LectureReader from './LectureReader';
 import ExperimentView from './ExperimentView';
 import DemoPreview from './DemoPreview';
 import MidtermPrep from './MidtermPrep';
+import CheatSheet from './CheatSheet';
 import HomeworkSolutions from './HomeworkSolutions';
 
 export default function Lab({ slug, lectureId }: { slug: string; lectureId?: string }) {
@@ -22,8 +23,8 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
   const current = experiments[currentIndex];
   const lecture = lectures.find((item) => item.id === lectureId);
   const midtermPrep = slug === 'midterm-prep';
+  const cheatSheet = slug === 'cheat-sheet';
   const homeworkSolutions = slug === 'homework-solutions';
-  const credits = slug === 'credits';
   const groups = ['All', ...new Set(experiments.map((page) => page.group))];
   const filtered = experiments.filter(
     (page) =>
@@ -79,20 +80,20 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
             Midterm prep
           </Link>
           <Link
+            href="/cheat-sheet"
+            className={`nav-item ${cheatSheet ? 'selected' : ''}`}
+            aria-current={cheatSheet ? 'page' : undefined}
+            onClick={closeOnMobile}
+          >
+            Cheat sheet
+          </Link>
+          <Link
             href="/homework-solutions"
             className={`nav-item ${homeworkSolutions ? 'selected' : ''}`}
             aria-current={homeworkSolutions ? 'page' : undefined}
             onClick={closeOnMobile}
           >
             Homework solutions
-          </Link>
-          <Link
-            href="/credits"
-            className={`nav-item ${credits ? 'selected' : ''}`}
-            aria-current={credits ? 'page' : undefined}
-            onClick={closeOnMobile}
-          >
-            Credits
           </Link>
           <div className="nav-group">Lecture slides</div>
           {lectures.map((item, index) => (
@@ -152,8 +153,8 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
           <Link href="/">{siteName}</Link>
           <span className="topbar-current">
             {(midtermPrep ? 'Midterm prep' : undefined) ??
+              (cheatSheet ? 'Cheat sheet' : undefined) ??
               (homeworkSolutions ? 'Homework solutions' : undefined) ??
-              (credits ? 'Credits' : undefined) ??
               lecture?.title ??
               current?.title ??
               `${lectures.length} lectures · ${experiments.length} demos`}
@@ -170,14 +171,10 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
             <LectureReader key={lecture.id} lecture={lecture} />
           ) : midtermPrep ? (
             <MidtermPrep />
+          ) : cheatSheet ? (
+            <CheatSheet />
           ) : homeworkSolutions ? (
             <HomeworkSolutions />
-          ) : credits ? (
-            <section className="credits-page">
-              <span className="eyebrow">ECE 121B</span>
-              <h1>Credits</h1>
-              <p>Jack Shi, 2026 Fall</p>
-            </section>
           ) : current ? (
             <>
               <div className="page-heading">
@@ -272,6 +269,7 @@ export default function Lab({ slug, lectureId }: { slug: string; lectureId?: str
                   </button>
                 </div>
               )}
+              <footer className="site-credits">Credits: Jack Shi</footer>
             </>
           )}
         </main>

@@ -1779,6 +1779,21 @@ main:focus {
   color: #496766;
   font-size: 12px;
 }
+.reader-annotation-toggle {
+  border: 1px solid #bfd2d7;
+  border-radius: 7px;
+  padding: 8px 11px;
+  background: #fff;
+  color: #245e72;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.reader-annotation-toggle:hover,
+.reader-annotation-toggle[aria-pressed='false'] {
+  background: #e9f4f0;
+}
 .pdf-stage {
   position: relative;
   padding: 0;
@@ -2493,12 +2508,14 @@ main:focus {
 .calculation-current-values .katex {
   white-space: normal;
 }
-.midterm-prep h1 {
+.midterm-prep h1,
+.cheat-sheet h1 {
   font-size: 28px;
   font-weight: 650;
   margin: 0 0 10px;
 }
-.midterm-prep > p {
+.midterm-prep > p,
+.cheat-sheet > p {
   font-size: 14px;
   color: #5c727c;
   line-height: 1.6;
@@ -2516,7 +2533,7 @@ main:focus {
 .midterm-prep-actions .primary-link {
   margin: 0;
 }
-.midterm-prep .midterm-prep-note {
+.cheat-sheet .midterm-prep-note {
   font-size: 12px;
   margin-bottom: 24px;
 }
@@ -2841,20 +2858,13 @@ main:focus {
   margin-top: 9px;
   font-size: 12px;
 }
-.credits-page {
-  display: grid;
-  place-content: center;
-  min-height: 65vh;
+.site-credits {
+  margin: 48px 0 16px;
+  padding-top: 20px;
+  border-top: 1px solid #d8e2e4;
+  color: #5c727c;
+  font-size: 13px;
   text-align: center;
-}
-.credits-page h1 {
-  margin: 8px 0 12px;
-  font-size: clamp(34px, 4vw, 60px);
-}
-.credits-page p {
-  margin: 0;
-  color: #346b76;
-  font-size: clamp(20px, 2vw, 30px);
 }
 @media (max-width: 950px) {
   .homework-reader-layout {

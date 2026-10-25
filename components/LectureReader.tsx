@@ -15,6 +15,56 @@ import { ControlsHostContext } from './DemoPresentation';
 type Lecture = (typeof lectures)[number];
 export type PdfAnnotation = { x: number; y: number; text: string; label?: string };
 
+function nearestWhitePatch(
+  context: CanvasRenderingContext2D,
+  point: { x: number; y: number },
+  size: { width: number; height: number },
+  pixelRatio: number,
+) {
+  const radius = Math.ceil(17 * pixelRatio);
+  const step = Math.max(1, Math.round(3 * pixelRatio));
+  let best = point;
+  let bestScore = -Infinity;
+  for (let distance = 0; distance <= 180; distance += 12) {
+    for (let direction = 0; direction < (distance === 0 ? 1 : 16); direction++) {
+      const angle = (direction * Math.PI) / 8;
+      const x = point.x * size.width + Math.cos(angle) * distance;
+      const y = point.y * size.height + Math.sin(angle) * distance;
+      if (x < 19 || y < 19 || x > size.width - 19 || y > size.height - 19) continue;
+      const left = Math.round(x * pixelRatio) - radius;
+      const top = Math.round(y * pixelRatio) - radius;
+      let pixels: Uint8ClampedArray;
+      try {
+        pixels = context.getImageData(left, top, radius * 2, radius * 2).data;
+      } catch {
+        return best;
+      }
+      let white = 0;
+      let sampled = 0;
+      for (let row = 0; row < radius * 2; row += step) {
+        for (let column = 0; column < radius * 2; column += step) {
+          const offset = (row * radius * 2 + column) * 4;
+          if (
+            pixels[offset + 3] < 16 ||
+            (pixels[offset] > 242 && pixels[offset + 1] > 242 && pixels[offset + 2] > 242)
+          )
+            white++;
+          sampled++;
+        }
+      }
+      const fraction = white / sampled;
+      const candidate = { x: x / size.width, y: y / size.height };
+      if (fraction >= 0.985) return candidate;
+      const score = fraction - distance / 900;
+      if (score > bestScore) {
+        bestScore = score;
+        best = candidate;
+      }
+    }
+  }
+  return best;
+}
+
 export function PdfSlide({
   document,
   slide,
@@ -22,6 +72,7 @@ export function PdfSlide({
   onAspectRatio,
   explanation,
   annotations,
+  showAnnotations = true,
 }: {
   document: PDFDocumentProxy;
   slide: number;
@@ -29,6 +80,7 @@ export function PdfSlide({
   onAspectRatio: (ratio: number) => void;
   explanation?: string;
   annotations?: PdfAnnotation[];
+  showAnnotations?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -36,9 +88,12 @@ export function PdfSlide({
   const [rendering, setRendering] = useState(true);
   const [error, setError] = useState('');
   const [surface, setSurface] = useState({ width: 800, height: 600 });
-  const [dot, setDot] = useState({ x: 0.7, y: 0.45 });
+  const [placedDots, setPlacedDots] = useState<{ x: number; y: number }[]>([]);
   const [openAnnotation, setOpenAnnotation] = useState<number | null>(null);
   const explanationId = useId();
+  useEffect(() => {
+    if (!showAnnotations) setOpenAnnotation(null);
+  }, [showAnnotations]);
   useEffect(() => {
     if (!container.current) return;
     const observer = new ResizeObserver((entries) =>
@@ -60,6 +115,7 @@ export function PdfSlide({
       onAspectRatio(original.width / original.height);
       const viewport = page.getViewport({ scale: (width / original.width) * zoom });
       setSurface({ width: viewport.width, height: viewport.height });
+      let explanationAnchor = { x: 0.7, y: 0.45 };
       if (explanation) {
         const content = await page.getTextContent();
         const candidates = content.items
@@ -84,11 +140,8 @@ export function PdfSlide({
         const anchor = candidates.sort(
           (a, b) => Math.abs(a.y - 0.48) - Math.abs(b.y - 0.48) + (b.length - a.length) * 0.0005,
         )[0];
-        setDot(
-          anchor
-            ? { x: Math.max(0.12, Math.min(0.82, anchor.x)), y: anchor.y }
-            : { x: 0.7, y: 0.45 },
-        );
+        if (anchor)
+          explanationAnchor = { x: Math.max(0.12, Math.min(0.82, anchor.x)), y: anchor.y };
       }
       const pixelRatio = Math.min(
         window.devicePixelRatio || 1,
@@ -109,7 +162,14 @@ export function PdfSlide({
         transform: pixelRatio === 1 ? undefined : [pixelRatio, 0, 0, pixelRatio, 0, 0],
       });
       await task.promise;
-      if (!disposed) setRendering(false);
+      if (!disposed) {
+        const targets =
+          annotations ?? (explanation ? [{ ...explanationAnchor, text: explanation }] : []);
+        setPlacedDots(
+          targets.map((annotation) => nearestWhitePatch(context, annotation, viewport, pixelRatio)),
+        );
+        setRendering(false);
+      }
     };
     render().catch((reason) => {
       if (!disposed) {
@@ -122,7 +182,8 @@ export function PdfSlide({
       task?.cancel();
     };
   }, [document, slide, width, zoom, onAspectRatio, explanation]);
-  const visibleAnnotations = annotations ?? (explanation ? [{ ...dot, text: explanation }] : []);
+  const visibleAnnotations =
+    annotations ?? (explanation ? [{ x: 0.7, y: 0.45, text: explanation }] : []);
   return (
     <div ref={container} className="pdf-slide-container" aria-busy={rendering}>
       <div className="pdf-canvas-scroll">
@@ -133,13 +194,17 @@ export function PdfSlide({
             aria-label={`Slide ${slide} of ${document.numPages}`}
             style={{ visibility: rendering || error ? 'hidden' : 'visible' }}
           />
-          {!rendering &&
+          {showAnnotations &&
+            !rendering &&
             !error &&
             visibleAnnotations.map((annotation, index) => (
               <div
                 key={`${slide}-${index}`}
                 className={`slide-explanation ${openAnnotation === index ? 'is-open' : ''}`}
-                style={{ left: `${annotation.x * 100}%`, top: `${annotation.y * 100}%` }}
+                style={{
+                  left: `${(placedDots[index]?.x ?? annotation.x) * 100}%`,
+                  top: `${(placedDots[index]?.y ?? annotation.y) * 100}%`,
+                }}
               >
                 <button
                   type="button"
@@ -156,7 +221,7 @@ export function PdfSlide({
                 </button>
                 <div
                   id={`${explanationId}-${index}`}
-                  className={`slide-explanation-popover ${annotation.x > 0.58 ? 'align-right' : ''} ${annotation.y > 0.55 ? 'align-above' : ''}`}
+                  className={`slide-explanation-popover ${(placedDots[index]?.x ?? annotation.x) > 0.58 ? 'align-right' : ''} ${(placedDots[index]?.y ?? annotation.y) > 0.55 ? 'align-above' : ''}`}
                   role="tooltip"
                 >
                   <strong>{annotation.label ?? `Slide ${slide} explained`}</strong>
@@ -188,6 +253,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
   const [slide, setSlide] = useState(1);
   const [draft, setDraft] = useState('1');
   const [zoom, setZoom] = useState(1);
+  const [showExplanations, setShowExplanations] = useState(true);
   const [indexOpen, setIndexOpen] = useState(false);
   const [slideAspectRatio, setSlideAspectRatio] = useState(4 / 3);
   const [controlsHost, setControlsHost] = useState<HTMLDivElement | null>(null);
@@ -389,6 +455,14 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
                 <Plus size={16} />
               </button>
             </div>
+            <button
+              type="button"
+              className="reader-annotation-toggle"
+              aria-pressed={showExplanations}
+              onClick={() => setShowExplanations((visible) => !visible)}
+            >
+              {showExplanations ? 'Hide explanation dots' : 'Show explanation dots'}
+            </button>
           </div>
           {indexOpen && (
             <div id="slide-index" className="slide-index" aria-label="Slides">
@@ -437,6 +511,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
                 zoom={zoom}
                 onAspectRatio={setSlideAspectRatio}
                 explanation={explanation}
+                showAnnotations={showExplanations}
               />
             ) : (
               <div className="pdf-loading" role="status">
@@ -479,11 +554,13 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
             <div className="lecture-empty-demo">
               <p>No demo on this slide.</p>
               <p>
-                {explanation
+                {explanation && showExplanations
                   ? 'Hover or select the blue dot on the slide to read its explanation.'
-                  : choices.length
-                    ? 'Keep reading—a demo will appear when you reach a slide with one.'
-                    : 'These introductory slides are repeated in Lecture 2, where their demos appear.'}
+                  : explanation
+                    ? 'Use “Show explanation dots” above the slide to read its explanation.'
+                    : choices.length
+                      ? 'Keep reading—a demo will appear when you reach a slide with one.'
+                      : 'These introductory slides are repeated in Lecture 2, where their demos appear.'}
               </p>
             </div>
           )}

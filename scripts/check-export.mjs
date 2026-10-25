@@ -11,8 +11,8 @@ const routes = new Set([
   'index',
   '404',
   'midterm-prep',
+  'cheat-sheet',
   'homework-solutions',
-  'credits',
   ...experiments.map((page) => page.slug),
 ]);
 for (const file of readdirSync(root).filter((name) => name.endsWith('.html'))) {
@@ -67,7 +67,14 @@ assert.ok(existsSync(resolve(root, 'pdfjs/pdf.worker.min.mjs')), 'Missing PDF re
 console.log(`Verified ${lectures.length} lecture readers, bundled PDFs, and default demos.`);
 const prepHtml = readFileSync(resolve(root, 'midterm-prep.html'), 'utf8');
 assert.match(prepHtml, /Midterm prep/, 'Missing midterm preparation page.');
-assert.match(prepHtml, /Download formula sheet/, 'Missing formula sheet download.');
+assert.match(prepHtml, /Open the cheat sheet/, 'Missing cheat sheet navigation.');
+assert.doesNotMatch(
+  prepHtml,
+  /Download cheat sheet/,
+  'Cheat sheet is still embedded in midterm prep.',
+);
+const cheatSheetHtml = readFileSync(resolve(root, 'cheat-sheet.html'), 'utf8');
+assert.match(cheatSheetHtml, /Download cheat sheet/, 'Missing cheat sheet download.');
 const guide = getDocument({
   data: new Uint8Array(readFileSync(resolve(root, 'guides/ece121b-midterm-formula-sheet.pdf'))),
   verbosity: 0,
@@ -77,12 +84,13 @@ try {
 } finally {
   await guide.destroy();
 }
-console.log('Verified midterm preparation page and two-page formula sheet.');
+console.log('Verified midterm preparation and standalone two-page cheat sheet.');
 const homeworkHtml = readFileSync(resolve(root, 'homework-solutions.html'), 'utf8');
 assert.match(homeworkHtml, /Homework solutions/, 'Missing homework solutions page.');
 for (const name of ['hw1-solutions.pdf', 'hw2-solutions.pdf']) {
   const bytes = readFileSync(resolve(root, 'homework', name));
   assert.equal(bytes.subarray(0, 4).toString(), '%PDF', `${name}: invalid PDF asset`);
 }
-assert.match(readFileSync(resolve(root, 'credits.html'), 'utf8'), /Jack Shi, 2026 Fall/);
-console.log('Verified homework solutions, both PDFs, and credits page.');
+assert.match(readFileSync(resolve(root, 'index.html'), 'utf8'), /Credits: Jack Shi/);
+assert.ok(!existsSync(resolve(root, 'credits.html')), 'Removed credits route was exported.');
+console.log('Verified homework solutions, both PDFs, and home page credits.');
