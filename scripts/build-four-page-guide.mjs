@@ -62,6 +62,29 @@ const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
 <div><b>Uniform, steady light:</b> ${math(String.raw`0=G_L-\Delta n/\tau_n\Rightarrow\Delta n=G_L\tau_n`)} for minority electrons in p-type Si.</div></div>`;
+const schottkyBandDiagram = (type) => {
+  const n = type === 'n';
+  const ef = n ? 50 : 40;
+  const ecSurface = n ? 18 : 28;
+  const ecBulk = n ? 34 : 14;
+  const evSurface = n ? 66 : 74;
+  const evBulk = n ? 82 : 60;
+  const barrierEdge = n ? ecSurface : evSurface;
+  const bendSurface = n ? ecSurface : evSurface;
+  const bendBulk = n ? ecBulk : evBulk;
+  return `<svg viewBox="0 0 350 88" role="img" aria-label="Equilibrium Schottky barrier band diagram for metal and ${n ? 'n-type' : 'p-type'} silicon">
+<rect x="0" y="0" width="75" height="88" fill="#edf5f4"/><line x1="75" y1="10" x2="75" y2="85" stroke="#65838b" stroke-dasharray="2 2"/>
+<text x="5" y="10" class="band-title">Metal</text><text x="84" y="10" class="band-title">${n ? 'n-Si · ΦM &gt; ΦS' : 'p-Si · ΦM &lt; ΦS'}</text>
+<line x1="5" y1="${ef}" x2="305" y2="${ef}" class="band-fermi"/>
+<path d="M75 ${ecSurface} C122 ${ecSurface} 139 ${ecBulk} 305 ${ecBulk}" class="band-ec"/>
+<path d="M75 ${evSurface} C122 ${evSurface} 139 ${evBulk} 305 ${evBulk}" class="band-ev"/>
+<path d="M58 ${ef} H65 M62 ${ef} V${barrierEdge} M58 ${barrierEdge} H65" class="band-bracket"/>
+<text x="5" y="${(ef + barrierEdge) / 2 + 2}" class="band-label">ΦB${type}</text>
+<path d="M187 ${bendSurface} H194 M190 ${bendSurface} V${bendBulk} M187 ${bendBulk} H194" class="band-bracket"/>
+<text x="199" y="${(bendSurface + bendBulk) / 2 + 2}" class="band-label">qVbi,${type}</text>
+<text x="312" y="${ecBulk + 2}" class="band-label">Eᴄ</text><text x="312" y="${ef + 2}" class="band-label">Eꜰ</text><text x="312" y="${evBulk + 2}" class="band-label">Eᴠ</text>
+</svg>`;
+};
 
 const pages = [
   {
@@ -399,6 +422,15 @@ const pages = [
       note(
         'Depletion approximation: fixed dopant charge dominates, mobile carriers are neglected inside W.',
       ),
+      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
+      formula(
+        String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
+        'Convert geometry before R, W or diffusion calculations.',
+      ),
+      formula(
+        String.raw`1\,\mathrm{eV}/q\equiv1\,\mathrm V`,
+        'Numerically convert energy barriers to voltages.',
+      ),
     ].join(''),
     right: [
       topic('Abrupt PN junction: field and charge', 'L6 p21–29'),
@@ -496,17 +528,13 @@ const pages = [
         'Compare n-type contact widths across biases; HW2 P4.',
       ),
       formula(String.raw`|Q_s|=qN_DAW_n`, 'Depletion charge magnitude in an n-type contact.'),
-      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
-      formula(
-        String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
-        'Convert geometry before R, W or diffusion calculations.',
-      ),
-      formula(
-        String.raw`1\,\mathrm{eV}/q\equiv1\,\mathrm V`,
-        'Numerically convert energy barriers to voltages.',
+      topic('Schottky barriers at equilibrium', 'L5 p29, 38; ideal rectifying contacts'),
+      `<div class="band-diagrams">${schottkyBandDiagram('n')}${schottkyBandDiagram('p')}</div>`,
+      note(
+        'The Fermi level aligns across each contact. The band curves and energy gaps are schematic, not to scale.',
       ),
       note(
-        'Label the applied voltage polarity on the contact before choosing V_bi − V_A or V_bi + V_A.',
+        'Label applied voltage polarity before choosing V_bi − V_A or V_bi + V_A for a contact.',
       ),
     ].join(''),
     right: [
@@ -626,6 +654,14 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .case-list { margin: 6px 0; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.3pt; line-height: 1.3; }
 .case-list div + div { margin-top: 4px; }
 .case-list .katex { font-size: .94em; }
+.band-diagrams { display: grid; gap: 4px; margin: 4px 0; }
+.band-diagrams svg { display: block; width: 100%; height: auto; border: .5px solid #cbdadd; }
+.band-diagrams .band-title { fill: #176d72; font: bold 9px Georgia, serif; }
+.band-diagrams .band-label { fill: #173548; font: 9px Georgia, serif; }
+.band-diagrams .band-fermi { stroke: #7654ba; stroke-width: 1.2; stroke-dasharray: 4 2; }
+.band-diagrams .band-ec { fill: none; stroke: #2672d9; stroke-width: 1.7; }
+.band-diagrams .band-ev { fill: none; stroke: #14875f; stroke-width: 1.7; }
+.band-diagrams .band-bracket { fill: none; stroke: #536570; stroke-width: 1; }
 footer { position: absolute; bottom: .17in; left: .33in; right: .33in; padding-top: 3px; border-top: .5px solid #173548; display: flex; justify-content: space-between; font-size: 7pt; }
 </style></head><body>`;
 
