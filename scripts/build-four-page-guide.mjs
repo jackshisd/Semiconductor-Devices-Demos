@@ -217,6 +217,15 @@ const pages = [
       note(
         'Assumptions: thermal equilibrium, parabolic bands and full ionization unless noted. At high doping use Fermi-Dirac statistics.',
       ),
+      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
+      formula(
+        String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
+        'Convert geometry before R, W or diffusion calculations.',
+      ),
+      formula(
+        String.raw`1\,\mathrm{eV}/q\equiv1\,\mathrm V`,
+        'Numerically convert energy barriers to voltages.',
+      ),
     ].join(''),
   },
   {
@@ -412,6 +421,17 @@ const pages = [
         String.raw`V_{bi}=V_T\ln\!\left(\frac{N_AN_D}{n_i^2}\right)`,
         'Built-in potential at equilibrium.',
       ),
+      topic('One degenerately doped PN side', 'L6 p18'),
+      formula(
+        String.raw`qV_{bi}=(E_i-E_F)_{p}+(E_F-E_i)_{n}`,
+        'Add the p-side and n-side Fermi-level offsets.',
+        true,
+      ),
+      formula(
+        String.raw`\begin{aligned}p^+n:\quad qV_{bi}&\approx\frac{E_g}{2}+k_BT\ln\!\frac{N_D}{n_i}\\n^+p:\quad qV_{bi}&\approx\frac{E_g}{2}+k_BT\ln\!\frac{N_A}{n_i}\end{aligned}`,
+        'Band-edge approximation: E_F ≈ E_V in p⁺ or E_C in n⁺, E_i ≈ midgap, and the light side is nondegenerate.',
+        true,
+      ),
       formula(String.raw`U=V_{bi}-V_A>0`, 'Voltage across depletion; forward PN bias lowers U.'),
       formula(
         String.raw`W=\sqrt{\frac{2\varepsilon_sU}{q}\left(\frac1{N_A}+\frac1{N_D}\right)}`,
@@ -425,18 +445,6 @@ const pages = [
       formula(
         String.raw`W\propto\sqrt{V_{bi}-V_A}`,
         'Forward bias narrows; reverse bias widens depletion.',
-      ),
-      note(
-        'Depletion approximation: fixed dopant charge dominates, mobile carriers are neglected inside W.',
-      ),
-      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
-      formula(
-        String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
-        'Convert geometry before R, W or diffusion calculations.',
-      ),
-      formula(
-        String.raw`1\,\mathrm{eV}/q\equiv1\,\mathrm V`,
-        'Numerically convert energy barriers to voltages.',
       ),
     ].join(''),
     right: [
@@ -492,7 +500,7 @@ const pages = [
       ),
       topic('Check before substitution', 'Lectures 5–6'),
       note(
-        'Use ε in F/cm, area in cm² and dopant density in cm⁻³. Reverse bias increases W and lowers C. Mark p and n sides before assigning x_p and x_n.',
+        'Use ε in F/cm, area in cm² and dopants in cm⁻³. Inside W, fixed dopant charge dominates. Reverse bias widens W and lowers C; mark p and n sides before assigning x_p and x_n.',
       ),
       topic('Continuity: useful limiting cases', 'L4 p29–32; HW2 P1–2'),
       continuityCases(),
