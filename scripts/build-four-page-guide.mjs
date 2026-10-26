@@ -64,25 +64,32 @@ const continuityCases = () =>
 <div><b>Uniform, steady light:</b> ${math(String.raw`0=G_L-\Delta n/\tau_n\Rightarrow\Delta n=G_L\tau_n`)} for minority electrons in p-type Si.</div></div>`;
 const schottkyBandDiagram = (type) => {
   const n = type === 'n';
-  const ef = n ? 50 : 40;
-  const ecSurface = n ? 18 : 28;
-  const ecBulk = n ? 34 : 14;
-  const evSurface = n ? 66 : 74;
-  const evBulk = n ? 82 : 60;
+  const ef = 70;
+  const vacuumSurface = n ? 18 : 28;
+  const vacuumBulk = n ? 31 : 16;
+  const ecSurface = n ? 43 : 53;
+  const ecBulk = n ? 56 : 41;
+  const evSurface = n ? 91 : 103;
+  const evBulk = n ? 104 : 91;
   const barrierEdge = n ? ecSurface : evSurface;
   const bendSurface = n ? ecSurface : evSurface;
   const bendBulk = n ? ecBulk : evBulk;
-  return `<svg viewBox="0 0 350 88" role="img" aria-label="Equilibrium Schottky barrier band diagram for metal and ${n ? 'n-type' : 'p-type'} silicon">
-<rect x="0" y="0" width="75" height="88" fill="#edf5f4"/><line x1="75" y1="10" x2="75" y2="85" stroke="#65838b" stroke-dasharray="2 2"/>
-<text x="5" y="10" class="band-title">Metal</text><text x="84" y="10" class="band-title">${n ? 'n-Si · ΦM &gt; ΦS' : 'p-Si · ΦM &lt; ΦS'}</text>
-<line x1="5" y1="${ef}" x2="305" y2="${ef}" class="band-fermi"/>
-<path d="M75 ${ecSurface} C122 ${ecSurface} 139 ${ecBulk} 305 ${ecBulk}" class="band-ec"/>
-<path d="M75 ${evSurface} C122 ${evSurface} 139 ${evBulk} 305 ${evBulk}" class="band-ev"/>
-<path d="M58 ${ef} H65 M62 ${ef} V${barrierEdge} M58 ${barrierEdge} H65" class="band-bracket"/>
-<text x="5" y="${(ef + barrierEdge) / 2 + 2}" class="band-label">ΦB${type}</text>
-<path d="M187 ${bendSurface} H194 M190 ${bendSurface} V${bendBulk} M187 ${bendBulk} H194" class="band-bracket"/>
-<text x="199" y="${(bendSurface + bendBulk) / 2 + 2}" class="band-label">qVbi,${type}</text>
-<text x="312" y="${ecBulk + 2}" class="band-label">Eᴄ</text><text x="312" y="${ef + 2}" class="band-label">Eꜰ</text><text x="312" y="${evBulk + 2}" class="band-label">Eᴠ</text>
+  const bracket = (x, a, b) =>
+    `<path d="M${x - 3} ${a} H${x + 3} M${x} ${a} V${b} M${x - 3} ${b} H${x + 3}" class="band-bracket"/>`;
+  return `<svg viewBox="0 0 350 132" role="img" aria-label="Equilibrium Schottky barrier band diagram for metal and ${n ? 'n-type' : 'p-type'} silicon, labeling vacuum level, metal work function, electron affinity, barrier height, built-in band bending and depletion width">
+<rect x="0" y="0" width="80" height="132" fill="#edf5f4"/><rect x="80" y="0" width="150" height="132" fill="#f6fafb"/>
+<line x1="80" y1="11" x2="80" y2="113" class="band-interface"/><line x1="230" y1="11" x2="230" y2="113" class="band-interface"/>
+<text x="5" y="9" class="band-title">Metal</text><text x="89" y="9" class="band-title">${n ? 'n-Si · ΦM &gt; ΦS' : 'p-Si · ΦM &lt; ΦS'}</text>
+<path d="M5 ${vacuumSurface} H80 C125 ${vacuumSurface} 146 ${vacuumBulk} 300 ${vacuumBulk}" class="band-vacuum"/>
+<line x1="5" y1="${ef}" x2="300" y2="${ef}" class="band-fermi"/>
+<path d="M80 ${ecSurface} C125 ${ecSurface} 146 ${ecBulk} 300 ${ecBulk}" class="band-ec"/>
+<path d="M80 ${evSurface} C125 ${evSurface} 146 ${evBulk} 300 ${evBulk}" class="band-ev"/>
+${bracket(19, vacuumSurface, ef)}<text x="23" y="${(vacuumSurface + ef) / 2 + 2}" class="band-label">ΦM</text>
+${bracket(67, barrierEdge, ef)}<text x="43" y="${(barrierEdge + ef) / 2 + 2}" class="band-label">ΦB${type}</text>
+${bracket(100, vacuumSurface, ecSurface)}<text x="105" y="${(vacuumSurface + ecSurface) / 2 + 2}" class="band-label">χ</text>
+${bracket(209, bendSurface, bendBulk)}<text x="216" y="${(bendSurface + bendBulk) / 2 + 2}" class="band-label">qVbi,${type}</text>
+<path d="M80 115 V120 H230 V115" class="band-bracket"/><text x="155" y="129" text-anchor="middle" class="band-label">W · depletion</text>
+<text x="307" y="${vacuumBulk + 2}" class="band-label">E₀</text><text x="307" y="${ecBulk + 2}" class="band-label">Eᴄ</text><text x="307" y="${ef + 2}" class="band-label">Eꜰ</text><text x="307" y="${evBulk + 2}" class="band-label">Eᴠ</text>
 </svg>`;
 };
 
@@ -528,14 +535,11 @@ const pages = [
         'Compare n-type contact widths across biases; HW2 P4.',
       ),
       formula(String.raw`|Q_s|=qN_DAW_n`, 'Depletion charge magnitude in an n-type contact.'),
-      topic('Schottky barriers at equilibrium', 'L5 p29, 38; ideal rectifying contacts'),
+      topic(
+        'Schottky barriers at equilibrium',
+        'L5 p29, 38; ideal rectifying contacts; schematic, not to scale',
+      ),
       `<div class="band-diagrams">${schottkyBandDiagram('n')}${schottkyBandDiagram('p')}</div>`,
-      note(
-        'The Fermi level aligns across each contact. The band curves and energy gaps are schematic, not to scale.',
-      ),
-      note(
-        'Label applied voltage polarity before choosing V_bi − V_A or V_bi + V_A for a contact.',
-      ),
     ].join(''),
     right: [
       topic('9. Ideal PN diode', 'L7 p6–20'),
@@ -658,6 +662,8 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .band-diagrams svg { display: block; width: 100%; height: auto; border: .5px solid #cbdadd; }
 .band-diagrams .band-title { fill: #176d72; font: bold 9px Georgia, serif; }
 .band-diagrams .band-label { fill: #173548; font: 9px Georgia, serif; }
+.band-diagrams .band-interface { stroke: #9eb7bd; stroke-width: .8; stroke-dasharray: 2 2; }
+.band-diagrams .band-vacuum { fill: none; stroke: #7d8a90; stroke-width: 1.1; stroke-dasharray: 3 2; }
 .band-diagrams .band-fermi { stroke: #7654ba; stroke-width: 1.2; stroke-dasharray: 4 2; }
 .band-diagrams .band-ec { fill: none; stroke: #2672d9; stroke-width: 1.7; }
 .band-diagrams .band-ev { fill: none; stroke: #14875f; stroke-width: 1.7; }
