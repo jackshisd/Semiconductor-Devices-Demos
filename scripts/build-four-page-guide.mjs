@@ -429,22 +429,19 @@ const pages = [
       ),
       formula(
         String.raw`\begin{aligned}p^+n:\quad qV_{bi}&\approx\frac{E_g}{2}+k_BT\ln\!\frac{N_D}{n_i}\\n^+p:\quad qV_{bi}&\approx\frac{E_g}{2}+k_BT\ln\!\frac{N_A}{n_i}\end{aligned}`,
-        'Band-edge approximation: E_F ≈ E_V in p⁺ or E_C in n⁺, E_i ≈ midgap, and the light side is nondegenerate.',
+        'Band-edge Fermi levels, midgap E_i; light side nondegenerate.',
         true,
       ),
       formula(String.raw`U=V_{bi}-V_A>0`, 'Voltage across depletion; forward PN bias lowers U.'),
       formula(
         String.raw`W=\sqrt{\frac{2\varepsilon_sU}{q}\left(\frac1{N_A}+\frac1{N_D}\right)}`,
-        'Total depletion width under applied bias.',
+        `Total width; one-sided: ${math(String.raw`W\approx\sqrt{2\varepsilon_sU/(qN_{\rm light})}`)}.`,
         true,
       ),
       formula(
-        String.raw`W\approx\sqrt{\frac{2\varepsilon_sU}{qN_{\rm light}}}`,
-        'One-sided junction approximation.',
-      ),
-      formula(
-        String.raw`W\propto\sqrt{V_{bi}-V_A}`,
-        'Forward bias narrows; reverse bias widens depletion.',
+        String.raw`\begin{aligned}x_n&=\sqrt{\frac{2\varepsilon_sV_{bi}}{q}\frac{N_A}{N_D(N_A+N_D)}}\\x_p&=\sqrt{\frac{2\varepsilon_sV_{bi}}{q}\frac{N_D}{N_A(N_A+N_D)}}\end{aligned}`,
+        'At equilibrium (V_A = 0). Under bias, replace V_bi with U = V_bi − V_A.',
+        true,
       ),
     ].join(''),
     right: [
