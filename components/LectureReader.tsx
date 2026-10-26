@@ -83,6 +83,7 @@ export function PdfSlide({
   showAnnotations?: boolean;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const scrollArea = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
   const renderQueue = useRef<Promise<void>>(Promise.resolve());
   const [width, setWidth] = useState(800);
@@ -190,11 +191,51 @@ export function PdfSlide({
       task?.cancel();
     };
   }, [document, slide, width, zoom, onAspectRatio, explanation]);
+  useEffect(() => {
+    const scroll = scrollArea.current;
+    if (!scroll || rendering || !showAnnotations) return;
+    const positionPopovers = () => {
+      const viewport = scroll.getBoundingClientRect();
+      const margin = 8;
+      const leftEdge = viewport.left + margin;
+      const rightEdge = viewport.left + scroll.clientWidth - margin;
+      const topEdge = viewport.top + margin;
+      const bottomEdge = viewport.top + scroll.clientHeight - margin;
+      const popoverWidth = Math.min(380, Math.max(1, rightEdge - leftEdge));
+      const popoverHeight = Math.min(360, Math.max(1, bottomEdge - topEdge));
+      scroll.querySelectorAll<HTMLElement>('.slide-explanation').forEach((annotation) => {
+        const dot = annotation.querySelector<HTMLElement>('.slide-explanation-dot');
+        const popover = annotation.querySelector<HTMLElement>('.slide-explanation-popover');
+        if (!dot || !popover) return;
+        popover.style.width = `${popoverWidth}px`;
+        popover.style.maxHeight = `${popoverHeight}px`;
+        const anchor = dot.getBoundingClientRect();
+        const height = popover.getBoundingClientRect().height;
+        const right = anchor.right - 5;
+        const below = anchor.bottom - 5;
+        const preferredLeft =
+          right + popoverWidth <= rightEdge ? right : anchor.left + 5 - popoverWidth;
+        const preferredTop = below + height <= bottomEdge ? below : anchor.top + 5 - height;
+        popover.style.left = `${Math.max(leftEdge, Math.min(preferredLeft, rightEdge - popoverWidth))}px`;
+        popover.style.top = `${Math.max(topEdge, Math.min(preferredTop, bottomEdge - height))}px`;
+      });
+    };
+    positionPopovers();
+    const observer = new ResizeObserver(positionPopovers);
+    observer.observe(scroll);
+    window.addEventListener('resize', positionPopovers);
+    window.addEventListener('scroll', positionPopovers, true);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', positionPopovers);
+      window.removeEventListener('scroll', positionPopovers, true);
+    };
+  }, [rendering, showAnnotations, placedDots, surface, slide]);
   const visibleAnnotations =
     annotations ?? (explanation ? [{ x: 0.7, y: 0.45, text: explanation }] : []);
   return (
     <div ref={container} className="pdf-slide-container" aria-busy={rendering}>
-      <div className="pdf-canvas-scroll">
+      <div ref={scrollArea} className="pdf-canvas-scroll">
         <div className="pdf-slide-surface" style={surface}>
           <canvas
             ref={canvas}
@@ -229,7 +270,7 @@ export function PdfSlide({
                 </button>
                 <div
                   id={`${explanationId}-${index}`}
-                  className={`slide-explanation-popover ${(placedDots[index]?.x ?? annotation.x) > 0.58 ? 'align-right' : ''} ${(placedDots[index]?.y ?? annotation.y) > 0.55 ? 'align-above' : ''}`}
+                  className="slide-explanation-popover"
                   role="tooltip"
                 >
                   <strong>{annotation.label ?? `Slide ${slide} explained`}</strong>
