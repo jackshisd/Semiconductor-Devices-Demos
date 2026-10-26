@@ -16,7 +16,10 @@ const titles = {
   8: 'Lecture 8 · Nonideal diodes and breakdown',
 };
 mkdirSync('public/pdfjs', { recursive: true });
-cpSync('node_modules/pdfjs-dist/build/pdf.worker.min.mjs', 'public/pdfjs/pdf.worker.min.mjs');
+cpSync(
+  'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs',
+  'public/pdfjs/pdf.worker.min.mjs',
+);
 cpSync('node_modules/pdfjs-dist/LICENSE', 'public/pdfjs/LICENSE');
 for (const folder of ['cmaps', 'standard_fonts', 'wasm'])
   cpSync(`node_modules/pdfjs-dist/${folder}`, `public/pdfjs/${folder}`, { recursive: true });

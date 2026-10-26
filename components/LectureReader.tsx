@@ -84,6 +84,7 @@ export function PdfSlide({
 }) {
   const container = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const renderQueue = useRef<Promise<void>>(Promise.resolve());
   const [width, setWidth] = useState(800);
   const [rendering, setRendering] = useState(true);
   const [error, setError] = useState('');
@@ -114,35 +115,40 @@ export function PdfSlide({
       const original = page.getViewport({ scale: 1 });
       onAspectRatio(original.width / original.height);
       const viewport = page.getViewport({ scale: (width / original.width) * zoom });
-      setSurface({ width: viewport.width, height: viewport.height });
       let explanationAnchor = { x: 0.7, y: 0.45 };
       if (explanation) {
-        const content = await page.getTextContent();
-        const candidates = content.items
-          .filter(
-            (
-              item,
-            ): item is (typeof content.items)[number] & {
-              str: string;
-              width: number;
-              transform: number[];
-            } => 'str' in item,
-          )
-          .map((item) => {
-            const [x, y] = original.convertToViewportPoint(item.transform[4], item.transform[5]);
-            return {
-              x: x / original.width,
-              y: y / original.height,
-              length: item.str.trim().length,
-            };
-          })
-          .filter((item) => item.length > 12 && item.y > 0.18 && item.y < 0.82);
-        const anchor = candidates.sort(
-          (a, b) => Math.abs(a.y - 0.48) - Math.abs(b.y - 0.48) + (b.length - a.length) * 0.0005,
-        )[0];
-        if (anchor)
-          explanationAnchor = { x: Math.max(0.12, Math.min(0.82, anchor.x)), y: anchor.y };
+        try {
+          const content = await page.getTextContent();
+          const candidates = content.items
+            .filter(
+              (
+                item,
+              ): item is (typeof content.items)[number] & {
+                str: string;
+                width: number;
+                transform: number[];
+              } => 'str' in item,
+            )
+            .map((item) => {
+              const [x, y] = original.convertToViewportPoint(item.transform[4], item.transform[5]);
+              return {
+                x: x / original.width,
+                y: y / original.height,
+                length: item.str.trim().length,
+              };
+            })
+            .filter((item) => item.length > 12 && item.y > 0.18 && item.y < 0.82);
+          const anchor = candidates.sort(
+            (a, b) => Math.abs(a.y - 0.48) - Math.abs(b.y - 0.48) + (b.length - a.length) * 0.0005,
+          )[0];
+          if (anchor)
+            explanationAnchor = { x: Math.max(0.12, Math.min(0.82, anchor.x)), y: anchor.y };
+        } catch {
+          // A text-extraction error should not prevent the original slide from rendering.
+        }
       }
+      if (disposed || !canvas.current) return;
+      setSurface({ width: viewport.width, height: viewport.height });
       const pixelRatio = Math.min(
         window.devicePixelRatio || 1,
         2,
@@ -171,7 +177,9 @@ export function PdfSlide({
         setRendering(false);
       }
     };
-    render().catch((reason) => {
+    const pending = renderQueue.current.then(() => (disposed ? undefined : render()));
+    renderQueue.current = pending.catch(() => undefined);
+    pending.catch((reason) => {
       if (!disposed) {
         setError(reason instanceof Error ? reason.message : 'The slide could not be rendered.');
         setRendering(false);
@@ -304,7 +312,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
     setDocument(null);
     setError('');
     const load = async () => {
-      const pdfjs = await import('pdfjs-dist');
+      const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
       if (disposed) return;
       pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
       const task = pdfjs.getDocument({

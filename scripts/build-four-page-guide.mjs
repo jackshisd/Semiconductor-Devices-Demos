@@ -20,6 +20,48 @@ const formula = (tex, purpose, compact = false) =>
 const topic = (title, reference) =>
   `<div class="topic"><strong>${title}</strong><span>${reference}</span></div>`;
 const note = (body) => `<div class="note">${body}</div>`;
+const mobilityAt = (density, carrier) =>
+  carrier === 'electron'
+    ? 92 + 1308 / (1 + (density / 9e16) ** 0.7)
+    : 54 + 446 / (1 + (density / 1.5e17) ** 0.8);
+const compactGraph = (kind) => {
+  const mobility = kind === 'mobility';
+  const x = (density) => 32 + ((Math.log10(density) - 13) / 7) * 138;
+  const y = (value) =>
+    mobility ? 96 - (value / 1500) * 72 : 96 - ((Math.log10(value) + 4) / 7) * 72;
+  const line = (carrier) =>
+    Array.from({ length: 85 }, (_, index) => {
+      const density = 10 ** (13 + index / 12);
+      const mu = mobilityAt(density, carrier);
+      const value = mobility ? mu : 1 / (1.602e-19 * density * mu);
+      return `${index ? 'L' : 'M'}${x(density).toFixed(1)},${y(value).toFixed(1)}`;
+    }).join(' ');
+  const yTicks = mobility
+    ? [
+        [0, '0'],
+        [500, '500'],
+        [1000, '1000'],
+        [1500, '1500'],
+      ]
+    : [
+        [1e-4, '10⁻⁴'],
+        [1e-2, '10⁻²'],
+        [1, '1'],
+        [1e2, '10²'],
+      ];
+  return `<div class="mini-graph"><strong>${mobility ? 'Si mobility · 300 K (L3 p36)' : 'Si resistivity · 300 K (L3 p40)'}</strong>
+<svg viewBox="0 0 180 123" role="img" aria-label="${mobility ? 'Electron and hole mobility versus total dopant concentration' : 'N-type and p-type resistivity versus doping'}">
+<text x="33" y="12" class="axis-title">${mobility ? 'μ (cm²/V·s)' : 'ρ (Ω·cm)'}</text>
+${yTicks.map(([value, label]) => `<line x1="32" y1="${y(value)}" x2="170" y2="${y(value)}" class="grid"/><text x="28" y="${y(value) + 2}" text-anchor="end" class="tick">${label}</text>`).join('')}
+${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${x(10 ** exponent)}" y2="96" class="grid"/><text x="${x(10 ** exponent)}" y="107" text-anchor="middle" class="tick">10${String(exponent).replace(/\d/g, (digit) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(digit)])}</text>`).join('')}
+<path d="M32,24 V96 H170" class="axis"/><path d="${line('electron')}" class="electron-line"/><path d="${line('hole')}" class="hole-line"/>
+<text x="169" y="10" text-anchor="end" class="legend"><tspan fill="#2672d9">${mobility ? 'e⁻' : 'n-type'}</tspan><tspan fill="#d56138">  ${mobility ? 'h⁺' : 'p-type'}</tspan></text>
+<text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
+};
+const continuityCases = () =>
+  `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
+<div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
+<div><b>Uniform, steady light:</b> ${math(String.raw`0=G_L-\Delta n/\tau_n\Rightarrow\Delta n=G_L\tau_n`)} for minority electrons in p-type Si.</div></div>`;
 
 const pages = [
   {
@@ -65,6 +107,17 @@ const pages = [
         'Count occupied conduction and empty valence states.',
         true,
       ),
+      formula(
+        String.raw`N_C=2\left(\frac{2\pi m^*_{n,\mathrm{DOS}}k_BT}{h^2}\right)^{3/2}`,
+        'Conduction-band effective density of states; use DOS mass.',
+        true,
+      ),
+      formula(
+        String.raw`N_V=2\left(\frac{2\pi m^*_{p,\mathrm{DOS}}k_BT}{h^2}\right)^{3/2}`,
+        'Valence-band effective density of states; use DOS mass.',
+        true,
+      ),
+      note('Use kg, J and s in the DOS equations; divide m⁻³ by 10⁶ to obtain cm⁻³.'),
       formula(
         String.raw`N_{C,V}(T)=N_{C,V}(300\,\mathrm K)\left(\frac{T}{300\,\mathrm K}\right)^{3/2}`,
         'Scale effective state densities with T; fixed DOS mass.',
@@ -166,7 +219,7 @@ const pages = [
         'Convert material resistivity to device resistance.',
       ),
       note(
-        'HW1 P5: convert every device dimension to cm before using Ω·cm; use mobility at total dopant concentration.',
+        'HW1 P5: convert dimensions to cm before using Ω·cm. Mobility follows total dopant concentration; resistivity curves assume one dopant type.',
       ),
       topic('Drift and diffusion current', 'L3 p28–32; L4 p18–27'),
       formula(
@@ -202,6 +255,7 @@ const pages = [
         'Equilibrium field that cancels electron diffusion.',
       ),
       note('For the band-edge slope, E_C must be in joules when q is in coulombs.'),
+      `<div class="mini-graphs">${compactGraph('mobility')}${compactGraph('resistivity')}</div>`,
     ].join(''),
     right: [
       topic('4. Continuity and generation', 'L4 p29–32; HW2 P1–2'),
@@ -396,6 +450,8 @@ const pages = [
       note(
         'Use ε in F/cm, area in cm² and dopant density in cm⁻³. Reverse bias increases W and lowers C. Mark p and n sides before assigning x_p and x_n.',
       ),
+      topic('Continuity: useful limiting cases', 'L4 p29–32; HW2 P1–2'),
+      continuityCases(),
     ].join(''),
   },
   {
@@ -403,17 +459,22 @@ const pages = [
     left: [
       topic('8. Metal–semiconductor contacts', 'L5 p27–39; L6 p4–8; HW2 P4'),
       formula(
-        String.raw`\phi_{Bn}=\phi_M-\chi,\quad\phi_{Bp}=E_g/q-\phi_{Bn}`,
-        'Ideal Schottky–Mott barrier estimates.',
+        String.raw`\Phi_{Bn}=\Phi_M-\chi,\quad\Phi_{Bp}=E_g-\Phi_{Bn}`,
+        'Ideal barrier energies; Φ_M is metal work function, χ electron affinity.',
+        true,
+      ),
+      formula(
+        String.raw`\Phi_{Bn}=qV_{bi,n}+(E_C-E_F)`,
+        'Barrier = band bending + bulk separation; every term is an energy (eV).',
       ),
       formula(String.raw`E_C-E_F=k_BT\ln(N_C/N_D)`, 'Bulk n-type band-edge separation.'),
       formula(String.raw`E_F-E_V=k_BT\ln(N_V/N_A)`, 'Bulk p-type band-edge separation.'),
       formula(
-        String.raw`V_{bi,n}=\phi_{Bn}-(E_C-E_F)/q`,
+        String.raw`V_{bi,n}=\frac{\Phi_{Bn}-(E_C-E_F)}{q}`,
         'n-type built-in voltage from barrier and bulk Fermi level.',
       ),
       formula(
-        String.raw`V_{bi,p}=\phi_{Bp}-(E_F-E_V)/q`,
+        String.raw`V_{bi,p}=\frac{\Phi_{Bp}-(E_F-E_V)}{q}`,
         'p-type built-in voltage from barrier and bulk Fermi level.',
       ),
       formula(
@@ -425,7 +486,7 @@ const pages = [
         'p-type polarity used in L6: V_A > 0 is reverse bias.',
       ),
       note(
-        'HW2 P4 realistic NiSi/Si values: electron barrier φ_Bn = 0.65 eV; hole barrier φ_Bp = 0.47 eV. Use these instead of ideal work-function estimates.',
+        'HW2 P4 realistic NiSi/Si values: electron barrier Φ_Bn = 0.65 eV; hole barrier Φ_Bp = 0.47 eV. Use these instead of ideal work-function estimates.',
       ),
       note(
         'At fixed metal and semiconductor, applied bias changes band bending and W, not the interface barrier height.',
@@ -551,6 +612,20 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .formula.compact .math { font-size: 8.5pt; }
 .formula .purpose { margin-top: 1px; color: #536570; font-size: 7.4pt; line-height: 1.2; }
 .note { margin: 5px 0 7px; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.5pt; line-height: 1.25; }
+.mini-graphs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 5px; margin: 6px 0 3px; }
+.mini-graph { min-width: 0; border: .5px solid #cbdadd; padding: 3px 2px 1px; }
+.mini-graph strong { display: block; color: #176d72; font-size: 7.4pt; padding-left: 3px; }
+.mini-graph svg { display: block; width: 100%; height: auto; }
+.mini-graph .grid { stroke: #dce6e7; stroke-width: .65; }
+.mini-graph .axis { fill: none; stroke: #526670; stroke-width: .9; }
+.mini-graph .electron-line, .mini-graph .hole-line { fill: none; stroke-width: 1.55; }
+.mini-graph .electron-line { stroke: #2672d9; }
+.mini-graph .hole-line { stroke: #d56138; }
+.mini-graph .tick { fill: #536570; font: 7px Arial, sans-serif; }
+.mini-graph .axis-title, .mini-graph .legend { fill: #173548; font: 7px Arial, sans-serif; }
+.case-list { margin: 6px 0; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.3pt; line-height: 1.3; }
+.case-list div + div { margin-top: 4px; }
+.case-list .katex { font-size: .94em; }
 footer { position: absolute; bottom: .17in; left: .33in; right: .33in; padding-top: 3px; border-top: .5px solid #173548; display: flex; justify-content: space-between; font-size: 7pt; }
 </style></head><body>`;
 

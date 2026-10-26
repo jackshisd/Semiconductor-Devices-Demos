@@ -43,7 +43,7 @@ export default function CheatSheet() {
     setDocument(null);
     setError('');
     const load = async () => {
-      const pdfjs = await import('pdfjs-dist');
+      const pdfjs = await import('pdfjs-dist/legacy/build/pdf.mjs');
       if (disposed) return;
       pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs/pdf.worker.min.mjs';
       const task = pdfjs.getDocument({

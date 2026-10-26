@@ -1388,6 +1388,8 @@ export function Schottky() {
         controls={controls}
       >
         <Metrics>
+          <Metric label="Metal work function ΦM" value={fmt(v.phiM)} unit="eV" />
+          <Metric label="Electron affinity χ" value={fmt(v.chi)} unit="eV" />
           <Metric label="Electron barrier ΦBn" value={fmt(phi)} unit="eV" />
           <Metric label="Built-in potential" value={fmt(d.vbi)} unit="V" />
           <Metric label="Depletion drop" value={fmt(d.drop)} unit="V" />
