@@ -485,6 +485,11 @@ const pages = [
       note(
         'These C–V signs use the n-type forward-bias convention. The voltage-axis intercept is V_bi.',
       ),
+      formula(
+        String.raw`\begin{aligned}qV_{bi}&=\Phi_{Bn}-(E_C-E_F)_{\mathrm{FB}}\\&=\Phi_{Bn}-k_BT\ln\!\left(\frac{N_C}{N_D}\right)\end{aligned}`,
+        'For an n-type Schottky contact, use V_bi from the C–V intercept and N_D from its slope to find Φ_Bn; energies in eV.',
+        true,
+      ),
       topic('Check before substitution', 'Lectures 5–6'),
       note(
         'Use ε in F/cm, area in cm² and dopant density in cm⁻³. Reverse bias increases W and lowers C. Mark p and n sides before assigning x_p and x_n.',
