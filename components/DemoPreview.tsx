@@ -17,11 +17,13 @@ type Kind =
   | 'tunneling'
   | 'fermi'
   | 'spectrum'
+  | 'screening'
   | 'degenerate'
   | 'metal'
   | 'capacitance';
 const kinds: Record<ExperimentSlug, Kind> = {
   'matthiessen-rule': 'spectrum',
+  'screening-effect': 'screening',
   'thermal-drift': 'transport',
   'velocity-saturation': 'temperature',
   'momentum-collisions': 'field',
@@ -82,6 +84,10 @@ const curves: Record<Kind, string[]> = {
   tunneling: ['M12 22H34L59 46H83', 'M12 39H34L59 59H83', 'M16 37Q24 23 32 37T48 37 64 37 80 37'],
   fermi: ['M12 12H83 M12 53H83', 'M12 29H83', 'M12 40H83'],
   spectrum: ['M13 50C32 50 36 11 47 12S57 50 82 50', 'M13 50C34 50 40 28 49 28S62 50 82 50'],
+  screening: [
+    'M47 32m-16 0a16 16 0 1 0 32 0a16 16 0 1 0-32 0',
+    'M47 32m-27 0a27 27 0 1 0 54 0a27 27 0 1 0-54 0',
+  ],
   degenerate: ['M12 20H83 M12 50H83', 'M12 13H83'],
   metal: ['M12 15H29 M34 15C48 15 49 32 65 32H83', 'M34 33C48 33 49 50 65 50H83'],
   capacitance: ['M12 48C30 47 46 43 60 32S74 16 82 8'],
@@ -114,6 +120,7 @@ export default function DemoPreview({
       {kind === 'tunneling' && <rect x="35" y="8" width="23" height="48" fill="#e8e0f1" />}
       {kind === 'metal' && <rect x="12" y="9" width="17" height="46" rx="2" fill="#ced8df" />}
       {kind === 'bands' && <rect x="14" y="27" width="66" height="10" fill="#e7edf0" />}
+      {kind === 'screening' && <circle cx="47" cy="32" r="5" fill={orange} />}
       {curves[kind].map((d, i) => (
         <path
           key={d}

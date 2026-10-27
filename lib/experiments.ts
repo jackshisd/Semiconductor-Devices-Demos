@@ -6,6 +6,12 @@ const catalog = [
     group: 'Carrier transport',
   },
   {
+    slug: 'screening-effect',
+    title: 'Screening effect',
+    subtitle: 'See how mobile carriers weaken a dopant ion’s distant electric field',
+    group: 'Carrier transport',
+  },
+  {
     slug: 'thermal-drift',
     title: 'Thermal motion and drift',
     subtitle: 'Compare random carrier motion with directed transport',

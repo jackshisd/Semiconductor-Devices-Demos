@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build && node scripts/sync-export.mjs && npm run check:export",
-    "test": "node --experimental-strip-types --test lib/physics.test.mjs lib/breakdown.test.mjs lib/lectures.test.mjs lib/lecture-models.test.mjs lib/scattering.test.mjs lib/lecture-three.test.mjs lib/matthiessen.test.mjs lib/practice-problems.test.mjs lib/homework-solutions.test.mjs",
+    "test": "node --experimental-strip-types --test lib/physics.test.mjs lib/breakdown.test.mjs lib/lectures.test.mjs lib/lecture-models.test.mjs lib/scattering.test.mjs lib/lecture-three.test.mjs lib/matthiessen.test.mjs lib/screening.test.mjs lib/practice-problems.test.mjs lib/homework-solutions.test.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",

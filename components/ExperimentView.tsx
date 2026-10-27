@@ -10,6 +10,7 @@ const loading = (
 );
 const demos: Record<ExperimentSlug, ComponentType> = {
   'matthiessen-rule': lazy(() => import('./MatthiessenDemo')),
+  'screening-effect': lazy(() => import('./ScreeningEffect')),
   'thermal-drift': lazy(() =>
     import('./LectureThreeDemos').then((m) => ({ default: m.ThermalDrift })),
   ),

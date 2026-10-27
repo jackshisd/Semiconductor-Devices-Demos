@@ -58,6 +58,36 @@ ${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${
 <text x="169" y="10" text-anchor="end" class="legend"><tspan fill="#2672d9">${mobility ? 'e⁻' : 'n-type'}</tspan><tspan fill="#d56138">  ${mobility ? 'h⁺' : 'p-type'}</tspan></text>
 <text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
 };
+const temperatureMobilityGraph = () => {
+  const densities = [1e14, 1e16, 1e17, 1e18, 1e19];
+  const colors = ['#2672d9', '#14875f', '#8057a3', '#d18430', '#bf5454'];
+  const x = (temperature) => 34 + ((Math.log10(temperature) - 2) / 1) * 295;
+  const y = (mobility) =>
+    119 - ((Math.log10(mobility) - Math.log10(20)) / (4 - Math.log10(20))) * 84;
+  const mobility = (temperature, density) => {
+    const phonon = 1400 * (temperature / 300) ** -1.5;
+    const impurity = 8000 * (temperature / 300) ** 1.5 * (1e16 / density) ** 0.6;
+    return 1 / (1 / phonon + 1 / impurity);
+  };
+  const curves = densities
+    .map((density, index) => {
+      const path = Array.from({ length: 95 }, (_, point) => {
+        const temperature = 100 * 10 ** (point / 94);
+        return `${point ? 'L' : 'M'}${x(temperature).toFixed(1)},${y(mobility(temperature, density)).toFixed(1)}`;
+      }).join(' ');
+      return `<path d="${path}" fill="none" stroke="${colors[index]}" stroke-width="1.6"/>`;
+    })
+    .join('');
+  return `<div class="temperature-graph"><strong>Si mobility vs temperature (L4 p8) · illustrative</strong>
+<svg viewBox="0 0 350 145" role="img" aria-label="Illustrative silicon mobility versus temperature on logarithmic axes for donor concentrations from ten to the fourteenth to ten to the nineteenth per cubic centimeter">
+<defs><clipPath id="temperature-mobility-clip"><rect x="34" y="35" width="295" height="84"/></clipPath></defs>
+${[100, 300, 1000].map((temperature) => `<line x1="${x(temperature)}" y1="35" x2="${x(temperature)}" y2="119" class="grid"/><text x="${x(temperature)}" y="130" text-anchor="middle" class="tick">${temperature}</text>`).join('')}
+${[100, 1000, 10000].map((value) => `<line x1="34" y1="${y(value)}" x2="329" y2="${y(value)}" class="grid"/><text x="30" y="${y(value) + 2}" text-anchor="end" class="tick">10${String(Math.log10(value)).replace(/\d/g, (digit) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(digit)])}</text>`).join('')}
+<path d="M34 35 V119 H329" class="axis"/><g clip-path="url(#temperature-mobility-clip)">${curves}</g>
+<text x="34" y="16" class="axis-title">μ (cm²/V·s)</text>
+${densities.map((density, index) => `<line x1="${126 + index * 43}" y1="13" x2="${137 + index * 43}" y2="13" stroke="${colors[index]}" stroke-width="2"/><text x="${139 + index * 43}" y="15" class="tick">10${String(Math.log10(density)).replace(/\d/g, (digit) => '⁰¹²³⁴⁵⁶⁷⁸⁹'[Number(digit)])}</text>`).join('')}
+<text x="182" y="142" text-anchor="middle" class="axis-title">Temperature (K); legend Nᴅ in cm⁻³</text></svg></div>`;
+};
 const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
@@ -76,20 +106,20 @@ const schottkyBandDiagram = (type) => {
   const bendBulk = n ? ecBulk : evBulk;
   const bracket = (x, a, b) =>
     `<path d="M${x - 3} ${a} H${x + 3} M${x} ${a} V${b} M${x - 3} ${b} H${x + 3}" class="band-bracket"/>`;
-  return `<svg viewBox="0 0 350 132" role="img" aria-label="Equilibrium Schottky barrier band diagram for metal and ${n ? 'n-type' : 'p-type'} silicon, labeling vacuum level, metal work function, electron affinity, barrier height, built-in band bending and depletion width">
-<rect x="0" y="0" width="80" height="132" fill="#edf5f4"/><rect x="80" y="0" width="150" height="132" fill="#f6fafb"/>
-<line x1="80" y1="11" x2="80" y2="113" class="band-interface"/><line x1="230" y1="11" x2="230" y2="113" class="band-interface"/>
-<text x="5" y="9" class="band-title">Metal</text><text x="89" y="9" class="band-title">${n ? 'n-Si · ΦM &gt; ΦS' : 'p-Si · ΦM &lt; ΦS'}</text>
-<path d="M5 ${vacuumSurface} H80 C125 ${vacuumSurface} 146 ${vacuumBulk} 300 ${vacuumBulk}" class="band-vacuum"/>
-<line x1="5" y1="${ef}" x2="300" y2="${ef}" class="band-fermi"/>
-<path d="M80 ${ecSurface} C125 ${ecSurface} 146 ${ecBulk} 300 ${ecBulk}" class="band-ec"/>
-<path d="M80 ${evSurface} C125 ${evSurface} 146 ${evBulk} 300 ${evBulk}" class="band-ev"/>
-${bracket(19, vacuumSurface, ef)}<text x="23" y="${(vacuumSurface + ef) / 2 + 2}" class="band-label">ΦM</text>
-${bracket(67, barrierEdge, ef)}<text x="43" y="${(barrierEdge + ef) / 2 + 2}" class="band-label">ΦB${type}</text>
-${bracket(100, vacuumSurface, ecSurface)}<text x="105" y="${(vacuumSurface + ecSurface) / 2 + 2}" class="band-label">χ</text>
-${bracket(209, bendSurface, bendBulk)}<text x="216" y="${(bendSurface + bendBulk) / 2 + 2}" class="band-label">qVbi,${type}</text>
-<path d="M80 115 V120 H230 V115" class="band-bracket"/><text x="155" y="129" text-anchor="middle" class="band-label">W · depletion</text>
-<text x="307" y="${vacuumBulk + 2}" class="band-label">E₀</text><text x="307" y="${ecBulk + 2}" class="band-label">Eᴄ</text><text x="307" y="${ef + 2}" class="band-label">Eꜰ</text><text x="307" y="${evBulk + 2}" class="band-label">Eᴠ</text>
+  return `<svg viewBox="0 0 240 132" role="img" aria-label="Equilibrium Schottky barrier band diagram for metal and ${n ? 'n-type' : 'p-type'} silicon, labeling vacuum level, metal work function, electron affinity, barrier height, built-in band bending and depletion width">
+<rect x="0" y="0" width="55" height="132" fill="#edf5f4"/><rect x="55" y="0" width="104" height="132" fill="#f6fafb"/>
+<line x1="55" y1="11" x2="55" y2="113" class="band-interface"/><line x1="159" y1="11" x2="159" y2="113" class="band-interface"/>
+<text x="3" y="9" class="band-title">Metal</text><text x="61" y="9" class="band-title">${n ? 'n-Si · ΦM &gt; ΦS' : 'p-Si · ΦM &lt; ΦS'}</text>
+<path d="M3 ${vacuumSurface} H55 C85 ${vacuumSurface} 101 ${vacuumBulk} 206 ${vacuumBulk}" class="band-vacuum"/>
+<line x1="3" y1="${ef}" x2="206" y2="${ef}" class="band-fermi"/>
+<path d="M55 ${ecSurface} C85 ${ecSurface} 101 ${ecBulk} 206 ${ecBulk}" class="band-ec"/>
+<path d="M55 ${evSurface} C85 ${evSurface} 101 ${evBulk} 206 ${evBulk}" class="band-ev"/>
+${bracket(13, vacuumSurface, ef)}<text x="17" y="${(vacuumSurface + ef) / 2 + 2}" class="band-label">ΦM</text>
+${bracket(46, barrierEdge, ef)}<text x="28" y="${(barrierEdge + ef) / 2 + 2}" class="band-label">ΦB${type}</text>
+${bracket(70, vacuumSurface, ecSurface)}<text x="75" y="${(vacuumSurface + ecSurface) / 2 + 2}" class="band-label">χ</text>
+${bracket(144, bendSurface, bendBulk)}<text x="150" y="${(bendSurface + bendBulk) / 2 + 2}" class="band-label">qVbi,${type}</text>
+<path d="M55 115 V120 H159 V115" class="band-bracket"/><text x="107" y="129" text-anchor="middle" class="band-label">W · depletion</text>
+<text x="212" y="${vacuumBulk + 2}" class="band-label">E₀</text><text x="212" y="${ecBulk + 2}" class="band-label">Eᴄ</text><text x="212" y="${ef + 2}" class="band-label">Eꜰ</text><text x="212" y="${evBulk + 2}" class="band-label">Eᴠ</text>
 </svg>`;
 };
 
@@ -550,6 +580,7 @@ const pages = [
         'L5 p29, 38; ideal rectifying contacts; schematic, not to scale',
       ),
       `<div class="band-diagrams">${schottkyBandDiagram('n')}${schottkyBandDiagram('p')}</div>`,
+      temperatureMobilityGraph(),
     ].join(''),
     right: [
       topic('9. Ideal PN diode', 'L7 p6–20'),
@@ -668,10 +699,17 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .case-list { margin: 6px 0; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.3pt; line-height: 1.3; }
 .case-list div + div { margin-top: 4px; }
 .case-list .katex { font-size: .94em; }
-.band-diagrams { display: grid; gap: 4px; margin: 4px 0; }
+.band-diagrams { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin: 4px 0; }
 .band-diagrams svg { display: block; width: 100%; height: auto; border: .5px solid #cbdadd; }
-.band-diagrams .band-title { fill: #176d72; font: bold 9px Georgia, serif; }
-.band-diagrams .band-label { fill: #173548; font: 9px Georgia, serif; }
+.temperature-graph { margin: 5px 0 0; border: .5px solid #cbdadd; padding: 3px 3px 0; }
+.temperature-graph strong { display: block; color: #176d72; font-size: 7.4pt; padding-left: 3px; }
+.temperature-graph svg { display: block; width: 100%; height: auto; }
+.temperature-graph .grid { stroke: #dce6e7; stroke-width: .65; }
+.temperature-graph .axis { fill: none; stroke: #526670; stroke-width: .9; }
+.temperature-graph .tick { fill: #536570; font: 7px Arial, sans-serif; }
+.temperature-graph .axis-title { fill: #173548; font: 7px Arial, sans-serif; }
+.band-diagrams .band-title { fill: #176d72; font: bold 10px Georgia, serif; }
+.band-diagrams .band-label { fill: #173548; font: 10.5px Georgia, serif; }
 .band-diagrams .band-interface { stroke: #9eb7bd; stroke-width: .8; stroke-dasharray: 2 2; }
 .band-diagrams .band-vacuum { fill: none; stroke: #7d8a90; stroke-width: 1.1; stroke-dasharray: 3 2; }
 .band-diagrams .band-fermi { stroke: #7654ba; stroke-width: 1.2; stroke-dasharray: 4 2; }

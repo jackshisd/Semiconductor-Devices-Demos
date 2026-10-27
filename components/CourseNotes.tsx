@@ -6,6 +6,8 @@ import { lectureAssociations } from '../lib/slide-demo-assignments';
 const notes: Record<ExperimentSlug, string> = {
   'matthiessen-rule':
     'For independent mechanisms, inverse mean scattering times add. With the same conductivity effective mass, inverse mobilities add as well: 1/μ = 1/μphonon + 1/μimpurity. The lower individual mobility sets the dominant limitation. The demo uses the lecture temperature/doping proportionalities with explicitly illustrative reference constants.',
+  'screening-effect':
+    'Lecture 4 slide 7 marks screening as significant on the mobility-versus-doping plot. Mobile carriers rearrange around an ionized dopant and reduce its electric field at a distance. The demo uses a linearized, nondegenerate Debye model for one positive ion in silicon. More mobile carriers shorten the screening length, while more ionized dopants also create more scattering centers; the single-ion model does not calculate total mobility.',
   'thermal-drift':
     'Lecture 3 distinguishes random thermal motion from average field-driven drift. The thermal speed uses vth = √(3kBT/m*) with Si conductivity masses 0.26m0 and 0.39m0. The drift comparison holds the tabulated 300 K mobilities fixed to isolate motion; displayed trajectories are schematic.',
   'velocity-saturation':
