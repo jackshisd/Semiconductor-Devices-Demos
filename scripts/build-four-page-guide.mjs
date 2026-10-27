@@ -192,6 +192,12 @@ const pages = [
         String.raw`n_i=\sqrt{N_CN_V}\,e^{-E_g/(2k_BT)}`,
         'Intrinsic concentration; HW1 temperature and gap changes.',
       ),
+      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
+      formula(
+        String.raw`\begin{aligned}1\,\mu\mathrm m&=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}\\1\,\mathrm{eV}/q&\equiv1\,\mathrm V\end{aligned}`,
+        'Convert lengths before R, W or diffusion; barriers to volts.',
+        true,
+      ),
     ].join(''),
     right: [
       topic('HW1: compare intrinsic concentrations', 'HW1 P1; L2 p26'),
@@ -205,6 +211,9 @@ const pages = [
         'Use for a bandgap change at fixed T.',
       ),
       topic('2. Doping and charge neutrality', 'L2 p23–26; L3 p13–20; HW1 P3, P5'),
+      note(
+        '<b>Si donors (group V):</b> P, As, Sb have five valence electrons; they supply mobile electrons (n-type, Nᴅ⁺). <b>Si acceptors (group III):</b> B, Al, Ga, In have three valence electrons; they create holes (p-type, Nᴀ⁻). L2 p17–19.',
+      ),
       formula(String.raw`np=n_i^2`, 'Mass action at thermal equilibrium only.'),
       formula(String.raw`n+N_A^-=p+N_D^+`, 'Charge neutrality; use ionized dopants.'),
       formula(String.raw`\Delta N=N_D-N_A`, 'Net donor concentration for compensated material.'),
@@ -246,15 +255,6 @@ const pages = [
       ),
       note(
         'Assumptions: thermal equilibrium, parabolic bands and full ionization unless noted. At high doping use Fermi-Dirac statistics.',
-      ),
-      topic('Units and polarity reminders', 'HW1 P4–5; HW2 P4'),
-      formula(
-        String.raw`1\,\mu\mathrm m=10^{-4}\,\mathrm{cm},\quad1\,\mathrm{nm}=10^{-7}\,\mathrm{cm}`,
-        'Convert geometry before R, W or diffusion calculations.',
-      ),
-      formula(
-        String.raw`1\,\mathrm{eV}/q\equiv1\,\mathrm V`,
-        'Numerically convert energy barriers to voltages.',
       ),
     ].join(''),
   },
