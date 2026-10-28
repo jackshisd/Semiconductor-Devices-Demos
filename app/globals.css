@@ -2251,8 +2251,8 @@ main:focus {
 }
 .graph-grid.intrinsic-graphs,
 .lecture-linked-demo .graph-grid.intrinsic-graphs {
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
-  max-width: none;
+  grid-template-columns: minmax(0, 1fr);
+  max-width: 900px;
   overflow-x: visible;
 }
 .intrinsic-graphs .plot-title {
