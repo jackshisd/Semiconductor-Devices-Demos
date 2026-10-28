@@ -60,6 +60,8 @@ const notes: Record<ExperimentSlug, string> = {
     'Continuity counts carrier accumulation, current entering and leaving, generation, and recombination. Electron and hole current-divergence terms have opposite signs because their charges differ.',
   'ideal-diode':
     'The ideal diode derivation assumes steady state, low-level injection, nondegenerate neutral regions, and no generation or recombination in the depletion region. Reverse saturation and forward injection follow from the minority-carrier boundary conditions. Lecture 8 adds a qualitative breakdown curve.',
+  'high-level-injection':
+    'Lecture 8 slide 15 shows that a strongly forward-biased p⁺n or pn⁺ junction reaches high-level injection first on its lightly doped side. When injected minority carriers become comparable with the dopant density, charge neutrality makes the majority concentration rise near the depletion edge. The majority gradient produces a diffusion-current contribution that changes the ideal low-level diode result. This demo calculates edge concentrations from a quasi-equilibrium carrier product and local neutrality; its spatial exponential is a schematic profile, not a solved high-level transport equation.',
   'avalanche-breakdown':
     'An energetic carrier gains enough energy between collisions to create an electron–hole pair. The additional carriers can cause further impact ionization. The slides estimate breakdown from the maximum junction field reaching a critical field; they do not specify a multiplication-current law.',
   'zener-breakdown':

@@ -50,6 +50,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'minority-diffusion': 'decay',
   continuity: 'continuity',
   'ideal-diode': 'diode',
+  'high-level-injection': 'carriers',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

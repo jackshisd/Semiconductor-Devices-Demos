@@ -63,6 +63,7 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
   },
   'lecture-8': {
     'pn-depletion': [5],
+    'high-level-injection': [15],
     'avalanche-breakdown': [7, 4, 6, 9, 10, 17],
     'zener-breakdown': [8],
   },

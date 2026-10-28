@@ -168,6 +168,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'high-level-injection',
+    title: 'High-level injection',
+    subtitle: 'Watch the majority-carrier profile change under strong forward bias',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',

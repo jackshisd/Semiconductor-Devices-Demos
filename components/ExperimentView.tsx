@@ -83,6 +83,7 @@ const demos: Record<ExperimentSlug, ComponentType> = {
     import('./TransportDemos').then((m) => ({ default: m.ContinuityEquation })),
   ),
   'ideal-diode': lazy(() => import('./CourseDemos').then((m) => ({ default: m.CourseIdealDiode }))),
+  'high-level-injection': lazy(() => import('./HighLevelInjection')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

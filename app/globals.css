@@ -2095,6 +2095,13 @@ main:focus {
 .lecture-linked-demo .plot-visual > svg {
   min-width: 760px;
 }
+.lecture-linked-demo
+  .experiment-content[data-experiment='high-level-injection']
+  .plot-visual
+  > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
@@ -2274,6 +2281,29 @@ main:focus {
   border: 1px solid #dbe5e4;
   border-radius: 12px;
   background: #f6faf9;
+}
+.hli-status,
+.hli-current-note {
+  max-width: 800px;
+  margin: 12px auto;
+  padding: 12px 14px;
+  border-left: 3px solid #2672d9;
+  border-radius: 5px;
+  background: #eef5fb;
+  color: #31516a;
+  line-height: 1.5;
+}
+.hli-status-high {
+  border-color: #d47748;
+  background: #fff4eb;
+  color: #75452c;
+}
+.hli-current-note {
+  border-color: #d47748;
+  background: #f8f5f1;
+}
+.hli-current-note p {
+  margin: 6px 0 0;
 }
 .course-notes h2 {
   font-size: 16px;
