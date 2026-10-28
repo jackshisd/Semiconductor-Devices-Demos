@@ -2251,9 +2251,17 @@ main:focus {
 }
 .graph-grid.intrinsic-graphs,
 .lecture-linked-demo .graph-grid.intrinsic-graphs {
-  grid-template-columns: repeat(3, minmax(240px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 440px), 1fr));
   max-width: none;
-  overflow-x: auto;
+  overflow-x: visible;
+}
+.intrinsic-graphs .plot-title {
+  flex-wrap: wrap;
+}
+.intrinsic-graphs .plot-visual > svg,
+.lecture-linked-demo .intrinsic-graphs .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
 }
 .lecture-linked-demo .teaching-scene-scroll svg {
   width: 100%;
