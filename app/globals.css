@@ -2102,6 +2102,13 @@ main:focus {
   min-width: 0;
   max-width: 100%;
 }
+.lecture-linked-demo
+  .experiment-content[data-experiment='minority-charge-storage']
+  .plot-visual
+  > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;

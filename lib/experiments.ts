@@ -174,6 +174,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'minority-charge-storage',
+    title: 'Minority-carrier charge storage',
+    subtitle: 'Compare excess carrier profiles under forward and reverse bias',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
