@@ -198,6 +198,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'cv-doping-from-data',
+    title: 'Doping from C–V data',
+    subtitle: 'Fit inverse-capacitance-squared measurements to extract junction doping',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',

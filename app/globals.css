@@ -2117,6 +2117,10 @@ main:focus {
   min-width: 0;
   max-width: 100%;
 }
+.lecture-linked-demo .experiment-content[data-experiment='cv-doping-from-data'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
@@ -2616,6 +2620,59 @@ main:focus {
 }
 .capacitance-share-bar > span:last-child {
   background: #d47748;
+}
+.cv-doping-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 840px;
+  margin: 16px auto;
+}
+.cv-doping-steps > span {
+  flex: 1 1 160px;
+  padding: 9px 11px;
+  border-radius: 7px;
+  background: #eaf3f6;
+  color: #315766;
+  font-size: 12px;
+  font-weight: 700;
+}
+.cv-doping-graphs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 840px;
+  margin: 0 auto;
+}
+.cv-doping-table-wrap {
+  max-width: 840px;
+  margin: 16px auto;
+  padding: 12px 14px;
+  border: 1px solid #d9e6eb;
+  border-radius: 9px;
+  background: #f8fbfc;
+  overflow-x: auto;
+}
+.cv-doping-table-wrap summary {
+  cursor: pointer;
+  color: #315766;
+  font-size: 13px;
+  font-weight: 700;
+}
+.cv-doping-table-wrap table {
+  width: 100%;
+  margin-top: 12px;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.cv-doping-table-wrap th,
+.cv-doping-table-wrap td {
+  padding: 7px;
+  border-bottom: 1px solid #dbe7ea;
+  text-align: right;
+}
+.cv-doping-table-wrap tr.selected {
+  background: #e7f4f8;
 }
 @media (max-width: 700px) {
   .diode-capacitance-panels {
