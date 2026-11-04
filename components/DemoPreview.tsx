@@ -54,6 +54,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'minority-charge-storage': 'decay',
   'long-base-charge-control': 'continuity',
   'small-signal-diode': 'diode',
+  'diode-capacitances': 'capacitance',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

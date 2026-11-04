@@ -2113,6 +2113,10 @@ main:focus {
   min-width: 0;
   max-width: 100%;
 }
+.lecture-linked-demo .experiment-content[data-experiment='diode-capacitances'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
@@ -2497,6 +2501,126 @@ main:focus {
   gap: 16px;
   max-width: 800px;
   margin: 0 auto;
+}
+.capacitance-dominance {
+  max-width: 840px;
+  margin: 14px auto;
+  padding: 10px 14px;
+  border-left: 3px solid #2672d9;
+  border-radius: 5px;
+  background: #eef5fb;
+  color: #31516a;
+  font-weight: 700;
+}
+.diode-capacitance-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  max-width: 840px;
+  margin: 14px auto;
+}
+.lecture-linked-demo .diode-capacitance-panels {
+  grid-template-columns: minmax(0, 1fr);
+}
+.diode-capacitance-card {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid #d9e6eb;
+  border-radius: 10px;
+  background: #f8fbfc;
+}
+.diode-capacitance-card h2 {
+  margin: 0 0 14px;
+  color: #244d64;
+  font-size: 16px;
+}
+.diode-capacitance-card p {
+  color: #526b75;
+  line-height: 1.5;
+  font-size: 12px;
+}
+.diode-capacitance-card > strong {
+  color: #244d64;
+  font-size: 13px;
+}
+.capacitance-junction {
+  display: flex;
+  align-items: stretch;
+  height: 86px;
+  overflow: hidden;
+  border: 1px solid #b8cad2;
+  border-radius: 7px;
+  background: #f2f6f8;
+}
+.capacitance-p-region,
+.capacitance-n-region {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  color: #315766;
+  font-size: 20px;
+  font-weight: 700;
+}
+.capacitance-depletion {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-left: 2px dashed #629ac1;
+  border-right: 2px dashed #629ac1;
+  background: #c5e8f6;
+  color: #426a7e;
+  font-weight: 700;
+}
+.capacitance-diffusion {
+  display: grid;
+  gap: 7px;
+  padding: 8px 0;
+  color: #526b75;
+  font-size: 11px;
+}
+.capacitance-diffusion-track {
+  height: 34px;
+  overflow: hidden;
+  border-radius: 5px;
+  background: #f0f3f4;
+}
+.capacitance-diffusion-track > span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #d47748, #f2c9aa 70%, transparent);
+  transition: width 160ms ease;
+}
+.capacitance-share {
+  display: grid;
+  gap: 6px;
+  max-width: 840px;
+  margin: 14px auto;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: #eef5f7;
+}
+.capacitance-share > div:not(.capacitance-share-bar) {
+  display: flex;
+  justify-content: space-between;
+  color: #315766;
+  font-size: 12px;
+}
+.capacitance-share-bar {
+  display: flex;
+  height: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+}
+.capacitance-share-bar > span:first-child {
+  background: #2672d9;
+}
+.capacitance-share-bar > span:last-child {
+  background: #d47748;
+}
+@media (max-width: 700px) {
+  .diode-capacitance-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 @media (max-width: 560px) {
   .charge-beaker-readouts {

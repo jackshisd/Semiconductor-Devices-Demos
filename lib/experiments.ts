@@ -192,6 +192,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'diode-capacitances',
+    title: 'Depletion vs diffusion capacitance',
+    subtitle: 'Compare charge stored in the junction and neutral regions',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
