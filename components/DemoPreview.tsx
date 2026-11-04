@@ -52,6 +52,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'ideal-diode': 'diode',
   'high-level-injection': 'carriers',
   'minority-charge-storage': 'decay',
+  'long-base-charge-control': 'continuity',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

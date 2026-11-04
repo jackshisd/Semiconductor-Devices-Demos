@@ -2312,6 +2312,74 @@ main:focus {
 .hli-current-note p {
   margin: 6px 0 0;
 }
+.charge-beaker-card {
+  max-width: 840px;
+  margin: 18px auto;
+  padding: 16px;
+  border: 1px solid #d9e6eb;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+.charge-beaker-readouts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.charge-beaker-readouts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #eaf3f6;
+  font-size: 12px;
+}
+.charge-beaker-readouts strong {
+  color: #244d64;
+  white-space: nowrap;
+}
+.charge-beaker-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+}
+.beaker-label {
+  fill: #865034;
+  font-size: 17px;
+  font-weight: 700;
+}
+.beaker-charge-label {
+  fill: #1f5d77;
+  font-size: 22px;
+  font-weight: 700;
+}
+.beaker-secondary-label {
+  fill: #426c7a;
+  font-size: 15px;
+}
+.beaker-side-label {
+  fill: #526b75;
+  font-size: 15px;
+}
+.charge-beaker-equation {
+  margin: 0;
+  padding: 10px;
+  border-radius: 7px;
+  background: #e7f4f8;
+  color: #234d65;
+  font-size: 13px;
+  font-weight: 700;
+  text-align: center;
+}
+@media (max-width: 560px) {
+  .charge-beaker-readouts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .charge-beaker-readouts > div {
+    font-size: 11px;
+  }
+}
 .course-notes h2 {
   font-size: 16px;
   margin: 0 0 10px;

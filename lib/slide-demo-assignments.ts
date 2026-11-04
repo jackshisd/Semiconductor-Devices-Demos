@@ -69,6 +69,7 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
   },
   'lecture-9': {
     'minority-charge-storage': [4, 9],
+    'long-base-charge-control': [6, 5, 7],
   },
   'lecture-10': {},
   'lecture-11': {},

@@ -180,6 +180,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'long-base-charge-control',
+    title: 'Long-base charge control',
+    subtitle: 'Fill and drain a beaker to derive stored-hole charge balance',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
