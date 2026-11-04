@@ -2376,6 +2376,94 @@ main:focus {
   font-weight: 700;
   text-align: center;
 }
+.charge-balance-panel {
+  max-width: 840px;
+  margin: 18px auto;
+  padding: 20px;
+  border: 1px solid #d9e6eb;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+.charge-balance-panel h2 {
+  margin: 0 0 7px;
+  color: #234d65;
+  font-size: 20px;
+}
+.charge-balance-panel p {
+  margin: 0 0 18px;
+  color: #526b75;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.charge-balance-sliders {
+  display: grid;
+  gap: 15px;
+}
+.charge-balance-sliders label > span,
+.charge-balance-bar-label {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: #315766;
+  font-size: 13px;
+}
+.charge-balance-sliders strong {
+  white-space: nowrap;
+}
+.charge-balance-sliders input[type='range'] {
+  display: block;
+  width: 100%;
+  margin: 7px 0 0;
+  accent-color: #2672d9;
+}
+.charge-balance-values {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 20px 0 16px;
+}
+.charge-balance-values > div {
+  display: grid;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  background: #eaf3f6;
+  text-align: center;
+}
+.charge-balance-values span {
+  color: #526b75;
+  font-size: 11px;
+}
+.charge-balance-values strong {
+  color: #234d65;
+  font-size: 16px;
+}
+.charge-balance-bars {
+  display: grid;
+  gap: 7px;
+}
+.charge-balance-track {
+  height: 14px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e0e9ed;
+}
+.charge-balance-track > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 80ms linear;
+}
+.charge-balance-inlet {
+  background: #2672d9;
+}
+.charge-balance-loss {
+  background: #d47748;
+}
+.charge-balance-bars small {
+  color: #607580;
+  font-size: 11px;
+}
 .small-signal-circuit {
   max-width: 800px;
   margin: 18px auto;
@@ -2416,6 +2504,9 @@ main:focus {
   }
   .charge-beaker-readouts > div {
     font-size: 11px;
+  }
+  .charge-balance-values {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .course-notes h2 {

@@ -28,6 +28,18 @@ export default function LongBaseChargeControl() {
     return () => cancelAnimationFrame(frame);
   }, [playing, v.inlet, v.tau]);
   const rates = chargeControlRates(charge, v.inlet, v.tau);
+  const rateScale = Math.max(
+    25,
+    Math.ceil(Math.max(rates.inletMicroA, rates.recombinationMicroA) / 5) * 5,
+  );
+  const editSnapshot = (key: 'inlet' | 'tau', value: number) => {
+    setPlaying(false);
+    set(key, value);
+  };
+  const editCharge = (value: number) => {
+    setPlaying(false);
+    setCharge(value);
+  };
   const waterTop = 375 - Math.min(1, charge / 125) * 240;
   const wave = 3 * Math.sin(phase * 3);
   const inletDrops = Array.from({ length: 4 }, (_, index) => ({
@@ -217,6 +229,100 @@ export default function LongBaseChargeControl() {
           recombining = {rates.netMicroA >= 0 ? '+' : ''}
           {fmt(rates.netMicroA, 2)} pC/µs stored
         </p>
+      </section>
+      <section className="charge-balance-panel" aria-labelledby="charge-balance-heading">
+        <h2 id="charge-balance-heading">See the charge balance numerically</h2>
+        <p>
+          Set a starting charge, injection current, and lifetime. The beaker pauses while you edit;
+          press Play to watch the charge approach its steady level.
+        </p>
+        <div className="charge-balance-sliders">
+          <label>
+            <span>
+              Injection current Iₚ(xₙ) <strong>{fmt(v.inlet, 1)} µA</strong>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="25"
+              step="0.5"
+              value={v.inlet}
+              onChange={(event) => editSnapshot('inlet', Number(event.target.value))}
+            />
+          </label>
+          <label>
+            <span>
+              Stored excess-hole charge Qₚ <strong>{fmt(charge, 1)} pC</strong>
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="125"
+              step="0.5"
+              value={Math.min(125, charge)}
+              onChange={(event) => editCharge(Number(event.target.value))}
+            />
+          </label>
+          <label>
+            <span>
+              Carrier lifetime τₚ <strong>{fmt(v.tau, 1)} µs</strong>
+            </span>
+            <input
+              type="range"
+              min="0.5"
+              max="5"
+              step="0.1"
+              value={v.tau}
+              onChange={(event) => editSnapshot('tau', Number(event.target.value))}
+            />
+          </label>
+        </div>
+        <div className="charge-balance-values" aria-live="off">
+          <div>
+            <span>Injection</span>
+            <strong>{fmt(rates.inletMicroA, 2)} µA</strong>
+          </div>
+          <div>
+            <span>Recombination Qₚ/τₚ</span>
+            <strong>{fmt(rates.recombinationMicroA, 2)} µA</strong>
+          </div>
+          <div>
+            <span>Accumulation dQₚ/dt</span>
+            <strong>
+              {rates.netMicroA >= 0 ? '+' : ''}
+              {fmt(rates.netMicroA, 2)} pC/µs
+            </strong>
+          </div>
+        </div>
+        <div
+          className="charge-balance-bars"
+          aria-label={`Injection ${fmt(rates.inletMicroA, 2)} microamperes; recombination ${fmt(rates.recombinationMicroA, 2)} microamperes, on a shared ${fmt(rateScale, 0)} microampere scale`}
+        >
+          <div className="charge-balance-bar-label">
+            <span>Holes in</span>
+            <span>{fmt(rates.inletMicroA, 2)} µA</span>
+          </div>
+          <div className="charge-balance-track">
+            <span
+              className="charge-balance-inlet"
+              style={{ width: `${(100 * rates.inletMicroA) / rateScale}%` }}
+            />
+          </div>
+          <div className="charge-balance-bar-label">
+            <span>Recombined</span>
+            <span>{fmt(rates.recombinationMicroA, 2)} µA</span>
+          </div>
+          <div className="charge-balance-track">
+            <span
+              className="charge-balance-loss"
+              style={{ width: `${(100 * rates.recombinationMicroA) / rateScale}%` }}
+            />
+          </div>
+          <small>
+            Both bars share a {fmt(rateScale, 0)} µA scale. Their difference changes the stored
+            charge.
+          </small>
+        </div>
       </section>
       <p className="teaching-caption">
         A larger lifetime slows the leak and raises the final water level. Shut off the inlet to
