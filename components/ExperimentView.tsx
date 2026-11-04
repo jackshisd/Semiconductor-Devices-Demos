@@ -86,6 +86,7 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'high-level-injection': lazy(() => import('./HighLevelInjection')),
   'minority-charge-storage': lazy(() => import('./MinorityChargeStorage')),
   'long-base-charge-control': lazy(() => import('./LongBaseChargeControl')),
+  'small-signal-diode': lazy(() => import('./SmallSignalDiode')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

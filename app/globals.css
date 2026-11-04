@@ -2109,6 +2109,10 @@ main:focus {
   min-width: 0;
   max-width: 100%;
 }
+.lecture-linked-demo .experiment-content[data-experiment='small-signal-diode'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
@@ -2371,6 +2375,40 @@ main:focus {
   font-size: 13px;
   font-weight: 700;
   text-align: center;
+}
+.small-signal-circuit {
+  max-width: 800px;
+  margin: 18px auto;
+  padding: 16px;
+  border: 1px solid #d9e6eb;
+  border-radius: 12px;
+  background: #f8fbfc;
+}
+.small-signal-circuit svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.small-signal-live {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  gap: 8px 16px;
+  padding: 10px;
+  border-radius: 7px;
+  background: #eaf3f6;
+  color: #315b6b;
+  font-size: 13px;
+}
+.small-signal-live strong {
+  color: #174c78;
+}
+.small-signal-graphs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 800px;
+  margin: 0 auto;
 }
 @media (max-width: 560px) {
   .charge-beaker-readouts {

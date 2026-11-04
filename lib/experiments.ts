@@ -186,6 +186,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'small-signal-diode',
+    title: 'Small-signal diode model',
+    subtitle: 'See the local diode resistance and parallel capacitor currents',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
