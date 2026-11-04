@@ -2121,6 +2121,10 @@ main:focus {
   min-width: 0;
   max-width: 100%;
 }
+.lecture-linked-demo .experiment-content[data-experiment='diode-turnoff'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
@@ -2673,6 +2677,24 @@ main:focus {
 }
 .cv-doping-table-wrap tr.selected {
   background: #e7f4f8;
+}
+.turnoff-stage {
+  max-width: 840px;
+  margin: 14px auto;
+  padding: 10px 14px;
+  border-left: 3px solid #d47748;
+  border-radius: 5px;
+  background: #fff4eb;
+  color: #75452c;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.turnoff-graphs {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+  max-width: 840px;
+  margin: 0 auto;
 }
 @media (max-width: 700px) {
   .diode-capacitance-panels {

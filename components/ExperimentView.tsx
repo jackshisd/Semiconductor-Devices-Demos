@@ -89,6 +89,7 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'small-signal-diode': lazy(() => import('./SmallSignalDiode')),
   'diode-capacitances': lazy(() => import('./DiodeCapacitanceComparison')),
   'cv-doping-from-data': lazy(() => import('./CvDopingFromData')),
+  'diode-turnoff': lazy(() => import('./DiodeTurnOff')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

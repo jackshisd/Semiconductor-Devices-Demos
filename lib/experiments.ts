@@ -204,6 +204,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'diode-turnoff',
+    title: 'Diode turn-off transient',
+    subtitle: 'Watch stored charge, reverse current, and voltage during recovery',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
