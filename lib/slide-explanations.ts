@@ -6,6 +6,10 @@ import { lecture5Explanations } from './slide-explanations/lecture-5.ts';
 import { lecture6Explanations } from './slide-explanations/lecture-6.ts';
 import { lecture7Explanations } from './slide-explanations/lecture-7.ts';
 import { lecture8Explanations } from './slide-explanations/lecture-8.ts';
+import { lecture9Explanations } from './slide-explanations/lecture-9.ts';
+import { lecture10Explanations } from './slide-explanations/lecture-10.ts';
+import { lecture11Explanations } from './slide-explanations/lecture-11.ts';
+import { lecture12Explanations } from './slide-explanations/lecture-12.ts';
 
 // Title, agenda, acknowledgement, and section-divider pages have no explanation.
 export const nonMaterialSlides: Record<string, number[]> = {
@@ -16,6 +20,10 @@ export const nonMaterialSlides: Record<string, number[]> = {
   'lecture-6': [1, 2, 3, 31, 32],
   'lecture-7': [1, 2, 3, 22],
   'lecture-8': [1, 2, 3, 19],
+  'lecture-9': [1, 2, 3, 24],
+  'lecture-10': [1, 2, 3, 15],
+  'lecture-11': [1, 2, 3, 14],
+  'lecture-12': [1, 2, 3, 30],
 };
 
 const explanations: Record<string, Record<number, string>> = {
@@ -26,6 +34,10 @@ const explanations: Record<string, Record<number, string>> = {
   'lecture-6': { ...lecture6Explanations },
   'lecture-7': { ...lecture7Explanations },
   'lecture-8': { ...lecture8Explanations },
+  'lecture-9': { ...lecture9Explanations },
+  'lecture-10': { ...lecture10Explanations },
+  'lecture-11': { ...lecture11Explanations },
+  'lecture-12': { ...lecture12Explanations },
 };
 
 for (const group of duplicateSlideGroups) {

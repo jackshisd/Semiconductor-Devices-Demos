@@ -54,5 +54,33 @@
     "file": "/lectures/lecture-8.pdf",
     "pages": 19,
     "sourceFile": "Lecture 8.pdf"
+  },
+  {
+    "id": "lecture-9",
+    "title": "Lecture 9 · Charge storage and diode transients",
+    "file": "/lectures/lecture-9.pdf",
+    "pages": 24,
+    "sourceFile": "Lecture 9.pdf"
+  },
+  {
+    "id": "lecture-10",
+    "title": "Lecture 10 · Diode applications and optoelectronics",
+    "file": "/lectures/lecture-10.pdf",
+    "pages": 15,
+    "sourceFile": "Lecture 10.pdf"
+  },
+  {
+    "id": "lecture-11",
+    "title": "Lecture 11 · MOS capacitor band diagrams",
+    "file": "/lectures/lecture-11.pdf",
+    "pages": 14,
+    "sourceFile": "Lecture 11.pdf"
+  },
+  {
+    "id": "lecture-12",
+    "title": "Lecture 12 · MOS electrostatics and capacitance",
+    "file": "/lectures/lecture-12.pdf",
+    "pages": 30,
+    "sourceFile": "Lecture 12.pdf"
   }
 ]

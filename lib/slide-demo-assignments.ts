@@ -1,6 +1,6 @@
 import type { ExperimentSlug } from './experiments';
 
-// One-based PDF pages, checked against all eight supplied lecture decks.
+// One-based PDF pages, checked against the supplied lecture decks.
 // The first page in each group is the destination when its demo is selected.
 export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, number[]>>> = {
   'lecture-1': {},
@@ -67,6 +67,10 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'avalanche-breakdown': [7, 4, 6, 9, 10, 17],
     'zener-breakdown': [8],
   },
+  'lecture-9': {},
+  'lecture-10': {},
+  'lecture-11': {},
+  'lecture-12': {},
 };
 
 type SlideRef = readonly [lectureId: string, page: number];

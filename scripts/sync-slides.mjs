@@ -14,6 +14,10 @@ const titles = {
   6: 'Lecture 6 · Schottky and PN junctions',
   7: 'Lecture 7 · PN diode current',
   8: 'Lecture 8 · Nonideal diodes and breakdown',
+  9: 'Lecture 9 · Charge storage and diode transients',
+  10: 'Lecture 10 · Diode applications and optoelectronics',
+  11: 'Lecture 11 · MOS capacitor band diagrams',
+  12: 'Lecture 12 · MOS electrostatics and capacitance',
 };
 mkdirSync('public/pdfjs', { recursive: true });
 cpSync(
