@@ -2245,6 +2245,66 @@ main:focus {
   height: auto;
   min-width: 0;
 }
+.photocarrier-animation {
+  display: grid;
+  gap: 13px;
+}
+.photocarrier-animation > p {
+  margin: 0;
+  color: #4b6070;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.photocarrier-animation-stage {
+  overflow: hidden;
+  border: 1px solid #dbe5eb;
+  border-radius: 12px;
+  background: #fff;
+}
+.photocarrier-animation-stage svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+}
+.photocarrier-stages {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.photocarrier-stages span {
+  padding: 8px 9px;
+  border: 1px solid #dbe5eb;
+  border-radius: 8px;
+  color: #657584;
+  font-size: 12px;
+}
+.photocarrier-stages span.active {
+  border-color: #6aa8d2;
+  background: #e9f5fc;
+  color: #185f90;
+  font-weight: 700;
+}
+.photocarrier-playback {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.photocarrier-playback button {
+  padding: 8px 12px;
+  border: 1px solid #b7cbd8;
+  border-radius: 8px;
+  background: #f6fafd;
+  color: #1d5d84;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+.photocarrier-playback button:hover,
+.photocarrier-playback button:focus-visible {
+  background: #e5f2fa;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;

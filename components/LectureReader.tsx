@@ -10,6 +10,7 @@ import { experiments, type ExperimentSlug } from '../lib/experiments';
 import { demoForSlide, slideForDemo, lectureDemos } from '../lib/slide-demo-assignments';
 import { explanationForSlide } from '../lib/slide-explanations';
 import ExperimentView from './ExperimentView';
+import PhotocarrierMotionAnimation from './PhotocarrierMotionAnimation';
 import { ControlsHostContext } from './DemoPresentation';
 
 type Lecture = (typeof lectures)[number];
@@ -311,6 +312,7 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
   const studyLayout = useRef<HTMLDivElement>(null);
   const reader = useRef<HTMLElement>(null);
   const assignedDemo = demoForSlide(lecture.id, slide);
+  const hasPhotocarrierAnimation = lecture.id === 'lecture-10' && slide === 10;
   const explanation = explanationForSlide(lecture.id, slide);
   const choices = lectureDemos[lecture.id] ?? [];
   const demo = experiments.find((item) => item.slug === assignedDemo);
@@ -577,7 +579,13 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
         </section>
         <section
           className="lecture-linked-demo"
-          aria-label={assignedDemo ? 'Demo for this slide' : 'No demo for this slide'}
+          aria-label={
+            assignedDemo
+              ? 'Demo for this slide'
+              : hasPhotocarrierAnimation
+                ? 'Animation for this slide'
+                : 'No demo for this slide'
+          }
         >
           {assignedDemo && demo ? (
             <>
@@ -599,6 +607,16 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
               </div>
               <div className="lecture-demo-controls" ref={setControlsHost} />
             </>
+          ) : hasPhotocarrierAnimation ? (
+            <div className="lecture-demo-content">
+              <div className="section-head">
+                <div>
+                  <span className="eyebrow">ANIMATION FOR SLIDE 10</span>
+                  <h2>Electron diffusion and drift</h2>
+                </div>
+              </div>
+              <PhotocarrierMotionAnimation />
+            </div>
           ) : (
             <div className="lecture-empty-demo">
               <p>No demo on this slide.</p>
