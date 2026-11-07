@@ -216,6 +216,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'varactor-diode',
+    title: 'Varactor diode',
+    subtitle: 'Tune junction capacitance and LC frequency with reverse bias',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',

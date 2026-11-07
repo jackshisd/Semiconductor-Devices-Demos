@@ -2136,6 +2136,57 @@ main:focus {
   display: grid;
   gap: 16px;
 }
+.lecture-linked-demo .experiment-content[data-experiment='varactor-diode'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
+.varactor-plots {
+  display: grid;
+  gap: 16px;
+}
+.varactor-junction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 102px;
+  padding: 14px;
+  overflow: hidden;
+  border: 1px solid #dbe5eb;
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+.varactor-p-side,
+.varactor-n-side {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(28%, 150px);
+  height: 62px;
+  font-weight: 700;
+}
+.varactor-p-side {
+  background: #fce9e4;
+  color: #a64c37;
+}
+.varactor-n-side {
+  background: #e5f0fb;
+  color: #2672a4;
+}
+.varactor-depletion {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 62px;
+  border-left: 2px dashed #a78246;
+  border-right: 2px dashed #a78246;
+  background: #f8f0d9;
+  color: #815f29;
+  font-size: 12px;
+  line-height: 1.15;
+  text-align: center;
+  transition: width 250ms ease;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
