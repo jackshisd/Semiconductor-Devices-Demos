@@ -93,6 +93,8 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'diode-temperature-sensor': lazy(() => import('./DiodeTemperatureSensor')),
   'varactor-diode': lazy(() => import('./VaractorDiode')),
   'solar-cell-ocv': lazy(() => import('./SolarCellOcv')),
+  'solar-cell-structure': lazy(() => import('./SolarCellStructure')),
+  'led-structure': lazy(() => import('./LedStructure')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

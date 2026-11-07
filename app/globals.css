@@ -2233,6 +2233,18 @@ main:focus {
   font-size: 13px;
   font-weight: 700;
 }
+.opto-diagram-frame {
+  overflow: hidden;
+  border: 1px solid #dbe5eb;
+  border-radius: 12px;
+  background: #fff;
+}
+.opto-diagram-frame svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  min-width: 0;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;

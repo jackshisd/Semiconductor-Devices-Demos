@@ -228,6 +228,18 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'solar-cell-structure',
+    title: 'Solar-cell structure',
+    subtitle: 'Trace light and carrier collection through a silicon solar cell',
+    group: 'Doping & PN junctions',
+  },
+  {
+    slug: 'led-structure',
+    title: 'LED band diagram',
+    subtitle: 'Watch injection, recombination, and photon color change with band gap',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',

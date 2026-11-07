@@ -60,6 +60,8 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'diode-temperature-sensor': 'diode',
   'varactor-diode': 'capacitance',
   'solar-cell-ocv': 'diode',
+  'solar-cell-structure': 'carriers',
+  'led-structure': 'bands',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',
