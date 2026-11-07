@@ -52,7 +52,7 @@ export default function HomeworkSolutions() {
         <span className="eyebrow">WORKED SOLUTIONS</span>
         <h1>Homework solutions</h1>
         <p>
-          Read the official HW 1 and HW 2 solutions. Hover, click, or focus the blue dots beside
+          Read the HW 1, HW 2, and HW 3 solutions. Hover, click, or focus the blue dots beside
           worked steps for explanations, then explore the related demos.
         </p>
       </div>
