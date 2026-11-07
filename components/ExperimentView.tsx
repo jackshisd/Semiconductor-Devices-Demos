@@ -90,6 +90,7 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'diode-capacitances': lazy(() => import('./DiodeCapacitanceComparison')),
   'cv-doping-from-data': lazy(() => import('./CvDopingFromData')),
   'diode-turnoff': lazy(() => import('./DiodeTurnOff')),
+  'diode-temperature-sensor': lazy(() => import('./DiodeTemperatureSensor')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

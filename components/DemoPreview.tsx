@@ -57,6 +57,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'diode-capacitances': 'capacitance',
   'cv-doping-from-data': 'capacitance',
   'diode-turnoff': 'decay',
+  'diode-temperature-sensor': 'diode',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

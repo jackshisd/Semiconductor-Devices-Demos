@@ -210,6 +210,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'diode-temperature-sensor',
+    title: 'PN junction temperature sensor',
+    subtitle: 'Read temperature from the forward voltage at constant current',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
