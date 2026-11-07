@@ -175,8 +175,8 @@ const catalog = [
   },
   {
     slug: 'minority-charge-storage',
-    title: 'Minority-carrier charge storage',
-    subtitle: 'Compare excess carrier profiles under forward and reverse bias',
+    title: 'Minority carriers under bias',
+    subtitle: 'Compare actual and excess carrier profiles across a biased pn junction',
     group: 'Doping & PN junctions',
   },
   {

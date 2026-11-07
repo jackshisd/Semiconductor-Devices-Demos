@@ -28,6 +28,19 @@ export default function MinorityChargeStorage() {
   const holes = pts(0, extent - edge, 120, (distance) => state.holeExcess(distance * 1e-4)).map(
     ([distance, excess]) => [edge + distance, excess] as [number, number],
   );
+  const electronDensity = pts(0, extent - edge, 120, (distance) =>
+    state.electronConcentration(distance * 1e-4),
+  )
+    .map(
+      ([distance, concentration]) =>
+        [-edge - distance, Math.log10(concentration)] as [number, number],
+    )
+    .reverse();
+  const holeDensity = pts(0, extent - edge, 120, (distance) =>
+    state.holeConcentration(distance * 1e-4),
+  ).map(
+    ([distance, concentration]) => [edge + distance, Math.log10(concentration)] as [number, number],
+  );
   const maxExcess = Math.max(Math.abs(state.electronEdgeExcess), Math.abs(state.holeEdgeExcess));
   const yDomain: [number, number] =
     maxExcess === 0
@@ -108,33 +121,34 @@ export default function MinorityChargeStorage() {
       }
       calculation={
         <Calculation
-          title="Steady-state low-level charge storage at 300 K"
+          title="Steady-state minority carriers at 300 K"
           forms={[
             {
-              label: 'Excess at either depletion edge',
-              formula: String.raw`\Delta n_p(0)=n_{p0}(e^{V_A/V_T}-1),\quad\Delta p_n(0)=p_{n0}(e^{V_A/V_T}-1)`,
+              label: 'Actual concentration at each depletion edge',
+              formula: String.raw`n_p(0)=n_{p0}e^{V_A/V_T},\qquad p_n(0)=p_{n0}e^{V_A/V_T}`,
             },
             {
-              label: 'Spatial decay and integrated charge',
-              formula: String.raw`\Delta n_p(d)=\Delta n_p(0)e^{-d/L_n},\quad Q_n/A=q\Delta n_p(0)L_n`,
+              label: 'Excess decays away from each edge',
+              formula: String.raw`n_p(d)=n_{p0}+\Delta n_p(0)e^{-d/L_n},\quad\Delta n_p(0)=n_p(0)-n_{p0}`,
             },
           ]}
-          substitution={String.raw`V_A=${fmt(v.VA, 3)}\,\mathrm V,\quad\Delta n_p(0)=${texSci(state.electronEdgeExcess)},\quad\Delta p_n(0)=${texSci(state.holeEdgeExcess)}\;\mathrm{cm}^{-3}`}
+          substitution={String.raw`V_A=${fmt(v.VA, 3)}\,\mathrm V,\quad n_p(0)=${texSci(state.electronConcentration(0))},\quad p_n(0)=${texSci(state.holeConcentration(0))}\;\mathrm{cm}^{-3}`}
         />
       }
     >
       <p className="carrier-motion-summary">
-        Move the bias through zero to see excess electrons on the p side and excess holes on the n
-        side. The colored curves are signed changes from each side’s equilibrium minority density.
+        Move the bias through zero to see actual minority electrons on the p side and minority holes
+        on the n side. Forward bias raises their concentrations near the junction; reverse bias
+        lowers them. The second graph shows the signed excess used to calculate stored charge.
       </p>
       <Metrics>
         <Metric label="Bias regime" value={status} unit="" />
         <Metric
-          label="P-side electron edge excess"
-          value={sci(state.electronEdgeExcess)}
+          label="Electrons at p-side edge"
+          value={sci(state.electronConcentration(0))}
           unit="cm⁻³"
         />
-        <Metric label="N-side hole edge excess" value={sci(state.holeEdgeExcess)} unit="cm⁻³" />
+        <Metric label="Holes at n-side edge" value={sci(state.holeConcentration(0))} unit="cm⁻³" />
         <Metric
           label="P-side stored excess charge"
           value={sci(state.electronStoredChargePerArea)}
@@ -146,6 +160,44 @@ export default function MinorityChargeStorage() {
           unit="C/cm²"
         />
       </Metrics>
+      <Plot
+        title="Actual minority-carrier concentrations under bias"
+        xLabel="Position from depletion edges (µm) · p side ← | → n side"
+        yLabel="log₁₀(concentration / cm⁻³)"
+        xDomain={[-extent, extent]}
+        yDomain={[-5, 16]}
+        height={350}
+        zones={[{ from: -edge, to: edge, color: '#edf1f5' }]}
+        series={[
+          { name: 'nₚ · electrons in p region', color: '#2672d9', points: electronDensity },
+          { name: 'pₙ · holes in n region', color: '#d47748', points: holeDensity },
+          {
+            name: 'nₚ₀ · equilibrium',
+            color: '#7c9ab4',
+            dash: true,
+            points: [
+              [-extent, Math.log10(state.electronEquilibrium)],
+              [-edge, Math.log10(state.electronEquilibrium)],
+            ],
+          },
+          {
+            name: 'pₙ₀ · equilibrium',
+            color: '#b79c8a',
+            dash: true,
+            points: [
+              [edge, Math.log10(state.holeEquilibrium)],
+              [extent, Math.log10(state.holeEquilibrium)],
+            ],
+          },
+        ]}
+        onInspect={(x) =>
+          x < -edge
+            ? `P side · nₚ = ${sci(state.electronConcentration((-edge - x) * 1e-4))} cm⁻³`
+            : x > edge
+              ? `N side · pₙ = ${sci(state.holeConcentration((x - edge) * 1e-4))} cm⁻³`
+              : 'Depletion region (width schematic)'
+        }
+      />
       <Plot
         title="Excess minority-carrier distributions"
         xLabel="Position from depletion edges (µm) · p side ← | → n side"

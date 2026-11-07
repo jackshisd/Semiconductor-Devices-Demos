@@ -42,6 +42,9 @@ export function minorityChargeStorage({
       throw Error('Distance must be nonnegative.');
     return holeEdgeExcess * Math.exp(-distanceCm / holeLength);
   };
+  const electronConcentration = (distanceCm: number) =>
+    electronEquilibrium + electronExcess(distanceCm);
+  const holeConcentration = (distanceCm: number) => holeEquilibrium + holeExcess(distanceCm);
   return {
     intrinsic,
     electronEquilibrium,
@@ -53,6 +56,8 @@ export function minorityChargeStorage({
     holeLength,
     electronExcess,
     holeExcess,
+    electronConcentration,
+    holeConcentration,
     electronStoredChargePerArea: q * electronEdgeExcess * electronLength,
     holeStoredChargePerArea: q * holeEdgeExcess * holeLength,
   };
