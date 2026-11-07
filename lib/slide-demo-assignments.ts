@@ -75,7 +75,7 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'cv-doping-from-data': [13, 14],
     'diode-turnoff': [17, 16, 18, 19, 20],
   },
-  'lecture-10': { 'diode-temperature-sensor': [7], 'varactor-diode': [8] },
+  'lecture-10': { 'diode-temperature-sensor': [7], 'varactor-diode': [8], 'solar-cell-ocv': [11] },
   'lecture-11': {},
   'lecture-12': {},
 };

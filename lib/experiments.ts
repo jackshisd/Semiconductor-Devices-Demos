@@ -222,6 +222,12 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'solar-cell-ocv',
+    title: 'Solar-cell open-circuit voltage',
+    subtitle: 'Balance photocurrent and diode current to find Voc and maximum power',
+    group: 'Doping & PN junctions',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',

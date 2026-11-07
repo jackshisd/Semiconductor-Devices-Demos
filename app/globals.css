@@ -2187,6 +2187,52 @@ main:focus {
   text-align: center;
   transition: width 250ms ease;
 }
+.lecture-linked-demo .experiment-content[data-experiment='solar-cell-ocv'] .plot-visual > svg {
+  min-width: 0;
+  max-width: 100%;
+}
+.solar-ocv-plots {
+  display: grid;
+  gap: 16px;
+}
+.solar-current-balance {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid #dbe5eb;
+  border-radius: 12px;
+  background: #f8fbfd;
+}
+.solar-current-balance > div {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 5px 10px;
+  font-size: 13px;
+}
+.solar-current-balance strong {
+  font-variant-numeric: tabular-nums;
+}
+.solar-balance-track {
+  grid-column: 1 / -1;
+  height: 10px;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #e7edf0;
+}
+.solar-balance-track i {
+  display: block;
+  height: 100%;
+  background: #e4ac39;
+  transition: width 200ms ease;
+}
+.solar-current-balance > div:nth-child(2) .solar-balance-track i {
+  background: #2672d9;
+}
+.solar-current-balance p {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
 .lecture-linked-demo .teaching-scene-scroll svg {
   min-width: 760px;
   max-height: none;
