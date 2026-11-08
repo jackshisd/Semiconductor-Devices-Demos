@@ -75,9 +75,11 @@ assert.doesNotMatch(
   'Cheat sheet is still embedded in midterm prep.',
 );
 const cheatSheetHtml = readFileSync(resolve(root, 'cheat-sheet.html'), 'utf8');
-assert.match(cheatSheetHtml, /Four-page cheat sheet/, 'Missing expanded cheat sheet.');
+assert.match(cheatSheetHtml, /Eight-page cheat sheet/, 'Missing new eight-page cheat sheet.');
+assert.match(cheatSheetHtml, /Four-page cheat sheet/, 'Missing earlier four-page cheat sheet.');
 assert.match(cheatSheetHtml, /Short cheat sheet/, 'Missing short cheat sheet.');
 for (const [name, pages] of [
+  ['ece121b-eight-page-cheat-sheet.pdf', 8],
   ['ece121b-four-page-cheat-sheet.pdf', 4],
   ['ece121b-short-cheat-sheet.pdf', 2],
 ]) {
@@ -91,7 +93,7 @@ for (const [name, pages] of [
     await guide.destroy();
   }
 }
-console.log('Verified midterm preparation and both cheat sheets (four and two pages).');
+console.log('Verified midterm preparation and all three cheat sheets (eight, four and two pages).');
 const homeworkHtml = readFileSync(resolve(root, 'homework-solutions.html'), 'utf8');
 assert.match(homeworkHtml, /Homework solutions/, 'Missing homework solutions page.');
 for (const name of ['hw1-solutions.pdf', 'hw2-solutions.pdf', 'hw3-solutions.pdf']) {

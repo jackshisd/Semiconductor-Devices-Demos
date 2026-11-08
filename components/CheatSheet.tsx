@@ -6,6 +6,14 @@ import { PdfSlide } from './LectureReader';
 
 const sheets = [
   {
+    id: 'eight',
+    title: 'Eight-page cheat sheet',
+    file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
+    pages: 8,
+    description:
+      'The original foundation plus Lectures 9–12, charge control, MOS formulas, and Homework 3 checks.',
+  },
+  {
     id: 'full',
     title: 'Four-page cheat sheet',
     file: '/guides/ece121b-four-page-cheat-sheet.pdf',
@@ -31,7 +39,7 @@ function SheetPage({ document, page }: { document: PDFDocumentProxy; page: numbe
 }
 
 export default function CheatSheet() {
-  const [sheetId, setSheetId] = useState<(typeof sheets)[number]['id']>('full');
+  const [sheetId, setSheetId] = useState<(typeof sheets)[number]['id']>('eight');
   const [document, setDocument] = useState<PDFDocumentProxy | null>(null);
   const [loadedFile, setLoadedFile] = useState('');
   const [error, setError] = useState('');
@@ -73,7 +81,7 @@ export default function CheatSheet() {
   return (
     <section className="cheat-sheet">
       <h1>Cheat sheets</h1>
-      <p>Choose the expanded four-page version or the original short sheet for Lectures 1–8.</p>
+      <p>Choose the new eight-page sheet, the earlier four-page version, or the short sheet.</p>
       <div className="cheat-sheet-tabs" role="group" aria-label="Choose a cheat sheet">
         {sheets.map((item) => (
           <button

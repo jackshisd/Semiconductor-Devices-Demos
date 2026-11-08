@@ -659,9 +659,560 @@ const pages = [
   },
 ];
 
+// The eight-page edition keeps the original course foundation on pages 1–4.
+// New material starts here so the older four-page PDF remains available unchanged.
+const laterPages = [
+  {
+    subtitle: 'Lecture 9 · minority charge and charge control',
+    left: [
+      topic('11. Biased PN minority carriers', 'L9 p4, 9; HW3 P2, P4'),
+      formula(
+        String.raw`n_{p0}=n_i^2/N_A,\quad p_{n0}=n_i^2/N_D`,
+        'Equilibrium minority densities on p and n sides.',
+      ),
+      formula(
+        String.raw`\Delta n_p(-x_p)=n_{p0}(e^{V_A/V_T}-1)`,
+        'Excess electron density at the p-side edge.',
+      ),
+      formula(
+        String.raw`\Delta p_n(x_n)=p_{n0}(e^{V_A/V_T}-1)`,
+        'Excess hole density at the n-side edge.',
+      ),
+      formula(
+        String.raw`L_n=\sqrt{D_n\tau_n},\quad L_p=\sqrt{D_p\tau_p}`,
+        'Minority diffusion lengths; use D = μV_T.',
+      ),
+      formula(
+        String.raw`\Delta n_p(x)=\Delta n_p(-x_p)e^{(x+x_p)/L_n}`,
+        'Electron profile for x ≤ −x_p in a long p base.',
+        true,
+      ),
+      formula(
+        String.raw`\Delta p_n(x)=\Delta p_n(x_n)e^{-(x-x_n)/L_p}`,
+        'Hole profile for x ≥ x_n in a long n base.',
+        true,
+      ),
+      topic('HW3: minority current components', 'HW3 P2; L7 p16'),
+      formula(
+        String.raw`D_n=\mu_nV_T,\quad D_p=\mu_pV_T`,
+        'Einstein relation before the diffusion lengths.',
+      ),
+      formula(String.raw`J_n(-x_p)=qD_n\Delta n_p(-x_p)/L_n`, 'Electron injection from n into p.'),
+      formula(String.raw`J_p(x_n)=qD_p\Delta p_n(x_n)/L_p`, 'Hole injection from p into n.'),
+      formula(
+        String.raw`J_n(x)=J_n(-x_p)e^{(x+x_p)/L_n}`,
+        'Electron minority current decays into the p region.',
+        true,
+      ),
+      formula(
+        String.raw`J_p(x)=J_p(x_n)e^{-(x-x_n)/L_p}`,
+        'Hole minority current decays into the n region.',
+        true,
+      ),
+      formula(
+        String.raw`J_n+J_p=J_{\rm total}`,
+        'Current continuity: the majority part makes up the loss.',
+      ),
+      formula(
+        String.raw`J_0=qn_i^2\left(\frac{D_n}{N_AL_n}+\frac{D_p}{N_DL_p}\right)`,
+        'Ideal long-base reverse saturation density.',
+        true,
+      ),
+      formula(String.raw`J=J_0(e^{V_A/V_T}-1)`, 'Total ideal PN current density.'),
+      formula(
+        String.raw`\frac{J_p(x_n)}{J_n(-x_p)}=\frac{D_pN_AL_n}{D_nN_DL_p}`,
+        'Compare hole and electron injection.',
+      ),
+      formula(
+        String.raw`J_p(x)=\tfrac12J_{\rm total}`,
+        'Equal-current plane; solve for distance from x_n.',
+      ),
+      formula(
+        String.raw`x-x_n=L_p\ln\!\frac{2J_p(x_n)}{J_{\rm total}}`,
+        'HW3 P2 equal-current distance in the n base.',
+        true,
+      ),
+      note(
+        'HW3 P2: use L_n in the electron exponent and L_p in the hole exponent. A printed intermediate line swaps the symbol.',
+      ),
+    ].join(''),
+    right: [
+      topic('12. Stored excess charge', 'L9 p4–7; HW3 P4'),
+      formula(String.raw`Q_p=qA\int_{x_n}^{\infty}\Delta p_n(x)\,dx`, 'Integrate injected holes.'),
+      formula(
+        String.raw`Q_p=qA\Delta p_n(x_n)L_p`,
+        'Positive hole charge stored in the long n base.',
+      ),
+      formula(
+        String.raw`Q_n=-qA\int_{-\infty}^{-x_p}\Delta n_p(x)\,dx`,
+        'Electron stored charge has a negative sign.',
+      ),
+      formula(
+        String.raw`Q_n=-qA\Delta n_p(-x_p)L_n`,
+        'Signed electron charge stored in the long p base.',
+      ),
+      formula(String.raw`\Delta p_n(x_n)=Q_p/(qAL_p)`, 'Recover edge excess from stored holes.'),
+      formula(
+        String.raw`I_p=Q_p/\tau_p,\quad I_n=|Q_n|/\tau_n`,
+        'Steady injection replaces recombined charge.',
+      ),
+      formula(String.raw`I=I_p+I_n`, 'Add both conventional current components.'),
+      note(
+        'HW3 P4: A = 100 μm² = 10⁻⁶ cm². The electron charge Q_n is negative; use its magnitude in the current formula.',
+      ),
+      topic('13. Integrated charge-control equation', 'L9 p5–7, 16–23'),
+      formula(
+        String.raw`\frac{dQ_p}{dt}=I_p(x_n)-\frac{Q_p}{\tau_p}`,
+        'Injected holes either accumulate or recombine.',
+      ),
+      formula(
+        String.raw`I_p(x_n)-I_p(\infty)=\frac{dQ_p}{dt}+\frac{Q_p}{\tau_p}`,
+        'Integrated continuity; far-edge current vanishes for a long base.',
+        true,
+      ),
+      formula(
+        String.raw`\frac{d|Q_n|}{dt}=I_n(-x_p)-\frac{|Q_n|}{\tau_n}`,
+        'Electron-side charge balance in magnitude form.',
+      ),
+      formula(String.raw`Q_{\rm ss}=I_F\tau_p`, 'Stored charge under constant forward injection.'),
+      formula(String.raw`Q_p(t)=Q_0e^{-t/\tau_p}`, 'Recombination after injection is removed.'),
+      formula(
+        String.raw`Q_p(t)=I_F\tau_p(1-e^{-t/\tau_p})`,
+        'Turn-on from an initially empty long base.',
+      ),
+      formula(
+        String.raw`Q_p(t)=(Q_0+I_R\tau_p)e^{-t/\tau_p}-I_R\tau_p`,
+        'Charge during reverse extraction at fixed I_R.',
+        true,
+      ),
+      formula(
+        String.raw`t_s=\tau_p\ln\!\left(1+\frac{I_F}{I_R}\right)`,
+        'Storage delay if Q_0 = I_Fτ_p; set Q_p(t_s)=0.',
+      ),
+      formula(
+        String.raw`t_{\rm on}\approx\Delta Q/I_F`,
+        'Short-time charging when recombination is small.',
+      ),
+      note(
+        'Charge control assumes a long, low-injection neutral region and one effective lifetime. The external circuit determines later reverse-recovery waveforms.',
+      ),
+    ].join(''),
+  },
+  {
+    subtitle: 'Lecture 9 · small signal, C–V and HW3 checks',
+    left: [
+      topic('14. Small-signal diode around DC bias', 'L9 p8–12, 15; HW3 P5'),
+      formula(
+        String.raw`g_d=\left.\frac{dI}{dV}\right|_{V_{DC}}\approx\frac{I_{DC}}{V_T}`,
+        'Differential conductance at strong ideal forward bias.',
+      ),
+      formula(
+        String.raw`r_d=1/g_d\approx V_T/I_{DC}`,
+        'Parallel small-signal resistance, not V/I.',
+      ),
+      formula(String.raw`g_d=I_0e^{V_{DC}/V_T}/V_T`, 'Exact ideal conductance before I ≫ I₀.'),
+      formula(
+        String.raw`C_D=\frac{dQ_{\rm stored}}{dV}\approx\frac{\tau_nI_n+\tau_pI_p}{V_T}`,
+        'Diffusion capacitance from stored minority charge.',
+        true,
+      ),
+      formula(
+        String.raw`C_J=\left|\frac{dQ_{\rm dep}}{dV_A}\right|=\frac{\varepsilon_sA}{W}`,
+        'Depletion capacitance from changing space charge.',
+      ),
+      formula(String.raw`C_{\rm total}=C_J+C_D`, 'Both charge responses are parallel.'),
+      formula(
+        String.raw`\tau_{\rm eff}=\frac{\tau_nI_n+\tau_pI_p}{I_n+I_p}`,
+        'Current-weighted minority lifetime for C_D.',
+      ),
+      formula(String.raw`C_D\approx\tau_{\rm eff}g_d`, 'Compact diffusion-capacitance estimate.'),
+      formula(
+        String.raw`i_{\rm ac}=g_dv_{\rm ac}+C_{\rm total}\frac{dv_{\rm ac}}{dt}`,
+        'Parallel resistor–capacitor current relation.',
+        true,
+      ),
+      note(
+        'HW3 P5: the supplied 1 μs / 2.95 × 10⁵ Ω quotient is about 3.4 pF, not 3.9 pF; diffusion capacitance dominates the ~0.06 pF junction term.',
+      ),
+      topic('15. PN and Schottky depletion C–V', 'L9 p10–14; HW3 P3, P5'),
+      formula(
+        String.raw`W\simeq\sqrt{\frac{2\varepsilon_s(V_{bi}-V_A)}{qN_{\rm light}}}`,
+        'One-sided abrupt depletion width; forward-bias convention.',
+        true,
+      ),
+      formula(
+        String.raw`W=\sqrt{\frac{2\varepsilon_s(V_{bi}-V_A)}{q}\left(\frac1{N_A}+\frac1{N_D}\right)}`,
+        'Two-sided abrupt depletion approximation.',
+        true,
+      ),
+      formula(String.raw`C_J=\varepsilon_sA/W`, 'Convert depletion width to capacitance.'),
+      formula(
+        String.raw`|Q_{\rm dep}|=qAN_Ax_p=qAN_Dx_n`,
+        'Ionized charge magnitude on each side.',
+      ),
+      formula(
+        String.raw`\frac1{C_J^2}=\frac{2(V_{bi}-V_A)}{q\varepsilon_sA^2N_{\rm light}}`,
+        'Straight line versus applied voltage.',
+        true,
+      ),
+      formula(
+        String.raw`m=\frac{d(1/C_J^2)}{dV_A}=-\frac{2}{q\varepsilon_sA^2N_{\rm light}}`,
+        'Steeper line means lighter doping.',
+        true,
+      ),
+      formula(
+        String.raw`N_{\rm light}=\frac{-2}{q\varepsilon_sA^2m}`,
+        'Extract doping from measured C–V slope.',
+      ),
+      formula(String.raw`(1/C_J^2)_{V_A=V_{bi}}=0`, 'Extrapolated x-intercept gives V_bi.'),
+      formula(String.raw`C_J\propto(V_{bi}-V_A)^{-1/2}`, 'Abrupt-junction bias trend.'),
+    ].join(''),
+    right: [
+      topic('HW3: check built-in voltage', 'HW3 P1, P5'),
+      formula(
+        String.raw`V_{bi}=V_T\ln\!\frac{N_AN_D}{n_i^2}`,
+        'Use both dopant densities for a nondegenerate PN junction.',
+      ),
+      formula(
+        String.raw`V_{bi}\approx0.84\,\mathrm V`,
+        'HW3 P5: use both dopants and n_i = 10¹⁰ cm⁻³.',
+      ),
+      formula(
+        String.raw`N_Ax_p=N_Dx_n,\quad W=x_p+x_n`,
+        'Depletion charge neutrality and total width.',
+      ),
+      formula(
+        String.raw`\mathcal E(0)=-qN_Dx_n/\varepsilon_s`,
+        'Peak signed field for p on left and n on right.',
+      ),
+      formula(
+        String.raw`\psi(0)-\psi(-x_p)=qN_Ax_p^2/(2\varepsilon_s)`,
+        'Potential rise from p edge to junction.',
+      ),
+      formula(
+        String.raw`W(0.6\,\mathrm V)\approx0.18\,\mu\mathrm m`,
+        'HW3 P5 after correcting V_bi.',
+      ),
+      formula(
+        String.raw`C_J\approx0.06\,\mathrm{pF},\quad C_D\approx3.4\,\mathrm{pF}`,
+        'HW3 P5 corrected capacitance scales.',
+      ),
+      note(
+        'HW3 P1 prints an extra 1/2 in the peak-field expression and uses N_D with x_p² in its potential expression. HW3 P5 prints V_bi = 0.919 V; with N_A = 10¹⁶, N_D = 10¹⁸ and n_i = 10¹⁰ cm⁻³, the PN value is about 0.84 V.',
+      ),
+      topic('Schottky contact: interpret the C–V line', 'HW3 P3; L5 p27–39'),
+      formula(String.raw`\Phi_{Bn}=\Phi_M-\chi`, 'Ideal n-type barrier from metal work function.'),
+      formula(
+        String.raw`qV_{bi}=\Phi_{Bn}-(E_C-E_F)_{\rm bulk}`,
+        'Barrier minus bulk band-edge separation.',
+      ),
+      formula(
+        String.raw`E_C-E_F=k_BT\ln(N_C/N_D)`,
+        'Bulk n-type offset when Boltzmann statistics apply.',
+      ),
+      formula(String.raw`\Phi_{Bn}=qV_{bi}+k_BT\ln(N_C/N_D)`, 'Recover barrier from C–V.'),
+      formula(String.raw`\Phi_{Bp}=E_g-\Phi_{Bn}`, 'Ideal complementary hole barrier.'),
+      note(
+        'For equal contact areas, the steeper 1/C² slope has lower N_D. Different doping shifts the bulk Fermi offset, so intercepts alone do not give an exact metal work-function difference.',
+      ),
+      topic('Quick selection by operating regime', 'L9 p10–20'),
+      formula(
+        String.raw`V_A<0:\ C_{\rm total}\approx C_J`,
+        'Reverse bias: little injected minority charge.',
+      ),
+      formula(
+        String.raw`V_A\gg V_T:\ C_D\approx\tau_{\rm eff}I/V_T`,
+        'Strong forward bias: diffusion storage can dominate.',
+      ),
+      formula(
+        String.raw`\omega_{RC}=1/(r_dC_{\rm total})`,
+        'Local small-signal RC corner estimate.',
+      ),
+      note(
+        'Track A in cm², ε_s in F/cm, N in cm⁻³ and W in cm. An inverse-square C–V intercept is an extrapolation, not a forward-bias measurement.',
+      ),
+    ].join(''),
+  },
+  {
+    subtitle: 'Lecture 10 · diode applications and light',
+    left: [
+      topic('16. PN junction as temperature sensor', 'L10 p7'),
+      formula(
+        String.raw`I=I_S(T)\left(e^{V_F/(\eta V_T)}-1\right)`,
+        'Forward diode current; η is ideality factor.',
+      ),
+      formula(
+        String.raw`V_F=\eta V_T\ln\!\left(1+\frac{I}{I_S(T)}\right)`,
+        'At fixed current, read temperature from voltage.',
+      ),
+      formula(
+        String.raw`I_S(T)\propto T^3e^{-E_g/(k_BT)}`,
+        'Illustrative silicon temperature trend when transport factors are fixed.',
+      ),
+      formula(
+        String.raw`S_T=\left.\frac{dV_F}{dT}\right|_I`,
+        'Calibrated voltage sensitivity at fixed current.',
+      ),
+      note(
+        'At ordinary bias a silicon diode usually needs less V_F as T rises. Calibrate at a fixed current; I_S(T) and series resistance are device-dependent.',
+      ),
+      topic('17. Varactor: reverse-bias tuning', 'L10 p8'),
+      formula(
+        String.raw`C_j(V_r)=C_0\left(1+\frac{V_r}{V_{bi}}\right)^{-n}`,
+        'Useful offset form; stronger reverse bias lowers C.',
+      ),
+      formula(String.raw`n=\frac1{m+2}`, 'Graded profile N(x) ∝ x^m.'),
+      formula(
+        String.raw`m=1\Rightarrow n=\tfrac13,\quad m=0\Rightarrow n=\tfrac12`,
+        'Linear grade versus abrupt junction.',
+      ),
+      formula(String.raw`m=-\tfrac32\Rightarrow n=2`, 'Hyperabrupt junction: stronger tuning.'),
+      formula(
+        String.raw`C_j\propto V_r^{-n}\quad(V_r\gg V_{bi})`,
+        'Slide’s high-reverse-bias power law.',
+      ),
+      formula(
+        String.raw`\omega_0=\frac1{\sqrt{LC_j}},\quad f_0=\frac1{2\pi\sqrt{LC_j}}`,
+        'LC oscillator frequency rises as C_j falls.',
+      ),
+      formula(
+        String.raw`\frac{f_0(V_r)}{f_0(0)}=\left(1+\frac{V_r}{V_{bi}}\right)^{n/2}`,
+        'Frequency tuning ratio at fixed inductance.',
+      ),
+      topic('18. Photodiode collection', 'L10 p9–10, 13'),
+      formula(String.raw`E_\gamma=h\nu=hc/\lambda`, 'Photon energy and wavelength.'),
+      formula(
+        String.raw`\lambda(\mu\mathrm m)\approx\frac{1.24}{E_\gamma(\mathrm{eV})}`,
+        'Quick optical wavelength conversion.',
+      ),
+      formula(String.raw`E_\gamma\ge E_g`, 'Photon must meet the gap for band-to-band absorption.'),
+      formula(
+        String.raw`\lambda_c(\mu\mathrm m)\approx1.24/E_g(\mathrm{eV})`,
+        'Approximate absorption cutoff wavelength.',
+      ),
+      formula(
+        String.raw`I_L\approx-qA(L_p+W+L_n)G_L`,
+        'Uniform-generation collection estimate; sign opposes diode current.',
+        true,
+      ),
+      formula(
+        String.raw`I(V)=I_0(e^{V/V_T}-1)+I_L`,
+        'Illuminated diode using signed light current I_L < 0.',
+      ),
+      note(
+        'Photocarriers formed in depletion are field swept. In neutral regions, minority carriers generally need to diffuse to the junction before recombining.',
+      ),
+    ].join(''),
+    right: [
+      topic('19. Solar-cell I–V and open circuit', 'L10 p10–12'),
+      formula(
+        String.raw`I(V)=I_0(e^{V/V_T}-1)-I_{\rm ph}`,
+        'Illuminated diode with current delivered to load negative.',
+      ),
+      formula(
+        String.raw`V_{OC}=V_T\ln\!\left(1+\frac{I_{\rm ph}}{I_0}\right)`,
+        'Open circuit: terminal current is zero.',
+      ),
+      formula(
+        String.raw`I_{\rm diode}(V_{OC})=I_{\rm ph}`,
+        'At open circuit forward and light currents balance.',
+      ),
+      formula(String.raw`I_{SC}\approx I_{\rm ph}`, 'Short-circuit current magnitude.'),
+      formula(String.raw`P_{\rm out}=-VI(V)`, 'Electrical power in the generating quadrant.'),
+      formula(
+        String.raw`FF=\frac{P_{\max}}{V_{OC}I_{SC}}`,
+        'Fill factor: maximum power versus ideal rectangle.',
+      ),
+      formula(
+        String.raw`\left.\frac{dP_{\rm out}}{dV}\right|_{V_{\rm MP}}=0`,
+        'Maximum-power point condition.',
+      ),
+      formula(
+        String.raw`I(V_{\rm MP})+V_{\rm MP}\frac{I_0}{V_T}e^{V_{\rm MP}/V_T}=0`,
+        'Solve for maximum power in the ideal model.',
+        true,
+      ),
+      formula(
+        String.raw`P_{\max}=V_{\rm MP}|I(V_{\rm MP})|`,
+        'Power at the load-matched operating point.',
+      ),
+      note(
+        'Use current density J throughout if area is unknown; then output power is per area. Series and shunt losses lower a real cell’s fill factor.',
+      ),
+      topic('20. LED emission', 'L10 p14'),
+      formula(
+        String.raw`E_\gamma\approx E_g`,
+        'Direct-gap radiative recombination sets photon energy.',
+      ),
+      formula(
+        String.raw`\lambda(\mu\mathrm m)\approx\frac{1.24}{E_g(\mathrm{eV})}`,
+        'Approximate peak LED wavelength.',
+      ),
+      formula(
+        String.raw`E_g(\mathrm{eV})\approx1240/\lambda(\mathrm{nm})`,
+        'Estimate band gap from peak LED color.',
+      ),
+      formula(
+        String.raw`R_\gamma\approx\eta_{\rm rad}\frac{I}{q}`,
+        'Internal photon-generation rate from radiative fraction.',
+      ),
+      formula(
+        String.raw`\eta_{\rm ext}=\eta_{\rm rad}\eta_{\rm extract}`,
+        'External output also needs photon escape.',
+      ),
+      note(
+        'Visible anchors: red ~650 nm, green ~570 nm, blue ~450 nm. Direct-band-gap materials emit efficiently; extraction losses reduce external output.',
+      ),
+      topic('Application checks', 'L10 p7–14'),
+      note(
+        'Temperature sensor: hold I fixed. Varactor: reverse bias only. Photodiode: collected light current opposes dark diode current. Solar cell: V &gt; 0 with I &lt; 0 delivers power.',
+      ),
+    ].join(''),
+  },
+  {
+    subtitle: 'Lectures 11–12 · MOS capacitor and C–V',
+    left: [
+      topic('21. MOS stack and flat band', 'L11 p4–11; L12 p4'),
+      formula(
+        String.raw`C_{ox}'=\frac{\varepsilon_{ox}}{t_{ox}},\quad C_{ox}=AC_{ox}'`,
+        'Oxide capacitance per area and total capacitance.',
+      ),
+      formula(String.raw`\varepsilon_{ox}\approx3.9\varepsilon_0`, 'Silicon dioxide permittivity.'),
+      formula(String.raw`Q_G'+Q_s'+Q_{ox}'=0`, 'Gate and semiconductor charge balance.'),
+      formula(
+        String.raw`V_{FB}=\frac{\Phi_M-\Phi_S}{q}-\frac{Q_{ox}'}{C_{ox}'}`,
+        'Flat-band voltage with effective fixed oxide charge.',
+        true,
+      ),
+      formula(
+        String.raw`V_G=V_{FB}+\psi_s-\frac{Q_s'}{C_{ox}'}`,
+        'Gate-voltage partition for p-type substrate sign convention.',
+        true,
+      ),
+      formula(String.raw`V_{ox}=-Q_s'/C_{ox}'`, 'Oxide drop from semiconductor sheet charge.'),
+      formula(
+        String.raw`|\mathcal E_{ox}|=|Q_s'|/\varepsilon_{ox}`,
+        'Oxide field magnitude from Gauss’s law.',
+      ),
+      formula(
+        String.raw`E_C(0)-E_C(\infty)=-q\psi_s`,
+        'Surface band bending for electrostatic potential ψ_s.',
+      ),
+      note(
+        'Primes denote charge or capacitance per area. Work-function differences in eV are numerically volts after division by q. At flat band, ψ_s = 0.',
+      ),
+      topic('22. P-type accumulation and depletion', 'L11 p12; L12 p5–13'),
+      formula(
+        String.raw`V_G<V_{FB}\Rightarrow\text{hole accumulation}`,
+        'Negative gate relative to flat band attracts holes.',
+      ),
+      formula(
+        String.raw`V_{FB}<V_G<V_T^{\rm MOS}\Rightarrow\text{depletion}`,
+        'Positive gate repels holes and exposes acceptors.',
+      ),
+      formula(
+        String.raw`W=\sqrt{\frac{2\varepsilon_{Si}\psi_s}{qN_A}}`,
+        'Depletion width from Poisson’s equation.',
+      ),
+      formula(
+        String.raw`\psi_s=qN_AW^2/(2\varepsilon_{Si})`,
+        'Invert width relation in depletion.',
+      ),
+      formula(String.raw`|\mathcal E_s(0)|=qN_AW/\varepsilon_{Si}`, 'Peak silicon surface field.'),
+      formula(
+        String.raw`Q_{dep}'=-qN_AW=-\sqrt{2q\varepsilon_{Si}N_A\psi_s}`,
+        'Negative fixed-ion charge per area in p-type Si.',
+        true,
+      ),
+      formula(
+        String.raw`Q_s'\approx Q_{dep}'\quad(V_{FB}<V_G<V_T^{\rm MOS})`,
+        'Before inversion charge matters.',
+      ),
+      formula(
+        String.raw`V_G=V_{FB}+\psi_s+\frac{\sqrt{2q\varepsilon_{Si}N_A\psi_s}}{C_{ox}'}`,
+        'Depletion gate-voltage relation, ignoring inversion charge.',
+        true,
+      ),
+    ].join(''),
+    right: [
+      topic('23. Strong inversion and threshold', 'L12 p14–21'),
+      formula(
+        String.raw`\phi_F=V_T\ln(N_A/n_i)`,
+        'Positive bulk Fermi-potential magnitude for p-type Si.',
+      ),
+      formula(String.raw`\psi_{s,T}=2\phi_F`, 'Strong-inversion threshold surface potential.'),
+      formula(
+        String.raw`n_s\approx(n_i^2/N_A)e^{\psi_s/V_T}`,
+        'Surface electrons rise exponentially with band bending.',
+      ),
+      formula(String.raw`n_s(2\phi_F)\approx N_A`, 'Strong-inversion surface criterion.'),
+      formula(
+        String.raw`W_T=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_A}}`,
+        'Approximate maximum depletion width at threshold.',
+      ),
+      formula(
+        String.raw`Q_{dep,T}'=-\sqrt{4q\varepsilon_{Si}N_A\phi_F}`,
+        'Threshold depletion sheet charge.',
+      ),
+      formula(
+        String.raw`V_T^{\rm MOS}=V_{FB}+2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_A\phi_F}}{C_{ox}'}`,
+        'Threshold voltage for ideal p-type substrate.',
+        true,
+      ),
+      formula(
+        String.raw`Q_{inv}'\approx-C_{ox}'(V_G-V_T^{\rm MOS})`,
+        'Electron inversion charge above threshold.',
+      ),
+      note(
+        'Here V_T without a MOS superscript is thermal voltage; V_T^MOS means transistor threshold. Added gate bias above threshold mainly increases inversion charge.',
+      ),
+      topic('24. MOS capacitance versus frequency', 'L12 p22–29'),
+      formula(
+        String.raw`C_{dep}'=\varepsilon_{Si}/W`,
+        'Incremental silicon depletion capacitance per area.',
+      ),
+      formula(String.raw`C'=\left|dQ_G'/dV_G\right|`, 'Small-signal gate-charge slope.'),
+      formula(
+        String.raw`\frac1{C'}=\frac1{C_{ox}'}+\frac1{C_{dep}'}`,
+        'Oxide and depletion regions act in series.',
+      ),
+      formula(
+        String.raw`C'_{min}=\left(\frac1{C_{ox}'}+\frac{W_T}{\varepsilon_{Si}}\right)^{-1}`,
+        'High-frequency inversion limit: depletion stays near W_T.',
+        true,
+      ),
+      formula(
+        String.raw`L_D=\sqrt{\varepsilon_{Si}V_T/(qN_A)}`,
+        'Extrinsic Debye screening length at flat band.',
+      ),
+      formula(
+        String.raw`C'_{FB}=\left(\frac1{C_{ox}'}+\frac{L_D}{\varepsilon_{Si}}\right)^{-1}`,
+        'Flat-band capacitance below C_ox due to finite screening.',
+        true,
+      ),
+      formula(
+        String.raw`C'_{LF,inv}\to C_{ox}'`,
+        'Low-frequency minority carriers can follow the AC signal.',
+      ),
+      formula(
+        String.raw`C'_{acc}\to C_{ox}'`,
+        'Accumulation charge sits near the oxide interface.',
+      ),
+      formula(String.raw`i_{ac}=C\,dv_{ac}/dt`, 'AC measurement at a chosen DC gate bias.'),
+      note(
+        'For n-type Si reverse the gate-voltage polarities and majority/minority carriers. Low- versus high-frequency inversion depends on electron or hole supply, not just DC bias.',
+      ),
+    ].join(''),
+  },
+];
+
 const pageMarkup = pages.map(
   (page, index) =>
     `<section class="page"><header><h1>ECE 121B &nbsp; Four-page cheat sheet</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 1–8</span></div></header><div class="columns"><div class="column">${page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 1}/4</span></footer></section>`,
+);
+const supplementMarkup = laterPages.map(
+  (page, index) =>
+    `<section class="page"><header><h1>ECE 121B &nbsp; Cheat sheet supplement</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 9–12 · HW3</span></div></header><div class="columns"><div class="column">${page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 5}/8</span></footer></section>`,
 );
 const documentStart = `<!doctype html><html lang="en"><head><meta charset="utf-8" />
 <link rel="stylesheet" href="../../node_modules/katex/dist/katex.min.css" />
@@ -779,4 +1330,61 @@ copyFileSync(pdfPath, resolve(publicGuides, 'ece121b-four-page-cheat-sheet.pdf')
 const shortOriginal = resolve(publicGuides, 'ece121b-midterm-formula-sheet.pdf');
 copyFileSync(shortOriginal, resolve(publicGuides, 'ece121b-short-cheat-sheet.pdf'));
 copyFileSync(shortOriginal, resolve(output, 'ece121b-short-cheat-sheet.pdf'));
-console.log('Built four-page and short cheat sheet PDFs.');
+
+const eightPagePdfs = [];
+for (const [index, markup] of supplementMarkup.entries()) {
+  const htmlPath = resolve(temp, `ece121b-eight-page-${index + 5}.html`);
+  const pagePdf = resolve(temp, `ece121b-eight-page-${index + 5}.pdf`);
+  writeFileSync(htmlPath, `${documentStart}${markup}</body></html>`);
+  rmSync(pagePdf, { force: true });
+  const result = spawnSync(
+    chrome,
+    [
+      '--headless=new',
+      '--disable-gpu',
+      '--no-sandbox',
+      '--disable-extensions',
+      '--no-pdf-header-footer',
+      `--user-data-dir=${resolve(temp, `chrome-profile-eight-${index + 5}`)}`,
+      `--print-to-pdf=${pagePdf}`,
+      pathToFileURL(htmlPath).href,
+    ],
+    { encoding: 'utf8', timeout: 60000 },
+  );
+  if (result.error || result.status !== 0 || !existsSync(pagePdf)) {
+    throw new Error(
+      `Chrome PDF export failed on eight-page edition, page ${index + 5}: ${result.error?.message ?? result.stderr}`,
+    );
+  }
+  eightPagePdfs.push(pagePdf);
+}
+const eightPagePdfPath = resolve(output, 'ece121b-eight-page-cheat-sheet.pdf');
+rmSync(eightPagePdfPath, { force: true });
+const eightPageMerge = spawnSync(
+  python,
+  [
+    '-c',
+    'from pypdf import PdfWriter; import sys; writer = PdfWriter(); [writer.append(path) for path in sys.argv[2:]]; writer.write(sys.argv[1])',
+    eightPagePdfPath,
+    pdfPath,
+    ...eightPagePdfs,
+  ],
+  { encoding: 'utf8', timeout: 60000 },
+);
+if (eightPageMerge.error || eightPageMerge.status !== 0 || !existsSync(eightPagePdfPath)) {
+  throw new Error(
+    `Eight-page PDF merge failed: ${eightPageMerge.error?.message ?? eightPageMerge.stderr}`,
+  );
+}
+const eightPagePdf = getDocument({
+  data: new Uint8Array(readFileSync(eightPagePdfPath)),
+  verbosity: 0,
+});
+try {
+  if ((await eightPagePdf.promise).numPages !== 8)
+    throw new Error('The new cheat sheet must have eight pages.');
+} finally {
+  await eightPagePdf.destroy();
+}
+copyFileSync(eightPagePdfPath, resolve(publicGuides, 'ece121b-eight-page-cheat-sheet.pdf'));
+console.log('Built eight-page, four-page and short cheat sheet PDFs.');
