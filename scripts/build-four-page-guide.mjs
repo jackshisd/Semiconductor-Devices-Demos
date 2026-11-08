@@ -1225,6 +1225,12 @@ body { color: #173548; font-family: Georgia, 'Times New Roman', serif; -webkit-p
 header { height: .48in; border-bottom: 1px solid #173548; margin-bottom: .14in; }
 header h1 { margin: 0 0 2px; font-size: 14pt; letter-spacing: .01em; font-weight: 700; }
 header .meta { display: flex; justify-content: space-between; color: #536570; font-size: 8.4pt; }
+.page.eight header h1 { font-size: 12.5pt; margin-bottom: 1px; }
+.page.eight header .meta { font-size: 7.7pt; }
+.page.eight header .meta strong { color: #176d72; }
+.page.eight header .route { margin-top: 2px; color: #334f5b; font: 7pt Georgia, 'Times New Roman', serif; }
+.page.eight .topic { border-bottom-color: #87b4b1; }
+.page.eight .topic strong { font-size: 10.2pt; }
 .columns { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: .20in; height: 9.66in; }
 .column { min-width: 0; }
 .topic { margin: 6px 0 3px; padding-bottom: 3px; border-bottom: 1px solid #173548; }
@@ -1331,10 +1337,37 @@ const shortOriginal = resolve(publicGuides, 'ece121b-midterm-formula-sheet.pdf')
 copyFileSync(shortOriginal, resolve(publicGuides, 'ece121b-short-cheat-sheet.pdf'));
 copyFileSync(shortOriginal, resolve(output, 'ece121b-short-cheat-sheet.pdf'));
 
+const eightPageSections = [
+  ['Carrier statistics & doping', 'Start with equilibrium, occupation, carrier densities, then charge neutrality.'],
+  ['Transport & continuity', 'Choose drift or diffusion for current; use continuity for time-dependent density.'],
+  ['PN junction electrostatics', 'Find built-in voltage, depletion width, electric field, then junction capacitance.'],
+  ['Contacts & diode DC', 'Identify contact type and bias before choosing ideal or nonideal current laws.'],
+  ['Minority charge & recovery', 'Use boundary excess, spatial profile, stored charge, then charge control.'],
+  ['Small signal & C-V', 'For AC use differential conductance and capacitance; for doping use 1/C² slope.'],
+  ['Sensors, light & energy', 'Select the device: temperature sensor, varactor, photodiode, solar cell, or LED.'],
+  ['MOS capacitor', 'Follow flat band, accumulation, depletion, inversion, and frequency response.'],
+];
+const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
+  const [title, route] = eightPageSections[index];
+  let left = page.left;
+  let right = page.right;
+  if (index === 5) {
+    const cvMarker = '<div class="topic"><strong>15. PN and Schottky depletion';
+    const schottkyMarker = '<div class="topic"><strong>Schottky contact:';
+    const cvStart = left.indexOf(cvMarker);
+    const schottkyStart = right.indexOf(schottkyMarker);
+    if (cvStart < 0 || schottkyStart < 0) throw new Error('Could not group page 6 formulas.');
+    const cv = left.slice(cvStart);
+    const workedChecks = right.slice(0, schottkyStart);
+    left = left.slice(0, cvStart) + workedChecks;
+    right = cv + right.slice(schottkyStart);
+  }
+  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; HW 1-3</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Verify assumptions and units.</span><span>${index + 1}/8</span></footer></section>`;
+});
 const eightPagePdfs = [];
-for (const [index, markup] of supplementMarkup.entries()) {
-  const htmlPath = resolve(temp, `ece121b-eight-page-${index + 5}.html`);
-  const pagePdf = resolve(temp, `ece121b-eight-page-${index + 5}.pdf`);
+for (const [index, markup] of eightPageMarkup.entries()) {
+  const htmlPath = resolve(temp, `ece121b-eight-page-${index + 1}.html`);
+  const pagePdf = resolve(temp, `ece121b-eight-page-${index + 1}.pdf`);
   writeFileSync(htmlPath, `${documentStart}${markup}</body></html>`);
   rmSync(pagePdf, { force: true });
   const result = spawnSync(
@@ -1345,7 +1378,7 @@ for (const [index, markup] of supplementMarkup.entries()) {
       '--no-sandbox',
       '--disable-extensions',
       '--no-pdf-header-footer',
-      `--user-data-dir=${resolve(temp, `chrome-profile-eight-${index + 5}`)}`,
+      `--user-data-dir=${resolve(temp, `chrome-profile-eight-${index + 1}`)}`,
       `--print-to-pdf=${pagePdf}`,
       pathToFileURL(htmlPath).href,
     ],
@@ -1353,7 +1386,7 @@ for (const [index, markup] of supplementMarkup.entries()) {
   );
   if (result.error || result.status !== 0 || !existsSync(pagePdf)) {
     throw new Error(
-      `Chrome PDF export failed on eight-page edition, page ${index + 5}: ${result.error?.message ?? result.stderr}`,
+      `Chrome PDF export failed on eight-page edition, page ${index + 1}: ${result.error?.message ?? result.stderr}`,
     );
   }
   eightPagePdfs.push(pagePdf);
@@ -1366,7 +1399,6 @@ const eightPageMerge = spawnSync(
     '-c',
     'from pypdf import PdfWriter; import sys; writer = PdfWriter(); [writer.append(path) for path in sys.argv[2:]]; writer.write(sys.argv[1])',
     eightPagePdfPath,
-    pdfPath,
     ...eightPagePdfs,
   ],
   { encoding: 'utf8', timeout: 60000 },
