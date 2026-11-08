@@ -36,35 +36,9 @@ const sample = (data: [number, number][], x: number) => {
     t = (x - a[0]) / (b[0] - a[0]);
   return a[1] + t * (b[1] - a[1]);
 };
-export const sci = (n: number, d = 2) => {
-  if (n === 0) return '0';
-  const exponent = Math.floor(Math.log10(Math.abs(n)));
-  const mantissa = Number((n / 10 ** exponent).toPrecision(d + 1));
-  const superscript = String(exponent).replace(
-    /[0-9-]/g,
-    (digit) =>
-      ({
-        '0': '⁰',
-        '1': '¹',
-        '2': '²',
-        '3': '³',
-        '4': '⁴',
-        '5': '⁵',
-        '6': '⁶',
-        '7': '⁷',
-        '8': '⁸',
-        '9': '⁹',
-        '-': '⁻',
-      })[digit] ?? digit,
-  );
-  return `${mantissa} × 10${superscript}`;
-};
+import { sci, texSci } from '../lib/format';
+export { sci, texSci };
 export const fmt = (n: number, d = 3) => Number(n).toFixed(d);
-export const texSci = (n: number) => {
-  if (n === 0) return '0';
-  const [mantissa, exponent] = n.toExponential(2).split('e');
-  return `${Number(mantissa)}\\times10^{${Number(exponent)}}`;
-};
 const Equation = memo(function Equation({
   expression,
   inline = false,
@@ -635,18 +609,24 @@ export function PNDepletion() {
           </div>
         )}
         <div className={`junction-bar ${animate ? 'animating' : ''}`}>
-          <div className="p-half">P REGION {car && <span className="carriers">○ ○ ○ ○</span>}</div>
+          {/* The bar shares the graphs' x-axis, so the junction sits at x = 0, not mid-bar. */}
+          <div className="p-half" style={{ width: `${(100 * -a) / (b - a)}%` }}>
+            P {car && <span className="carriers">○ ○</span>}
+          </div>
           <div
             className="depletion-slice"
-            style={{
-              left: `${(100 * (-d.xp - a)) / (b - a)}%`,
-              width: `${(100 * d.W) / (b - a)}%`,
-            }}
+            style={
+              {
+                left: `${(100 * (-d.xp - a)) / (b - a)}%`,
+                width: `${(100 * d.W) / (b - a)}%`,
+                '--junction-split': `${(100 * d.xp) / d.W}%`,
+              } as React.CSSProperties
+            }
           >
-            {ions && <span>− − − │ + + +</span>}
-            <small>DEPLETION</small>
+            {ions && <span>− │ + + +</span>}
+            <small>DEPLETION REGION</small>
           </div>
-          <div className="n-half">{car && <span className="carriers">• • • •</span>} N REGION</div>
+          <div className="n-half">{car && <span className="carriers">• • • •</span>} N</div>
         </div>
         <div className="graph-grid pn-graph-grid">
           <Plot

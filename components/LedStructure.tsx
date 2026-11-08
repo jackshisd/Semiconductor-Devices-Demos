@@ -11,6 +11,15 @@ const presets = [
   { label: 'Blue · 450 nm', bandGapEv: 1240 / 450 },
 ];
 
+/** Vertical offset of both band edges at x for the drawn path M95..H255 Q300 330 H545. */
+function bandBend(x: number) {
+  if (x <= 255) return -30;
+  if (x >= 330) return 0;
+  // x(t) = 255 + 90t - 15t² for the Bézier (255,·)→(300,·)→(330,·); y offset = -30 + 30t².
+  const t = (90 - Math.sqrt(8100 - 60 * (x - 255))) / 30;
+  return -30 + 30 * t * t;
+}
+
 export default function LedStructure() {
   const { v, set, reset } = useParams({
     bandGapEv: 1240 / 570,
@@ -41,10 +50,17 @@ export default function LedStructure() {
   });
   const topY = 100;
   const bottomY = topY + v.bandGapEv * 62;
+  const gapPx = bottomY - topY;
   const approach = Math.min(1, phase * 2);
   const electronX = 470 - 150 * approach;
-  const electronY = topY + Math.min(1, Math.max(0, (phase - 0.5) / 0.3)) * (bottomY - topY);
   const holeX = 170 + 150 * approach;
+  // Both band edges share one shape: flat at -30 px on the p side, a quadratic Bézier
+  // bend through the junction, then flat on the n side. Carriers ride on these curves.
+  const ecAt = (x: number) => topY + bandBend(x);
+  const evAt = (x: number) => bottomY + bandBend(x);
+  const drop = Math.min(1, Math.max(0, (phase - 0.5) / 0.3));
+  const electronY = ecAt(electronX) + drop * gapPx;
+  const holeY = evAt(holeX);
   const photonVisible = phase > 0.8 && v.radiativePercent > 0 && v.currentMa > 0;
   return (
     <DemoLayout
@@ -60,7 +76,7 @@ export default function LedStructure() {
           items={[
             {
               key: 'bandGapEv',
-              label: 'Direct band gap E₉',
+              label: 'Direct band gap Eg',
               min: 1.7,
               max: 3.1,
               step: 0.01,
@@ -145,10 +161,10 @@ export default function LedStructure() {
           </defs>
           <rect x="55" y="42" width="260" height="292" rx="10" fill="#f8eaf0" />
           <rect x="315" y="42" width="260" height="292" rx="10" fill="#eaf2fb" />
-          <text x="77" y="71" fill="#a04e70" fontWeight="700" fontSize="18">
+          <text x="77" y="324" fill="#a04e70" fontWeight="700" fontSize="18">
             p side
           </text>
-          <text x="505" y="71" fill="#386992" fontWeight="700" fontSize="18">
+          <text x="553" y="324" textAnchor="end" fill="#386992" fontWeight="700" fontSize="18">
             n side
           </text>
           <path d="M95 70H255Q300 70 330 100H545" fill="none" stroke="#385a73" strokeWidth="4" />
@@ -158,11 +174,11 @@ export default function LedStructure() {
             stroke="#a75470"
             strokeWidth="4"
           />
-          <text x="548" y="105" fill="#385a73" fontWeight="700" fontSize="15">
-            E꜀
+          <text x="550" y="105" fill="#385a73" fontWeight="700" fontSize="15">
+            E<tspan baselineShift="sub" fontSize="11">c</tspan>
           </text>
-          <text x="548" y={bottomY + 5} fill="#a75470" fontWeight="700" fontSize="15">
-            Eᵥ
+          <text x="550" y={bottomY + 5} fill="#a75470" fontWeight="700" fontSize="15">
+            E<tspan baselineShift="sub" fontSize="11">v</tspan>
           </text>
           <path
             d={`M510 111V${bottomY - 10}`}
@@ -170,8 +186,8 @@ export default function LedStructure() {
             strokeWidth="2"
             strokeDasharray="5 5"
           />
-          <text x="470" y={(topY + bottomY) / 2} fill="#667788" fontSize="14">
-            E₉ = {fmt(v.bandGapEv, 2)} eV
+          <text x="500" y={(topY + bottomY) / 2 + 5} textAnchor="end" fill="#667788" fontSize="14">
+            E<tspan baselineShift="sub" fontSize="10">g</tspan> = {fmt(v.bandGapEv, 2)} eV
           </text>
           <path
             d="M459 126H356"
@@ -180,7 +196,7 @@ export default function LedStructure() {
             markerEnd="url(#led-carrier-arrow)"
           />
           <path
-            d={`M181 ${bottomY + 17}H282`}
+            d={`M181 ${bottomY - 13}H282`}
             stroke="#61798b"
             strokeWidth="2"
             markerEnd="url(#led-carrier-arrow)"
@@ -203,10 +219,10 @@ export default function LedStructure() {
           >
             −
           </text>
-          <circle cx={holeX} cy={bottomY} r="13" fill="#d25e7b" stroke="white" strokeWidth="2" />
+          <circle cx={holeX} cy={holeY} r="13" fill="#d25e7b" stroke="white" strokeWidth="2" />
           <text
             x={holeX}
-            y={bottomY + 5}
+            y={holeY + 5}
             textAnchor="middle"
             fill="white"
             fontWeight="700"
@@ -216,8 +232,8 @@ export default function LedStructure() {
           </text>
           {photonVisible && (
             <g fill="none" stroke={state.photonColor} strokeWidth="4" strokeLinecap="round">
-              <path d={`M320 ${bottomY - 20}q-11 -13 0 -26t0 -26t0 -26`} />
-              <path d={`M320 ${bottomY - 78}l0 -30`} strokeDasharray="4 6" />
+              <path d={`M320 ${holeY - 20}q-11 -13 0 -26t0 -26t0 -26`} />
+              <path d={`M320 ${holeY - 78}l0 -30`} strokeDasharray="4 6" />
             </g>
           )}
           <text x="70" y="358" fill="#4f6677" fontSize="14">

@@ -121,8 +121,8 @@ export default function SolarCellStructure() {
             stroke="#485463"
             strokeWidth="3"
           />
-          <text x="338" y="51" fill="#435360" fontSize="14">
-            front contact / load
+          <text x="398" y="32" fill="#435360" fontSize="13">
+            front contact → load
           </text>
           <text x="538" y="222" fill="#435360" fontSize="13">
             load
@@ -136,8 +136,8 @@ export default function SolarCellStructure() {
           <text x="75" y="376" fill="#445361" fontWeight="700" fontSize="12">
             rear aluminum contact
           </text>
-          <text x="72" y="69" fill="#8b7330" fontSize="12">
-            {coating ? 'textured antireflection layer' : 'uncoated textured surface'}
+          <text x="518" y="116" textAnchor="end" fill="#6b5717" fontSize="12" fontWeight="600">
+            {coating ? '↑ textured antireflection layer' : '↑ uncoated textured surface'}
           </text>
           {[190, 254, 318, 382].map((x) => (
             <path
@@ -184,7 +184,7 @@ export default function SolarCellStructure() {
           <text x="350" y={Math.min(pairY + 40, 343)} fill="#fff" fontSize="13">
             hole → rear
           </text>
-          <text x="224" y="153" fill="#234f75" fontWeight="700" fontSize="13">
+          <text x="168" y="153" fill="#234f75" fontWeight="700" fontSize="13">
             electron → junction
           </text>
           <text x="64" y="414" fill="#4e5963" fontSize="13">

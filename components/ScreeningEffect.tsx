@@ -120,8 +120,9 @@ export default function ScreeningEffect() {
               strokeDasharray="6 5"
             />
             {cloud.map((electron, index) => {
-              const x = 245 + electron.x * length * scale;
-              const y = 156 + electron.y * length * scale;
+              // Round so server and browser floating-point results hydrate identically.
+              const x = Math.round((245 + electron.x * length * scale) * 100) / 100;
+              const y = Math.round((156 + electron.y * length * scale) * 100) / 100;
               return <circle key={index} cx={x} cy={y} r="3.5" fill="#448fd0" opacity="0.8" />;
             })}
             <circle

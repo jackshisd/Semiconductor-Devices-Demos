@@ -427,7 +427,7 @@ export const homeworkSets: HomeworkSet[] = [
         x: 0.84,
         y: 0.498,
         label: 'Problem 5(a): resistance and built-in voltage check',
-        text: 'Linearizing the diode around its DC current gives rᵈ ≈ Vₜ/Iᴅᴄ ≈ 0.026/(8.9 × 10⁻⁸) ≈ 2.9 × 10⁵ Ω. For the actual junction dopings, however, Vᵦᵢ = Vₜ ln(NᴀNᴅ/nᵢ²) ≈ 0.84 V using nᵢ = 10¹⁰ cm⁻³, not the printed 0.919 V. The printed formula E₉/(2q)+Vₜ ln(Nᴀ/nᵢ) represents a p-side band-edge-to-Fermi separation under a midgap approximation, rather than the full p-to-n built-in voltage.',
+        text: 'Linearizing the diode around its DC current gives rᵈ ≈ Vₜ/Iᴅᴄ ≈ 0.026/(8.9 × 10⁻⁸) ≈ 2.9 × 10⁵ Ω. For the actual junction dopings, however, Vᵦᵢ = Vₜ ln(NᴀNᴅ/nᵢ²) ≈ 0.84 V using nᵢ = 10¹⁰ cm⁻³, not the printed 0.919 V. The printed formula Eg/(2q)+Vₜ ln(Nᴀ/nᵢ) represents a p-side band-edge-to-Fermi separation under a midgap approximation, rather than the full p-to-n built-in voltage.',
       },
       {
         page: 5,

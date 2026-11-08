@@ -4,6 +4,12 @@ import { scaleLinear } from 'd3-scale';
 import { line } from 'd3-shape';
 import { useId, useState } from 'react';
 import { useChangeHighlight } from './useChangeHighlight';
+import { tickLabel } from '../lib/format';
+
+// Round pixel positions to 0.01 px: Node and browsers can differ in the last floating-point
+// digit of Math.exp/log results, which otherwise causes SVG hydration mismatches.
+const roundedInterpolate = (a: number, b: number) => (t: number) =>
+  Math.round((a + (b - a) * t) * 100) / 100;
 
 export type Series = {
   name: string;
@@ -124,20 +130,18 @@ export default function Plot({
     bottom = 42;
   const X = scaleLinear()
     .domain(xDomain)
-    .range([left, w - right]);
+    .range([left, w - right])
+    .interpolate(roundedInterpolate);
   const Y = scaleLinear()
     .domain(yDomain)
-    .range([h - bottom, top]);
+    .range([h - bottom, top])
+    .interpolate(roundedInterpolate);
   const makeLine = line<[number, number]>()
     .defined((d) => d.every(Number.isFinite))
     .x((d) => X(d[0]))
     .y((d) => Y(d[1]));
   const yTicks = Y.ticks(5);
   const xTicks = X.ticks(6);
-  const tickLabel = (value: number) =>
-    Math.abs(value) >= 1000
-      ? Number(value.toPrecision(3)).toExponential()
-      : Number(value.toPrecision(3));
   const labelSeeds = [
     ...markers
       .filter((marker) => marker.x >= xDomain[0] && marker.x <= xDomain[1])

@@ -161,7 +161,7 @@ export function ElectrostaticPotential() {
               right
             </text>
             <text x="510" y="257" className="teaching-svg-title">
-              Band edges E₍C₎ and E₍V₎
+              Band edges E<tspan baselineShift="sub" fontSize="0.75em">C</tspan> and E<tspan baselineShift="sub" fontSize="0.75em">V</tspan>
             </text>
             <path
               d={`M 555 ${bandY(ecLeft)} L 845 ${bandY(1.12)} L 845 ${bandY(0)} L 555 ${bandY(evLeft)} Z`}

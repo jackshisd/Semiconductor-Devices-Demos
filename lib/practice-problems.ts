@@ -222,7 +222,7 @@ const corePracticeProblems: Record<string, PracticeProblem[]> = {
     ),
     choice(
       'At low field, the magnitude of drift velocity is:',
-      ['μ|E|', 'D/τ', 'nᵢ²/n', 'qE₉'],
+      ['μ|E|', 'D/τ', 'nᵢ²/n', 'qEg'],
       0,
       'Mobility is the proportionality between average drift speed and electric-field magnitude in the low-field regime.',
     ),
@@ -387,7 +387,7 @@ const corePracticeProblems: Record<string, PracticeProblem[]> = {
     ),
     choice(
       'At equilibrium, electron and hole quasi-Fermi levels:',
-      ['Are always separated by E₉', 'Coincide', 'Are outside the sample', 'Have opposite units'],
+      ['Are always separated by Eg', 'Coincide', 'Are outside the sample', 'Have opposite units'],
       1,
       'A single equilibrium Fermi level describes both carrier populations.',
     ),
@@ -411,7 +411,7 @@ const corePracticeProblems: Record<string, PracticeProblem[]> = {
     ),
     choice(
       'In the ideal n-type Schottky model, Φᴮⁿ equals:',
-      ['Φᴹ − χ', 'χ − E₉', 'qNᴅW', 'kT/q'],
+      ['Φᴹ − χ', 'χ − Eg', 'qNᴅW', 'kT/q'],
       0,
       'The ideal electron barrier is metal work function minus semiconductor electron affinity.',
     ),
@@ -466,7 +466,7 @@ const corePracticeProblems: Record<string, PracticeProblem[]> = {
     ),
     choice(
       'For a depletion capacitor, which relation is correct?',
-      ['C = εₛA/W', 'C = W/(εₛA)', 'C = qE₉', 'C is independent of W'],
+      ['C = εₛA/W', 'C = W/(εₛA)', 'C = qEg', 'C is independent of W'],
       0,
       'Incremental charge is separated across the depletion width, giving C approximately εₛA/W.',
     ),
@@ -758,10 +758,10 @@ const appliedPracticeProblems: Record<string, AppliedSet> = {
         'First find majority electrons from net doping: n ≈ Nᴅ − Nᴀ = 5.0 × 10¹⁶ cm⁻³. Then use mass action: p = nᵢ²/n = 10²⁰/(5.0 × 10¹⁶) = 2.0 × 10³ cm⁻³.',
       ),
       appliedNumber(
-        'Silicon is heated from 300 K to 600 K while E₉ stays at 1.068 eV. Assume N꜀ and Nᵥ each scale as T³ᐟ² and use kᴮ = 8.617 × 10⁻⁵ eV/K. By what factor does nᵢ increase?',
+        'Silicon is heated from 300 K to 600 K while Eg stays at 1.068 eV. Assume N꜀ and Nᵥ each scale as T³ᐟ² and use kᴮ = 8.617 × 10⁻⁵ eV/K. By what factor does nᵢ increase?',
         8.652e4,
         'unitless',
-        'Use nᵢ(600)/nᵢ(300) = (600/300)³ᐟ² exp{−E₉/(2kᴮ)[1/600 − 1/300]}. The prefactor is 2.828 and the exponential is about 3.06 × 10⁴, giving 8.65 × 10⁴.',
+        'Use nᵢ(600)/nᵢ(300) = (600/300)³ᐟ² exp{−Eg/(2kᴮ)[1/600 − 1/300]}. The prefactor is 2.828 and the exponential is about 3.06 × 10⁴, giving 8.65 × 10⁴.',
       ),
     ],
   },

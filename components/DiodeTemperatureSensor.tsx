@@ -147,7 +147,7 @@ export default function DiodeTemperatureSensor() {
         />
       </div>
       <p className="carrier-motion-summary">
-        Illustrative silicon model: Iₛ(25 °C) = 0.1 pA and Iₛ(T) follows T³exp(−E₉/kT) with E₉ =
+        Illustrative silicon model: Iₛ(25 °C) = 0.1 pA and Iₛ(T) follows T³exp(−Eg/kT) with Eg =
         1.12 eV. Actual diodes need calibration at a known current; series resistance and nonideal
         recombination change the reading.
       </p>

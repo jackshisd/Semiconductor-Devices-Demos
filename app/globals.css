@@ -247,6 +247,13 @@ main {
   font-weight: 700;
   letter-spacing: -0.03em;
 }
+.controls-actions {
+  display: flex;
+  gap: 8px;
+}
+.controls.collapsed .controls-head {
+  padding-bottom: 0;
+}
 .reset-button {
   border: 1px solid #cddcdb;
   border-radius: 7px;
@@ -951,8 +958,9 @@ main {
   color: #286daf;
   background: #e7f1fb;
 }
-.junction-bar > div {
-  width: 50%;
+.junction-bar > .p-half {
+  flex: none;
+  overflow: hidden;
 }
 .depletion-slice {
   position: absolute;
@@ -965,7 +973,12 @@ main {
   color: #515d66;
   font-size: 12px;
   font-weight: 650;
-  background: repeating-linear-gradient(90deg, #f5ded7 0 24px, #dcebf8 24px 48px);
+  /* Negative acceptor ions left of the junction, positive donor ions right of it. */
+  background: linear-gradient(
+    90deg,
+    #f1c9bb 0 var(--junction-split, 50%),
+    #c4dbf2 var(--junction-split, 50%) 100%
+  );
   border-left: 1px dashed #d98567;
   border-right: 1px dashed #76a6d7;
   transition: 0.3s;
@@ -1555,6 +1568,7 @@ main:focus {
   }
   .controls {
     padding-inline: 12px;
+    max-height: 36dvh;
   }
   .control {
     padding: 10px 12px;

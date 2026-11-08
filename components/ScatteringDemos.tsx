@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Controls, Toggle } from './Controls';
-import { DemoLayout, Calculation, useParams } from './Demos';
+import { DemoLayout, Calculation, sci, useParams } from './Demos';
 import { advanceCarriers, ions, makeCarriers, type ScatteringKind } from '../lib/scattering';
 
 export function PhononScattering() {
@@ -141,7 +141,7 @@ function Scattering({ kind }: { kind: ScatteringKind }) {
           <strong>{phonon ? 'Vibrating silicon lattice' : 'Charged dopants in the lattice'}</strong>
           <span>
             {v.temperature} K
-            {!phonon ? ` · ND + NA = ${(10 ** v.doping).toExponential(2)} cm⁻³` : ''}
+            {!phonon ? ` · ND + NA = ${sci(10 ** v.doping)} cm⁻³` : ''}
           </span>
         </header>
         <svg
@@ -158,8 +158,9 @@ function Scattering({ kind }: { kind: ScatteringKind }) {
             const x = 30 + (i % 11) * 54,
               y = 25 + Math.floor(i / 11) * 45;
             const amplitude = phonon ? 2 + (v.temperature - 200) / 55 : 0;
-            const dx = Math.sin(scene.time * 9 + i * 2.4) * amplitude,
-              dy = Math.cos(scene.time * 11 + i * 1.7) * amplitude;
+            // Rounded so server and browser trig results hydrate identically.
+            const dx = Math.round(Math.sin(scene.time * 9 + i * 2.4) * amplitude * 100) / 100,
+              dy = Math.round(Math.cos(scene.time * 11 + i * 1.7) * amplitude * 100) / 100;
             return (
               <g key={i}>
                 <circle cx={x} cy={y} r="3" fill="#d7e0e4" />

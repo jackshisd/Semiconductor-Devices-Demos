@@ -15,8 +15,16 @@ export type Control = {
   log?: boolean;
 };
 
-function formatValue(value: number, scientific: boolean) {
-  if (!scientific || value === 0) return Number(value.toPrecision(5)).toString();
+function formatValue(value: number, scientific: boolean, step?: number) {
+  if (!scientific || value === 0) {
+    // Show the slider's own precision (2.18, not 2.1754) unless that would misstate the value.
+    if (step && step > 0 && step < 1) {
+      const decimals = Math.min(6, Math.ceil(-Math.log10(step) - 1e-9));
+      const rounded = Number(value.toFixed(decimals));
+      if (Math.abs(rounded - value) <= step * 0.5) return rounded.toString();
+    }
+    return Number(value.toPrecision(5)).toString();
+  }
   const exponent = Math.floor(Math.log10(Math.abs(value)));
   const mantissa = Number((value / 10 ** exponent).toPrecision(3));
   return `${mantissa} × 10^${exponent}`;
@@ -77,7 +85,7 @@ function ValueInput({
         className={highlighted ? 'number-updated' : undefined}
         aria-invalid={invalidDraft !== null}
         title="Enter a number, such as 1 × 10^17 or 1e17"
-        value={focused ? draft : (invalidDraft ?? formatValue(value, scientific))}
+        value={focused ? draft : (invalidDraft ?? formatValue(value, scientific, control.step))}
         onFocus={() => {
           setFocused(true);
           setDraft(invalidDraft ?? formatValue(value, scientific));
@@ -109,6 +117,8 @@ function ValueInput({
   );
 }
 
+const COLLAPSE_KEY = 'ece121b-controls-collapsed';
+
 export function Controls({
   values,
   set,
@@ -127,6 +137,22 @@ export function Controls({
   const controlsHost = useContext(ControlsHostContext);
   const panel = useRef<HTMLElement>(null);
   const [revision, setRevision] = useState(0);
+  // Standalone pages dock controls over the demo; let readers collapse the dock and remember it.
+  const [collapsed, setCollapsed] = useState(false);
+  useEffect(() => {
+    if (inlineControls) return;
+    try {
+      setCollapsed(window.localStorage.getItem(COLLAPSE_KEY) === '1');
+    } catch {}
+  }, [inlineControls]);
+  const toggleCollapsed = () =>
+    setCollapsed((old) => {
+      try {
+        window.localStorage.setItem(COLLAPSE_KEY, old ? '0' : '1');
+      } catch {}
+      return !old;
+    });
+  const isCollapsed = collapsed && !inlineControls;
   useEffect(() => {
     if (!panel.current || inlineControls) return;
     const update = () =>
@@ -143,64 +169,83 @@ export function Controls({
     };
   }, [inlineControls]);
   const contents = (
-    <aside ref={panel} className="controls" aria-label="Experiment controls">
+    <aside
+      ref={panel}
+      className={isCollapsed ? 'controls collapsed' : 'controls'}
+      aria-label="Experiment controls"
+    >
       <div className="controls-head">
         <h2>Controls</h2>
-        <button
-          className="reset-button"
-          onClick={() => {
-            reset();
-            setRevision((old) => old + 1);
-          }}
-        >
-          Reset
-        </button>
+        <div className="controls-actions">
+          <button
+            className="reset-button"
+            onClick={() => {
+              reset();
+              setRevision((old) => old + 1);
+            }}
+          >
+            Reset
+          </button>
+          {!inlineControls && (
+            <button
+              type="button"
+              className="reset-button controls-toggle"
+              aria-expanded={!isCollapsed}
+              aria-controls={`${id}-body`}
+              onClick={toggleCollapsed}
+            >
+              {isCollapsed ? 'Show ▴' : 'Hide ▾'}
+            </button>
+          )}
+        </div>
       </div>
-      <div className="control-list">
-        {items.map((control) => {
-          const value = values[control.key];
-          return (
-            <div className="control" key={control.key}>
-              <label htmlFor={`${id}-${control.key}`}>
-                {control.label}
-                <span>{control.unit}</span>
-              </label>
-              <div className="control-inputs">
-                <input
-                  type="range"
-                  aria-label={`${control.label} slider`}
-                  min={control.log ? Math.log10(control.min) : control.min}
-                  max={control.log ? Math.log10(control.max) : control.max}
-                  step={control.log ? 0.01 : control.step}
-                  value={control.log ? Math.log10(value) : value}
-                  onChange={(event) =>
-                    set(
-                      control.key,
-                      Math.max(
-                        control.min,
-                        Math.min(
-                          control.max,
-                          control.log
-                            ? 10 ** Number(event.target.value)
-                            : Number(event.target.value),
+      <div id={`${id}-body`} className="controls-body" hidden={isCollapsed}>
+        <div className="control-list">
+          {items.map((control) => {
+            const value = values[control.key];
+            return (
+              <div className="control" key={control.key}>
+                <label htmlFor={`${id}-${control.key}`}>
+                  {control.label}
+                  <span>{control.unit}</span>
+                </label>
+                <div className="control-inputs">
+                  <input
+                    type="range"
+                    aria-label={`${control.label} slider`}
+                    min={control.log ? Math.log10(control.min) : control.min}
+                    max={control.log ? Math.log10(control.max) : control.max}
+                    step={control.log ? 0.01 : control.step}
+                    value={control.log ? Math.log10(value) : value}
+                    onChange={(event) =>
+                      set(
+                        control.key,
+                        Math.max(
+                          control.min,
+                          Math.min(
+                            control.max,
+                            control.log
+                              ? 10 ** Number(event.target.value)
+                              : Number(event.target.value),
+                          ),
                         ),
-                      ),
-                    )
-                  }
-                />
-                <ValueInput
-                  key={revision}
-                  id={`${id}-${control.key}`}
-                  control={control}
-                  value={value}
-                  set={set}
-                />
+                      )
+                    }
+                  />
+                  <ValueInput
+                    key={revision}
+                    id={`${id}-${control.key}`}
+                    control={control}
+                    value={value}
+                    set={set}
+                  />
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
+        </div>
+        {children && <div className="control-extra">{children}</div>}
       </div>
-      {children && <div className="control-extra">{children}</div>}
     </aside>
   );
   return inlineControls && controlsHost ? createPortal(contents, controlsHost) : contents;
