@@ -744,19 +744,13 @@ const laterPages = [
         'Positive hole charge stored in the long n base.',
       ),
       formula(
-        String.raw`Q_n=-qA\int_{-\infty}^{-x_p}\Delta n_p(x)\,dx`,
-        'Electron stored charge has a negative sign.',
-      ),
-      formula(
         String.raw`Q_n=-qA\Delta n_p(-x_p)L_n`,
         'Signed electron charge stored in the long p base.',
       ),
-      formula(String.raw`\Delta p_n(x_n)=Q_p/(qAL_p)`, 'Recover edge excess from stored holes.'),
       formula(
         String.raw`I_p=Q_p/\tau_p,\quad I_n=|Q_n|/\tau_n`,
         'Steady injection replaces recombined charge.',
       ),
-      formula(String.raw`I=I_p+I_n`, 'Add both conventional current components.'),
       note(
         'HW3 P4: A = 100 μm² = 10⁻⁶ cm². The electron charge Q_n is negative; use its magnitude in the current formula.',
       ),
@@ -775,24 +769,38 @@ const laterPages = [
         'General constant-current solution; set the initial charge at t₀.',
         true,
       ),
-      formula(String.raw`Q_{\rm ss}=I_F\tau_p`, 'Stored charge under constant forward injection.'),
+      formula(String.raw`Q(0)=Q_{\rm ss}=I_F\tau_p`, 'HW4 P1: initial charge after steady forward current.'),
       formula(
-        String.raw`Q(t)=I_F\tau_p(1-e^{-t/\tau_p})`,
-        'Turn-on from Q(0) = 0; use I = I_F.',
+        String.raw`\frac{dQ}{dt}=-I_R-\frac{Q}{\tau_p}`,
+        'Reverse current extracts stored charge during the storage interval.',
       ),
       formula(
-        String.raw`Q(t)=[Q(0)+I_R\tau_p]e^{-t/\tau_p}-I_R\tau_p`,
-        'Reverse extraction: use I = −I_R with I_R > 0.',
+        String.raw`Q(t)=\tau_p[(I_F+I_R)e^{-t/\tau_p}-I_R]`,
+        'HW4 P1: reverse extraction from Q(0) = I_Fτp.',
         true,
       ),
       formula(
         String.raw`t_s=\tau_p\ln\!\left(1+\frac{I_F}{I_R}\right)`,
-        'Storage delay if Q(0) = I_Fτ_p; set Q(t_s) = 0.',
+        'Set Q(ts) = 0; for equal 1 mA currents and τp = 1 μs, ts = 0.693 μs.',
+      ),
+      formula(
+        String.raw`Q(t)=I_F\tau_p+[Q(t_0)-I_F\tau_p]e^{-(t-t_0)/\tau_p}`,
+        'After switching back to forward current at t₀.',
+        true,
+      ),
+      formula(
+        String.raw`Q(t)\simeq I_F\tau_p(1-e^{-(t-t_0)/\tau_p})`,
+        'Use only when Q(t₀) is negligible.',
       ),
       topic('Stored charge → diode voltage', 'L9 p16–23; quasi-static'),
-      formula(String.raw`Q_0=qAp_{n0}L_p`, 'Equilibrium charge scale for injected holes; Q₀ is not initial excess charge.'),
+      formula(String.raw`Q_0=qAp_{n0}L_p=\tau_pI_S`, 'One-sided saturation current I_S; Q₀ is not initial excess charge.'),
       formula(String.raw`Q=Q_0(e^{v_a/V_T}-1)`, 'Boundary injection sets excess charge in a long n base.'),
       formula(String.raw`v_a=V_T\ln\!\left(1+\frac{Q}{Q_0}\right)`, 'Convert stored excess charge to voltage.'),
+      formula(
+        String.raw`v_a(t)\simeq V_T\ln\!\left[1+\frac{I_F}{I_S}(1-e^{-(t-t_0)/\tau_p})\right]`,
+        'HW4 P1: t₀ = 2 μs and negligible charge at reapplication.',
+        true,
+      ),
       note(
         'Use this charge-to-voltage step only while the long-base, low-injection, quasi-static model applies. It does not describe the entire turn-off waveform after storage ends.',
       ),
@@ -979,7 +987,7 @@ const laterPages = [
         String.raw`\frac{f_0(V_r)}{f_0(0)}=\left(1+\frac{V_r}{V_{bi}}\right)^{n/2}`,
         'Frequency tuning ratio at fixed inductance.',
       ),
-      topic('18. Photodiode collection', 'L10 p9–10, 13'),
+      topic('18. Photodiode collection', 'L10 p9–10, 13; HW4 P2'),
       formula(String.raw`E_\gamma=h\nu=hc/\lambda`, 'Photon energy and wavelength.'),
       formula(
         String.raw`\lambda(\mu\mathrm m)\approx\frac{1.24}{E_\gamma(\mathrm{eV})}`,
@@ -995,10 +1003,8 @@ const laterPages = [
         'Uniform-generation collection estimate; sign opposes diode current.',
         true,
       ),
-      formula(
-        String.raw`I(V)=I_0(e^{V/V_T}-1)+I_L`,
-        'Illuminated diode using signed light current I_L < 0.',
-      ),
+      formula(String.raw`I_{\rm dark}=I_S(e^{V_A/V_T}-1)`, 'Dark diode current.'),
+      formula(String.raw`I_{\rm light}=I_S(e^{V_A/V_T}-1)-I_{\rm ph}`, 'Photocurrent opposes dark current.'),
       note(
         'Photocarriers formed in depletion are field swept. In neutral regions, minority carriers generally need to diffuse to the junction before recombining.',
       ),
@@ -1017,7 +1023,7 @@ const laterPages = [
         String.raw`I_{\rm diode}(V_{OC})=I_{\rm ph}`,
         'At open circuit forward and light currents balance.',
       ),
-      formula(String.raw`I_{SC}\approx I_{\rm ph}`, 'Short-circuit current magnitude.'),
+      formula(String.raw`I(0)=-I_{\rm ph},\quad I_{SC}=I_{\rm ph}`, 'Signed terminal current and short-circuit magnitude.'),
       formula(String.raw`P_{\rm out}=-VI(V)`, 'Electrical power in the generating quadrant.'),
       formula(
         String.raw`FF=\frac{P_{\max}}{V_{OC}I_{SC}}`,
@@ -1063,10 +1069,18 @@ const laterPages = [
       note(
         'Visible anchors: red ~650 nm, green ~570 nm, blue ~450 nm. Direct-band-gap materials emit efficiently; extraction losses reduce external output.',
       ),
-      topic('Application checks', 'L10 p7–14'),
-      note(
-        'Temperature sensor: hold I fixed. Varactor: reverse bias only. Photodiode: collected light current opposes dark diode current. Solar cell: V &gt; 0 with I &lt; 0 delivers power.',
+      topic('HW4 P2: minority-hole continuity', 'L4 continuity; L10 photodiode'),
+      formula(
+        String.raw`\frac{\partial\Delta p_n}{\partial t}=D_p\frac{\partial^2\Delta p_n}{\partial x^2}-\frac{\Delta p_n}{\tau_p}+G_L`,
+        'Generation adds holes; diffusion and recombination redistribute or remove them.',
+        true,
       ),
+      formula(
+        String.raw`D_p\frac{d^2\Delta p_n}{dx^2}-\frac{\Delta p_n}{\tau_p}+G_L=0`,
+        'Steady state sets the time derivative to zero.',
+        true,
+      ),
+      formula(String.raw`\Delta p_n(\infty)=G_L\tau_p`, 'Far from the junction, uniform generation balances recombination.'),
     ].join(''),
   },
   {
@@ -1078,22 +1092,16 @@ const laterPages = [
         'Oxide capacitance per area and total capacitance.',
       ),
       formula(String.raw`\varepsilon_{ox}\approx3.9\varepsilon_0`, 'Silicon dioxide permittivity.'),
-      formula(String.raw`Q_G'+Q_s'+Q_{ox}'=0`, 'Gate and semiconductor charge balance.'),
       formula(
         String.raw`V_{FB}=\frac{\Phi_M-\Phi_S}{q}-\frac{Q_{ox}'}{C_{ox}'}`,
-        'Flat-band voltage with effective fixed oxide charge.',
+        'Flat-band voltage; HW4 uses Qox = 0, so only the work-function term remains.',
         true,
       ),
       formula(
-        String.raw`V_G=V_{FB}+\psi_s-\frac{Q_s'}{C_{ox}'}`,
-        'Gate-voltage partition for p-type substrate sign convention.',
-        true,
+        String.raw`V_G=V_{FB}+V_{ox}+\psi_s`,
+        'Gate bias divides between oxide and semiconductor surface potential.',
       ),
       formula(String.raw`V_{ox}=-Q_s'/C_{ox}'`, 'Oxide drop from semiconductor sheet charge.'),
-      formula(
-        String.raw`|\mathcal E_{ox}|=|Q_s'|/\varepsilon_{ox}`,
-        'Oxide field magnitude from Gauss’s law.',
-      ),
       formula(
         String.raw`E_C(0)-E_C(\infty)=-q\psi_s`,
         'Surface band bending for electrostatic potential ψ_s.',
@@ -1115,24 +1123,35 @@ const laterPages = [
         'Depletion width from Poisson’s equation.',
       ),
       formula(
-        String.raw`\psi_s=qN_AW^2/(2\varepsilon_{Si})`,
-        'Invert width relation in depletion.',
-      ),
-      formula(String.raw`|\mathcal E_s(0)|=qN_AW/\varepsilon_{Si}`, 'Peak silicon surface field.'),
-      formula(
         String.raw`Q_{dep}'=-qN_AW=-\sqrt{2q\varepsilon_{Si}N_A\psi_s}`,
         'Negative fixed-ion charge per area in p-type Si.',
         true,
       ),
+      topic('HW4 P3: N-type MOS and band bending', 'L11–12; ideal oxide'),
+      formula(String.raw`\Phi=E_{\rm vac}-E_F`, 'Work function is vacuum level minus Fermi level.'),
       formula(
-        String.raw`Q_s'\approx Q_{dep}'\quad(V_{FB}<V_G<V_T^{\rm MOS})`,
-        'Before inversion charge matters.',
-      ),
-      formula(
-        String.raw`V_G=V_{FB}+\psi_s+\frac{\sqrt{2q\varepsilon_{Si}N_A\psi_s}}{C_{ox}'}`,
-        'Depletion gate-voltage relation, ignoring inversion charge.',
+        String.raw`\Phi_S=\chi+(E_C-E_F)=\chi+k_BT\ln(N_C/N_D)`,
+        'N-type semiconductor work function; Boltzmann statistics.',
         true,
       ),
+      formula(
+        String.raw`\Phi_S\simeq4.136\,\mathrm{eV},\quad V_{FB}\simeq+1.06\,\mathrm V`,
+        'HW4 values; an energy difference in eV is numerically volts after division by q.',
+        true,
+      ),
+      formula(
+        String.raw`\phi_F=V_T\ln(N_D/n_i),\quad\psi_{s,inv}\simeq-2\phi_F`,
+        'N-type strong inversion; HW4 gives ψs ≈ −0.954 V.',
+        true,
+      ),
+      formula(String.raw`\mathcal E=-d\phi/dx`, 'Electric field is the negative potential gradient.'),
+      formula(
+        String.raw`E_{C,V}(x)=E_{C,V,\rm ref}-q\phi(x)`,
+        'Both band edges move together with electrostatic potential.',
+      ),
+      formula(String.raw`E_{F,M}-E_{F,S}=-qV_G`, 'Gate-to-semiconductor Fermi-level offset.'),
+      formula(String.raw`V_G=V_{FB},\quad\psi_s=V_{ox}=0`, 'Flat-band condition.'),
+      note('N-type Si: accumulation bends both bands down; depletion and inversion bend them up. The Fermi level is flat within each material at equilibrium.'),
     ].join(''),
     right: [
       topic('23. Strong inversion and threshold', 'L12 p14–21'),
@@ -1212,7 +1231,7 @@ const pageMarkup = pages.map(
 );
 const supplementMarkup = laterPages.map(
   (page, index) =>
-    `<section class="page"><header><h1>ECE 121B &nbsp; Cheat sheet supplement</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 9–12 · HW3</span></div></header><div class="columns"><div class="column">${page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 5}/8</span></footer></section>`,
+    `<section class="page"><header><h1>ECE 121B &nbsp; Cheat sheet supplement</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 9–12 · HW3–4</span></div></header><div class="columns"><div class="column">${page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 5}/8</span></footer></section>`,
 );
 const documentStart = `<!doctype html><html lang="en"><head><meta charset="utf-8" />
 <link rel="stylesheet" href="../../node_modules/katex/dist/katex.min.css" />
@@ -1342,10 +1361,10 @@ const eightPageSections = [
   ['Transport & continuity', 'Choose drift or diffusion for current; use continuity for time-dependent density.'],
   ['PN junction electrostatics', 'Find built-in voltage, depletion width, electric field, then junction capacitance.'],
   ['Contacts & diode DC', 'Identify contact type and bias before choosing ideal or nonideal current laws.'],
-  ['Minority charge & recovery', 'Use boundary excess, spatial profile, stored charge, then charge control.'],
+  ['Minority charge & recovery', 'Use boundary excess, spatial profile, stored charge, then charge control and voltage.'],
   ['Small signal & C-V', 'For AC use differential conductance and capacitance; for doping use 1/C² slope.'],
-  ['Sensors, light & energy', 'Select the device: temperature sensor, varactor, photodiode, solar cell, or LED.'],
-  ['MOS capacitor', 'Follow flat band, accumulation, depletion, inversion, and frequency response.'],
+  ['Sensors, light & energy', 'Select the device, then use the illuminated-diode or minority-carrier equation.'],
+  ['MOS capacitor', 'Compare p-type and n-type substrates; follow band bending, charge, and C-V.'],
 ];
 const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   const [title, route] = eightPageSections[index];
@@ -1362,7 +1381,8 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     left = left.slice(0, cvStart) + workedChecks;
     right = cv + right.slice(schottkyStart);
   }
-  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; HW 1-3</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Verify assumptions and units.</span><span>${index + 1}/8</span></footer></section>`;
+  const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
+  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Verify assumptions and units.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const eightPagePdfs = [];
 for (const [index, markup] of eightPageMarkup.entries()) {

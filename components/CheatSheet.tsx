@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'The original foundation plus Lectures 9–12, charge control, MOS formulas, and Homework 3 checks.',
+      'The original foundation plus Lectures 9–12 and Homework 3–4 equations for charge control, photodiodes, and MOS capacitors.',
   },
   {
     id: 'full',

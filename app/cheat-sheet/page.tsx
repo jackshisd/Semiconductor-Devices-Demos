@@ -4,7 +4,7 @@ import Lab from '../../components/Lab';
 export const metadata: Metadata = {
   title: 'Cheat sheets',
   description:
-    'Eight-page, four-page, and short ECE 121B formula sheets for Lectures 1–12 and Homeworks 1–3.',
+    'Eight-page, four-page, and short ECE 121B formula sheets for Lectures 1–12 and Homeworks 1–4.',
 };
 
 export default function CheatSheetPage() {
