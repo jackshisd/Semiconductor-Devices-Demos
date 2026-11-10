@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Section-letter equation labels across Lectures 1–12 and Homeworks 1–4, including charge control, photodiodes, and MOS capacitors.',
+      'Section-letter equation labels and cross-references across Lectures 1–12 and Homeworks 1–4.',
   },
   {
     id: 'full',
