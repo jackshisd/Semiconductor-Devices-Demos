@@ -1260,6 +1260,9 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .formula .math { font-size: 9.7pt; white-space: nowrap; line-height: 1.35; }
 .formula.compact .math { font-size: 8.5pt; }
 .formula .purpose { margin-top: 1px; color: #536570; font-size: 7.4pt; line-height: 1.2; }
+.page.eight .formula { margin: 3px 0 5px; }
+.page.eight .eq-number { color: #176d72; font-weight: 700; white-space: nowrap; margin-right: 3px; }
+.page.eight .case-list .eq-number { font-size: 7pt; }
 .note { margin: 5px 0 7px; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.5pt; line-height: 1.25; }
 .mini-graphs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 5px; margin: 6px 0 3px; }
 .mini-graph { min-width: 0; border: .5px solid #cbdadd; padding: 3px 2px 1px; }
@@ -1366,6 +1369,43 @@ const eightPageSections = [
   ['Sensors, light & energy', 'Select the device, then use the illuminated-diode or minority-carrier equation.'],
   ['MOS capacitor', 'Compare p-type and n-type substrates; follow band bending, charge, and C-V.'],
 ];
+const equationCounts = new Map();
+const equationLabels = new Set();
+let activeEquationSection = 1;
+const equationLetter = (index) => {
+  let letter = '';
+  for (let value = index; value >= 0; value = Math.floor(value / 26) - 1)
+    letter = String.fromCharCode(97 + (value % 26)) + letter;
+  return letter;
+};
+const nextEquationLabel = () => {
+  const index = equationCounts.get(activeEquationSection) ?? 0;
+  equationCounts.set(activeEquationSection, index + 1);
+  const label = `${activeEquationSection}${equationLetter(index)}`;
+  if (equationLabels.has(label)) throw new Error(`Duplicate equation label ${label}.`);
+  equationLabels.add(label);
+  return `<span class="eq-number">(${label})</span>`;
+};
+const numberEquations = (column) =>
+  column.replace(
+    /<div class="topic"><strong>(\d+)\.|<div class="topic"><strong>(?:Continuity: useful limiting cases|HW4 P2: minority-hole continuity)|<div class="purpose">|<div><b>(?:Zero field \/ no drift|Thermal equilibrium|Uniform, steady light):<\/b>/g,
+    (match, section) => {
+      if (section) {
+        activeEquationSection = Number(section);
+        return match;
+      }
+      if (match.includes('Continuity: useful limiting cases')) {
+        activeEquationSection = 4;
+        return match;
+      }
+      if (match.includes('HW4 P2: minority-hole continuity')) {
+        activeEquationSection = 18;
+        return match;
+      }
+      const label = nextEquationLabel();
+      return match === '<div class="purpose">' ? `${match}${label}` : `${match} ${label}`;
+    },
+  );
 const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   const [title, route] = eightPageSections[index];
   let left = page.left;
@@ -1381,9 +1421,17 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     left = left.slice(0, cvStart) + workedChecks;
     right = cv + right.slice(schottkyStart);
   }
+  left = numberEquations(left);
+  right = numberEquations(right);
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Verify assumptions and units.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
+const formulaCount = eightPageMarkup.reduce(
+  (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
+  0,
+);
+if (equationLabels.size !== formulaCount + 3 || eightPageMarkup.some((markup) => /<div class="purpose">(?!<span class="eq-number">)/.test(markup)))
+  throw new Error('Every displayed equation in the eight-page sheet must have a unique label.');
 const eightPagePdfs = [];
 for (const [index, markup] of eightPageMarkup.entries()) {
   const htmlPath = resolve(temp, `ece121b-eight-page-${index + 1}.html`);
