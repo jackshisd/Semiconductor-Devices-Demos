@@ -10,6 +10,8 @@ import { lecture9Explanations } from './slide-explanations/lecture-9.ts';
 import { lecture10Explanations } from './slide-explanations/lecture-10.ts';
 import { lecture11Explanations } from './slide-explanations/lecture-11.ts';
 import { lecture12Explanations } from './slide-explanations/lecture-12.ts';
+import { lecture13Explanations } from './slide-explanations/lecture-13.ts';
+import { lecture14Explanations } from './slide-explanations/lecture-14.ts';
 
 // Title, agenda, acknowledgement, and section-divider pages have no explanation.
 export const nonMaterialSlides: Record<string, number[]> = {
@@ -24,6 +26,8 @@ export const nonMaterialSlides: Record<string, number[]> = {
   'lecture-10': [1, 2, 3, 15],
   'lecture-11': [1, 2, 3, 14],
   'lecture-12': [1, 2, 3, 30],
+  'lecture-13': [1, 2, 3, 30],
+  'lecture-14': [1, 2, 3, 18],
 };
 
 const explanations: Record<string, Record<number, string>> = {
@@ -38,6 +42,8 @@ const explanations: Record<string, Record<number, string>> = {
   'lecture-10': { ...lecture10Explanations },
   'lecture-11': { ...lecture11Explanations },
   'lecture-12': { ...lecture12Explanations },
+  'lecture-13': { ...lecture13Explanations },
+  'lecture-14': { ...lecture14Explanations },
 };
 
 for (const group of duplicateSlideGroups) {

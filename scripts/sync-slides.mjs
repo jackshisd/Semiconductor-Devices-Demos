@@ -18,6 +18,8 @@ const titles = {
   10: 'Lecture 10 · Diode applications and optoelectronics',
   11: 'Lecture 11 · MOS capacitor band diagrams',
   12: 'Lecture 12 · MOS electrostatics and capacitance',
+  13: 'Lecture 13 · MOS C–V and nonideal effects',
+  14: 'Lecture 14 · MOSFET structure and operation',
 };
 mkdirSync('public/pdfjs', { recursive: true });
 cpSync(

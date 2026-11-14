@@ -82,8 +82,16 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'solar-cell-structure': [12],
     'led-structure': [14],
   },
-  'lecture-11': {},
+  'lecture-11': {
+    'mos-work-function': [9, 5, 6, 7, 8, 10, 11],
+    'mos-p-type-bands': [12],
+    'mos-n-type-bands': [13],
+  },
   'lecture-12': {},
+  'lecture-13': {},
+  'lecture-14': {
+    'mos-p-type-bands': [5],
+  },
 };
 
 type SlideRef = readonly [lectureId: string, page: number];

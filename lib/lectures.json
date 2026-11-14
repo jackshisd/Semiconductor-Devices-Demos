@@ -82,5 +82,19 @@
     "file": "/lectures/lecture-12.pdf",
     "pages": 30,
     "sourceFile": "Lecture 12.pdf"
+  },
+  {
+    "id": "lecture-13",
+    "title": "Lecture 13 · MOS C–V and nonideal effects",
+    "file": "/lectures/lecture-13.pdf",
+    "pages": 30,
+    "sourceFile": "Lecture 13.pdf"
+  },
+  {
+    "id": "lecture-14",
+    "title": "Lecture 14 · MOSFET structure and operation",
+    "file": "/lectures/lecture-14.pdf",
+    "pages": 18,
+    "sourceFile": "Lecture 14.pdf"
   }
 ]

@@ -95,6 +95,15 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'solar-cell-ocv': lazy(() => import('./SolarCellOcv')),
   'solar-cell-structure': lazy(() => import('./SolarCellStructure')),
   'led-structure': lazy(() => import('./LedStructure')),
+  'mos-work-function': lazy(() =>
+    import('./MosBandDiagrams').then((m) => ({ default: m.MosWorkFunction })),
+  ),
+  'mos-p-type-bands': lazy(() =>
+    import('./MosBandDiagrams').then((m) => ({ default: m.MosPTypeBands })),
+  ),
+  'mos-n-type-bands': lazy(() =>
+    import('./MosBandDiagrams').then((m) => ({ default: m.MosNTypeBands })),
+  ),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

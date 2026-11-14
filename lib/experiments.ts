@@ -240,6 +240,24 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
+    slug: 'mos-work-function',
+    title: 'MOS work function & flat band',
+    subtitle: 'See how gate work function shifts the flat-band voltage and silicon bands',
+    group: 'MOS capacitors',
+  },
+  {
+    slug: 'mos-p-type-bands',
+    title: 'P-type MOS band diagrams',
+    subtitle: 'Sweep the gate through accumulation, flat band, depletion, and inversion',
+    group: 'MOS capacitors',
+  },
+  {
+    slug: 'mos-n-type-bands',
+    title: 'N-type MOS band diagrams',
+    subtitle: 'Reverse the bias and follow the bands and surface carriers',
+    group: 'MOS capacitors',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
@@ -300,6 +318,7 @@ const groupOrder: string[] = [
   'Carrier transport',
   'Metal contacts',
   'Doping & PN junctions',
+  'MOS capacitors',
   'Reverse breakdown',
 ];
 const fundamentalOrder: string[] = [
