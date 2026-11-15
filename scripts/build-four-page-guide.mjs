@@ -59,6 +59,28 @@ ${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${
 <text x="169" y="10" text-anchor="end" class="legend"><tspan fill="#2672d9">${mobility ? 'e⁻' : 'n-type'}</tspan><tspan fill="#d56138">  ${mobility ? 'h⁺' : 'p-type'}</tspan></text>
 <text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
 };
+const mosCvGraphPair = () => `<div class="mos-cv-graphs">
+<svg viewBox="0 0 440 237" role="img" aria-label="Lecture 13 MOS C-V graphs: p-type low-frequency capacitance returns to oxide capacitance, high-frequency capacitance stays at its minimum, rapid sweeping causes temporary deep depletion; positive fixed oxide charge shifts the C-V curve toward lower gate voltage">
+<text x="7" y="13" class="cv-title">P-type MOS: inversion response</text>
+<text x="7" y="137" class="cv-title">Positive fixed oxide charge: left shift</text>
+<path d="M47 27 V110 H421 M47 142 V211 H421" class="cv-axis"/>
+<text x="6" y="36" class="cv-label">C/Cₒₓ</text><text x="6" y="151" class="cv-label">C/Cₒₓ</text>
+<text x="20" y="39" class="cv-label">1</text><text x="20" y="153" class="cv-label">1</text>
+<text x="412" y="122" class="cv-label">Vɢ</text><text x="412" y="225" class="cv-label">Vɢ</text>
+<line x1="170" y1="27" x2="170" y2="110" class="cv-guide"/><line x1="280" y1="27" x2="280" y2="110" class="cv-guide"/>
+<text x="158" y="122" class="cv-label">VFB</text><text x="274" y="122" class="cv-label">VT</text>
+<path d="M47 35 H170 C216 35 241 88 280 88 C315 88 336 35 421 35" class="cv-low"/>
+<path d="M47 35 H170 C216 35 241 88 280 88 H421" class="cv-high"/>
+<path d="M280 88 C320 91 354 107 421 107" class="cv-deep"/>
+<text x="324" y="42" class="cv-low-text">slow / LF</text>
+<text x="335" y="82" class="cv-high-text">fast AC / HF</text>
+<text x="324" y="104" class="cv-deep-text">fast sweep</text>
+<path d="M47 150 H170 C215 150 243 197 280 197 H421" class="cv-reference"/>
+<path d="M47 150 H133 C178 150 206 197 243 197 H421" class="cv-shift"/>
+<text x="143" y="181" class="cv-shift-text">+QF</text><text x="288" y="192" class="cv-reference-text">ideal</text>
+<path d="M278 164 H245 M245 164 l6 -3 M245 164 l6 3" class="cv-arrow"/>
+<text x="272" y="160" class="cv-label" text-anchor="end">VFB, VT move left</text>
+</svg><div class="cv-caption">Fast-sweep deep depletion is temporary. For n-type Si, reverse the gate-voltage direction. More Nₐ raises Cmin; thinner oxide lowers Cmin/Cox.</div></div>`;
 const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
@@ -993,6 +1015,8 @@ const laterPages = [
         String.raw`\Delta p_n(\infty)=G_L\tau_p`,
         'Far from the junction, uniform generation balances recombination.',
       ),
+      topic('Lecture 13: MOS C–V graph map', 'L13 p7–10, 15–20'),
+      mosCvGraphPair(),
     ].join(''),
   },
   {
@@ -1232,6 +1256,23 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .mini-graph .hole-line { stroke: #d56138; }
 .mini-graph .tick { fill: #536570; font: 7px Arial, sans-serif; }
 .mini-graph .axis-title, .mini-graph .legend { fill: #173548; font: 7px Arial, sans-serif; }
+.mos-cv-graphs { margin: 3px 0 0; border: .5px solid #cbdadd; padding: 3px 5px 4px; }
+.mos-cv-graphs svg { display: block; width: 100%; height: auto; }
+.mos-cv-graphs .cv-title { fill: #176d72; font: bold 11px Georgia, serif; }
+.mos-cv-graphs .cv-label { fill: #526578; font: 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-axis { fill: none; stroke: #526578; stroke-width: 1; }
+.mos-cv-graphs .cv-guide { stroke: #aab9bf; stroke-width: .8; stroke-dasharray: 3 2; }
+.mos-cv-graphs .cv-low, .mos-cv-graphs .cv-high, .mos-cv-graphs .cv-deep, .mos-cv-graphs .cv-reference, .mos-cv-graphs .cv-shift { fill: none; stroke-width: 2; }
+.mos-cv-graphs .cv-low { stroke: #14875f; }
+.mos-cv-graphs .cv-high { stroke: #2672d9; }
+.mos-cv-graphs .cv-deep { stroke: #d56138; stroke-dasharray: 4 2; }
+.mos-cv-graphs .cv-reference { stroke: #80919c; }
+.mos-cv-graphs .cv-shift, .mos-cv-graphs .cv-arrow { stroke: #d56138; }
+.mos-cv-graphs .cv-low-text { fill: #14875f; font: bold 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-high-text { fill: #2672d9; font: bold 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-deep-text, .mos-cv-graphs .cv-shift-text { fill: #b85430; font: bold 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-reference-text { fill: #60717a; font: bold 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-caption { color: #334f5b; font-size: 7pt; line-height: 1.15; }
 .case-list { margin: 6px 0; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.3pt; line-height: 1.3; }
 .case-list div + div { margin-top: 4px; }
 .case-list .katex { font-size: .94em; }
@@ -1339,8 +1380,8 @@ const eightPageSections = [
     'For AC use differential conductance and capacitance; for doping use 1/C² slope.',
   ],
   [
-    'Sensors, light & energy',
-    'Select the device, then use the illuminated-diode or minority-carrier equation.',
+    'Sensors, light & MOS C-V',
+    'Use the device formulas, then compare ideal and shifted MOS C-V curves.',
   ],
   ['MOS capacitor', 'Compare p-type and n-type substrates; follow band bending, charge, and C-V.'],
 ];
@@ -1399,7 +1440,7 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   left = numberEquations(left);
   right = numberEquations(right);
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 6 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
