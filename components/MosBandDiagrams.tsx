@@ -45,14 +45,29 @@ function BandDiagram({
   regime: Regime;
   phiF: number;
 }) {
-  const y = (energy: number) => 222 - energy * 130;
+  const oxideStart = 210;
+  const siliconStart = 280;
+  const siliconEnd = 770;
+  const siliconDecay = 160;
+  const energyScale = 60;
+  const y = (energy: number) => 240 - energy * energyScale;
   const fermi = substrate === 'p' ? -phiF : phiF;
+  const bulkTail = Math.exp(-(siliconEnd - siliconStart) / siliconDecay);
+  const surfaceShift = (x: number) =>
+    (-psi * (Math.exp(-(x - siliconStart) / siliconDecay) - bulkTail)) / (1 - bulkTail);
   const edge = (energy: number) =>
     Array.from({ length: 37 }, (_, i) => {
-      const x = 290 + (480 * i) / 36;
-      const bend = -psi * Math.exp(-(x - 290) / 90);
-      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y(energy + bend).toFixed(1)}`;
+      const x = siliconStart + ((siliconEnd - siliconStart) * i) / 36;
+      return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y(energy + surfaceShift(x)).toFixed(1)}`;
     }).join(' ');
+  // With no oxide or interface charge, D is continuous. On the shared schematic
+  // horizontal scale, the straight oxide bands have 3× the Si tangent slope.
+  const siliconSlopeAtSurface = (-energyScale * psi) / (siliconDecay * (1 - bulkTail));
+  const oxideSlope = (11.7 / 3.9) * siliconSlopeAtSurface;
+  const oxideEdge = (siliconEnergy: number, bandOffset: number) => {
+    const atInterface = y(siliconEnergy - psi) + bandOffset;
+    return `M ${oxideStart} ${(atInterface + oxideSlope * (oxideStart - siliconStart)).toFixed(1)} L ${siliconStart} ${atInterface.toFixed(1)}`;
+  };
   const surfaceCarrier =
     regime === 'Accumulation'
       ? substrate === 'p'
@@ -77,42 +92,34 @@ function BandDiagram({
       }}
     >
       <svg
-        viewBox="0 0 865 460"
+        viewBox="0 0 865 500"
         role="img"
-        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
+        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: straight oxide band edges tilt at three times the silicon surface slope; silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
         style={{ display: 'block', width: '100%', height: 'auto' }}
       >
-        <rect x="44" y="25" width="160" height="395" rx="10" fill="#e8edf4" />
-        <rect x="204" y="25" width="86" height="395" fill="#fff0d5" />
-        <rect x="290" y="25" width="480" height="395" rx="10" fill="#f1f8f5" />
-        <path d="M 204 25 V 420 M 290 25 V 420" stroke="#9aadb8" strokeWidth="2" />
-        <text x="124" y="48" textAnchor="middle" fill="#344255" fontSize="18" fontWeight="700">
+        <rect x="44" y="25" width="166" height="440" rx="10" fill="#e8edf4" />
+        <rect x="210" y="25" width="70" height="440" fill="#fff0d5" />
+        <rect x="280" y="25" width="490" height="440" rx="10" fill="#f1f8f5" />
+        <path d="M 210 25 V 465 M 280 25 V 465" stroke="#9aadb8" strokeWidth="2" />
+        <text x="127" y="48" textAnchor="middle" fill="#344255" fontSize="18" fontWeight="700">
           Gate
         </text>
-        <text x="247" y="48" textAnchor="middle" fill="#855b15" fontSize="17" fontWeight="700">
+        <text x="245" y="48" textAnchor="middle" fill="#855b15" fontSize="17" fontWeight="700">
           SiO₂
         </text>
         <text x="530" y="48" textAnchor="middle" fill="#185c43" fontSize="18" fontWeight="700">
           {substrate}-type Si
         </text>
-        <text x="124" y="210" textAnchor="middle" fill="#344255" fontSize="19" fontWeight="700">
+        <text x="127" y="210" textAnchor="middle" fill="#344255" fontSize="19" fontWeight="700">
           {gate > flat + 0.03 ? '+' : gate < flat - 0.03 ? '−' : '0'} gate
         </text>
-        <text
-          x="247"
-          y="230"
-          textAnchor="middle"
-          fill="#855b15"
-          fontSize="15"
-          transform="rotate(-90 247 230)"
-        >
-          wide-gap barrier
-        </text>
+        <path d={oxideEdge(0.56, -45)} stroke={colors.ec} strokeWidth="3" fill="none" />
+        <path d={oxideEdge(-0.56, 45)} stroke={colors.ev} strokeWidth="3" fill="none" />
         <path d={edge(0.56)} stroke={colors.ec} strokeWidth="4" fill="none" />
         <path d={edge(0)} stroke={colors.ei} strokeWidth="2.5" strokeDasharray="7 5" fill="none" />
         <path d={edge(-0.56)} stroke={colors.ev} strokeWidth="4" fill="none" />
         <path
-          d={`M 290 ${y(fermi)} H 770`}
+          d={`M ${siliconStart} ${y(fermi)} H ${siliconEnd}`}
           stroke={colors.ef}
           strokeWidth="2.5"
           strokeDasharray="12 6"
@@ -135,10 +142,10 @@ function BandDiagram({
         >
           E_F
         </text>
-        <text x="55" y="446" fill="#526578" fontSize="15">
+        <text x="55" y="490" fill="#526578" fontSize="15">
           Energy ↑
         </text>
-        <text x="300" y="446" fill="#526578" fontSize="15">
+        <text x="290" y="490" fill="#526578" fontSize="15">
           Distance into silicon →
         </text>
       </svg>
@@ -149,8 +156,10 @@ function BandDiagram({
           color: 'var(--muted, #526578)',
         }}
       >
-        Surface: {surfaceCarrier}. Silicon bands are on an energy scale; the gate and oxide are a
-        schematic stack. E<sub>F</sub> is flat within silicon at equilibrium.
+        Surface: {surfaceCarrier}. Oxide bands are straight because the ideal oxide has no charge;
+        their slope is about 3× the silicon surface slope when interface charge is absent. Band
+        offsets and horizontal distances are schematic. E<sub>F</sub> is flat within silicon at
+        equilibrium.
       </p>
     </div>
   );
@@ -241,6 +250,10 @@ function MosDemo({
           forms={[
             { label: 'Ideal flat-band voltage', formula: String.raw`V_{FB}=(\Phi_M-\Phi_S)/q` },
             { label: 'Voltage partition', formula: String.raw`V_G=V_{FB}+V_{ox}+\psi_s` },
+            {
+              label: 'Charge-free oxide and interface',
+              formula: String.raw`\frac{d\mathcal E_{ox}}{dx}=0,\quad\varepsilon_{ox}\mathcal E_{ox}=\varepsilon_{Si}\mathcal E_{Si}(0)`,
+            },
             {
               label: 'Silicon band bending',
               formula: String.raw`E_C(0)-E_C(\infty)=E_V(0)-E_V(\infty)=-q\psi_s`,
