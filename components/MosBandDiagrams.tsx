@@ -51,12 +51,14 @@ function BandDiagram({
   const siliconEnd = 770;
   const siliconDecay = 160;
   const energyScale = 60;
-  const y = (energy: number) => 240 - energy * energyScale;
+  const y = (energy: number) => 335 - energy * energyScale;
   const fermi = substrate === 'p' ? -phiF : phiF;
-  // The gate Fermi level shifts by -qVG relative to the semiconductor Fermi level.
-  // The drawn vacuum-to-Fermi spacing is schematic, not a work-function scale.
+  // Draw the vacuum level relative to the silicon bands. The vertical offset is
+  // compressed for legibility, while its changes track the electrostatic drop.
+  const vacuumBulk = 1.25;
   const metalFermiY = y(fermi - gate);
-  const metalVacuumY = y(fermi - gate + 0.45);
+  const metalVacuumY = y(vacuumBulk + flat - gate);
+  const vacuumInterfaceY = y(vacuumBulk - psi);
   const bulkTail = Math.exp(-(siliconEnd - siliconStart) / siliconDecay);
   const surfaceShift = (x: number) =>
     (-psi * (Math.exp(-(x - siliconStart) / siliconDecay) - bulkTail)) / (1 - bulkTail);
@@ -65,10 +67,9 @@ function BandDiagram({
       const x = siliconStart + ((siliconEnd - siliconStart) * i) / 36;
       return `${i === 0 ? 'M' : 'L'} ${x.toFixed(1)} ${y(energy + surfaceShift(x)).toFixed(1)}`;
     }).join(' ');
-  // With no oxide or interface charge, D is continuous. On the shared schematic
-  // horizontal scale, the straight oxide bands have 3× the Si tangent slope.
-  const siliconSlopeAtSurface = (-energyScale * psi) / (siliconDecay * (1 - bulkTail));
-  const oxideSlope = (11.7 / 3.9) * siliconSlopeAtSurface;
+  // A charge-free oxide has a constant field, so its vacuum and band edges are
+  // parallel straight lines between the metal and silicon surface potentials.
+  const oxideSlope = (vacuumInterfaceY - metalVacuumY) / (siliconStart - oxideStart);
   const oxideEdge = (siliconEnergy: number, bandOffset: number) => {
     const atInterface = y(siliconEnergy - psi) + bandOffset;
     return `M ${oxideStart} ${(atInterface + oxideSlope * (oxideStart - siliconStart)).toFixed(1)} L ${siliconStart} ${atInterface.toFixed(1)}`;
@@ -97,28 +98,34 @@ function BandDiagram({
       }}
     >
       <svg
-        viewBox="0 0 865 500"
+        viewBox="0 0 865 610"
         role="img"
-        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: metal Fermi and vacuum levels are labeled; straight oxide band edges tilt at three times the silicon surface slope; silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
+        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: the vacuum level runs from metal through oxide into silicon; straight oxide band edges follow the oxide field; silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
         style={{ display: 'block', width: '100%', height: 'auto' }}
       >
-        <rect x="44" y="25" width="166" height="440" rx="10" fill="#e8edf4" />
-        <rect x="210" y="25" width="70" height="440" fill="#fff0d5" />
-        <rect x="280" y="25" width="490" height="440" rx="10" fill="#f1f8f5" />
-        <path d="M 210 25 V 465 M 280 25 V 465" stroke="#9aadb8" strokeWidth="2" />
-        <text x="127" y="48" textAnchor="middle" fill="#344255" fontSize="18" fontWeight="700">
+        <rect x="44" y="35" width="166" height="525" rx="10" fill="#e8edf4" />
+        <rect x="210" y="35" width="70" height="525" fill="#fff0d5" />
+        <rect x="280" y="35" width="490" height="525" rx="10" fill="#f1f8f5" />
+        <path d="M 210 35 V 560 M 280 35 V 560" stroke="#9aadb8" strokeWidth="2" />
+        <text x="127" y="27" textAnchor="middle" fill="#344255" fontSize="18" fontWeight="700">
           Metal gate
         </text>
-        <text x="245" y="48" textAnchor="middle" fill="#855b15" fontSize="17" fontWeight="700">
+        <text x="245" y="27" textAnchor="middle" fill="#855b15" fontSize="17" fontWeight="700">
           SiO₂
         </text>
-        <text x="530" y="48" textAnchor="middle" fill="#185c43" fontSize="18" fontWeight="700">
+        <text x="530" y="27" textAnchor="middle" fill="#185c43" fontSize="18" fontWeight="700">
           {substrate}-type Si
         </text>
-        <text x="127" y="450" textAnchor="middle" fill="#344255" fontSize="17" fontWeight="700">
+        <text x="127" y="545" textAnchor="middle" fill="#344255" fontSize="17" fontWeight="700">
           {gate > flat + 0.03 ? '+' : gate < flat - 0.03 ? '−' : '0'} gate
         </text>
-        <path d={`M 58 ${metalVacuumY} H 196`} stroke="#6a7786" strokeWidth="2" />
+        <path
+          d={`M 58 ${metalVacuumY} H ${oxideStart} L ${siliconStart} ${vacuumInterfaceY}`}
+          stroke="#6a7786"
+          strokeWidth="2.5"
+          fill="none"
+        />
+        <path d={edge(vacuumBulk)} stroke="#6a7786" strokeWidth="2.5" fill="none" />
         <text x="66" y={metalVacuumY - 7} fill="#526578" fontSize="15" fontWeight="700">
           E_vac
         </text>
@@ -145,6 +152,9 @@ function BandDiagram({
         <text x="785" y={y(0.56) + 5} fill={colors.ec} fontSize="17" fontWeight="700">
           E_C
         </text>
+        <text x="785" y={y(vacuumBulk) + 5} fill="#526578" fontSize="17" fontWeight="700">
+          E_vac
+        </text>
         <text x="785" y={y(0) + 5} fill={colors.ei} fontSize="17" fontWeight="700">
           E_i
         </text>
@@ -160,10 +170,10 @@ function BandDiagram({
         >
           E_F
         </text>
-        <text x="55" y="490" fill="#526578" fontSize="15">
+        <text x="55" y="590" fill="#526578" fontSize="15">
           Energy ↑
         </text>
-        <text x="290" y="490" fill="#526578" fontSize="15">
+        <text x="290" y="590" fill="#526578" fontSize="15">
           Distance into silicon →
         </text>
       </svg>
@@ -174,11 +184,11 @@ function BandDiagram({
           color: 'var(--muted, #526578)',
         }}
       >
-        Surface: {surfaceCarrier}. Oxide bands are straight because the ideal oxide has no charge;
-        their slope is about 3× the silicon surface slope when interface charge is absent. Band
-        offsets and horizontal distances are schematic. The metal gate shows E<sub>FM</sub> and E
-        <sub>vac</sub> (vacuum level); a metal has no semiconductor valence-band edge E<sub>V</sub>.
-        The metal Fermi level moves by −qV<sub>G</sub> relative to the silicon Fermi level.
+        Surface: {surfaceCarrier}. The gray E<sub>vac</sub> line follows the electrostatic potential
+        from metal through oxide into silicon. It is straight in the charge-free oxide and bends
+        with the silicon bands. Energy spacing and horizontal distance are schematic. The metal
+        Fermi level E<sub>FM</sub> moves by −qV<sub>G</sub> relative to silicon E<sub>F</sub>; a
+        metal has no semiconductor valence-band edge E<sub>V</sub>.
       </p>
     </div>
   );
