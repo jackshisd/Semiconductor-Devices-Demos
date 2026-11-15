@@ -653,7 +653,10 @@ const pages = [
       note(
         'Avalanche: impact ionization, usually wider depletion region. Zener: tunneling through very narrow, heavily doped depletion region.',
       ),
-      topic('MOS capacitor band bending', 'L11 p12; L12 p8, 18; p-type Si: below flat band / above threshold'),
+      topic(
+        'MOS capacitor band bending',
+        'L11 p12; L12 p8, 18; p-type Si: below flat band / above threshold',
+      ),
       `<div class="mini-band-diagrams">${mosBandDiagram(false)}${mosBandDiagram(true)}</div>`,
     ].join(''),
   },
@@ -745,7 +748,10 @@ const laterPages = [
         'General constant-current solution; set the initial charge at t₀.',
         true,
       ),
-      formula(String.raw`Q(0)=Q_{\rm ss}=I_F\tau_p`, 'HW4 P1: initial charge after steady forward current.'),
+      formula(
+        String.raw`Q(0)=Q_{\rm ss}=I_F\tau_p`,
+        'HW4 P1: initial charge after steady forward current.',
+      ),
       formula(
         String.raw`\frac{dQ}{dt}=-I_R-\frac{Q}{\tau_p}`,
         'Reverse current extracts stored charge during the storage interval.',
@@ -765,10 +771,21 @@ const laterPages = [
         'Use only when Q(t₀) is negligible.',
       ),
       topic('Stored charge → diode voltage', 'L9 p16–23; quasi-static'),
-      formula(String.raw`Q_0=qAp_{n0}L_p=\tau_pI_S`, 'One-sided saturation current I_S; Q₀ is not initial excess charge.'),
-      formula(String.raw`Q=Q_0(e^{v_a/V_T}-1)`, 'Boundary injection sets excess charge in a long n base.'),
-      formula(String.raw`v_a=V_T\ln\!\left(1+\frac{Q}{Q_0}\right)`, 'Convert stored excess charge to voltage.'),
-      xref('HW4 P1 voltage: combine turn-on charge (13g), charge scale (13h), and voltage conversion (13j); t₀ = 2 μs.'),
+      formula(
+        String.raw`Q_0=qAp_{n0}L_p=\tau_pI_S`,
+        'One-sided saturation current I_S; Q₀ is not initial excess charge.',
+      ),
+      formula(
+        String.raw`Q=Q_0(e^{v_a/V_T}-1)`,
+        'Boundary injection sets excess charge in a long n base.',
+      ),
+      formula(
+        String.raw`v_a=V_T\ln\!\left(1+\frac{Q}{Q_0}\right)`,
+        'Convert stored excess charge to voltage.',
+      ),
+      xref(
+        'HW4 P1 voltage: combine turn-on charge (13g), charge scale (13h), and voltage conversion (13j); t₀ = 2 μs.',
+      ),
       note(
         'Use this charge-to-voltage step only while the long-base, low-injection, quasi-static model applies. It does not describe the entire turn-off waveform after storage ends.',
       ),
@@ -807,7 +824,9 @@ const laterPages = [
         'HW3 P5: the supplied 1 μs / 2.95 × 10⁵ Ω quotient is about 3.4 pF, not 3.9 pF; diffusion capacitance dominates the ~0.06 pF junction term.',
       ),
       topic('15. PN and Schottky depletion C–V', 'L9 p10–14; HW3 P3, P5'),
-      xref('Two-sided width (6e), ionized charge (6j), junction C (7a), and C–V line, slope, and doping (7c), (7d), (7e).'),
+      xref(
+        'Two-sided width (6e), ionized charge (6j), junction C (7a), and C–V line, slope, and doping (7c), (7d), (7e).',
+      ),
       formula(
         String.raw`W\simeq\sqrt{\frac{2\varepsilon_s(V_{bi}-V_A)}{qN_{\rm light}}}`,
         'One-sided abrupt depletion width; forward-bias convention.',
@@ -830,7 +849,9 @@ const laterPages = [
         'HW3 checks: P5 gives V_bi ≈ 0.84 V, W(0.6 V) ≈ 0.18 μm, C_J ≈ 0.06 pF, C_D ≈ 3.4 pF. P1 prints an extra 1/2 in peak field and uses N_D with x_p² in potential.',
       ),
       topic('Schottky contact: interpret the C–V line', 'HW3 P3; L5 p27–39'),
-      xref('Use barriers (8a), band bending (8b), and bulk Fermi offset (8c). Recover the barrier by combining (8b) and (8c).'),
+      xref(
+        'Use barriers (8a), band bending (8b), and bulk Fermi offset (8c). Recover the barrier by combining (8b) and (8c).',
+      ),
       note(
         'For equal contact areas, the steeper 1/C² slope has lower N_D. Different doping shifts the bulk Fermi offset, so intercepts alone do not give an exact metal work-function difference.',
       ),
@@ -911,7 +932,10 @@ const laterPages = [
         'Uniform-generation collection estimate; sign opposes diode current.',
         true,
       ),
-      formula(String.raw`I_{\rm light}=I_S(e^{V_A/V_T}-1)-I_{\rm ph}`, 'Photocurrent opposes dark current.'),
+      formula(
+        String.raw`I_{\rm light}=I_S(e^{V_A/V_T}-1)-I_{\rm ph}`,
+        'Photocurrent opposes dark current.',
+      ),
       note(
         'Photocarriers formed in depletion are field swept. In neutral regions, minority carriers generally need to diffuse to the junction before recombining.',
       ),
@@ -923,7 +947,10 @@ const laterPages = [
         String.raw`V_{OC}=V_T\ln\!\left(1+\frac{I_{\rm ph}}{I_0}\right)`,
         'At I = 0, forward diode current balances photocurrent.',
       ),
-      formula(String.raw`I(0)=-I_{\rm ph},\quad I_{SC}=I_{\rm ph}`, 'Signed terminal current and short-circuit magnitude.'),
+      formula(
+        String.raw`I(0)=-I_{\rm ph},\quad I_{SC}=I_{\rm ph}`,
+        'Signed terminal current and short-circuit magnitude.',
+      ),
       formula(String.raw`P_{\rm out}=-VI(V)`, 'Electrical power in the generating quadrant.'),
       formula(
         String.raw`FF=\frac{P_{\max}}{V_{OC}I_{SC}}`,
@@ -941,7 +968,9 @@ const laterPages = [
         String.raw`E_\gamma\approx E_g`,
         'Direct-gap radiative recombination sets photon energy.',
       ),
-      xref('LED wavelength: combine band-gap photon energy (20a) with the wavelength conversion (18b).'),
+      xref(
+        'LED wavelength: combine band-gap photon energy (20a) with the wavelength conversion (18b).',
+      ),
       formula(
         String.raw`R_\gamma\approx\eta_{\rm rad}\frac{I}{q}`,
         'Internal photon-generation rate from radiative fraction.',
@@ -960,7 +989,10 @@ const laterPages = [
         true,
       ),
       xref('Set the time derivative to zero for the steady-state minority-hole equation (4i).'),
-      formula(String.raw`\Delta p_n(\infty)=G_L\tau_p`, 'Far from the junction, uniform generation balances recombination.'),
+      formula(
+        String.raw`\Delta p_n(\infty)=G_L\tau_p`,
+        'Far from the junction, uniform generation balances recombination.',
+      ),
     ].join(''),
   },
   {
@@ -973,6 +1005,11 @@ const laterPages = [
       ),
       formula(String.raw`\varepsilon_{ox}\approx3.9\varepsilon_0`, 'Silicon dioxide permittivity.'),
       formula(
+        String.raw`\Delta E_C\approx3.1\,\mathrm{eV},\quad\Delta E_V\approx4.8\,\mathrm{eV}`,
+        'Si/SiO₂ band offsets for drawing MOS band diagrams.',
+        true,
+      ),
+      formula(
         String.raw`V_{FB}=\frac{\Phi_M-\Phi_S}{q}-\frac{Q_{ox}'}{C_{ox}'}`,
         'Flat-band voltage; HW4 uses Qox = 0, so only the work-function term remains.',
         true,
@@ -982,6 +1019,11 @@ const laterPages = [
         'Gate bias divides between oxide and semiconductor surface potential.',
       ),
       formula(String.raw`V_{ox}=-Q_s'/C_{ox}'`, 'Oxide drop from semiconductor sheet charge.'),
+      formula(
+        String.raw`Q_G'=-Q_s',\qquad\varepsilon_{ox}\mathcal E_{ox}=\varepsilon_{Si}\mathcal E_{Si}(0)`,
+        'Gate charge balances silicon charge; displacement is continuous at an ideal interface.',
+        true,
+      ),
       formula(
         String.raw`E_C(0)-E_C(\infty)=-q\psi_s`,
         'Surface band bending for electrostatic potential ψ_s.',
@@ -1007,14 +1049,18 @@ const laterPages = [
         'Negative fixed-ion charge per area in p-type Si.',
         true,
       ),
+      formula(
+        String.raw`Q_s'=Q_{acc}'+Q_{dep}'+Q_{inv}'`,
+        'Add mobile holes, exposed acceptors, and inversion electrons.',
+      ),
+      formula(
+        String.raw`Q_{acc}'\approx-C_{ox}'(V_G-V_{FB})`,
+        'Strong accumulation: negative gate bias gives positive hole charge.',
+      ),
       topic('HW4 P3: N-type MOS and band bending', 'L11–12; ideal oxide'),
       xref('For the bulk n-type band-edge offset use (8c); field from potential is (5h).'),
       formula(String.raw`\Phi=E_{\rm vac}-E_F`, 'Work function is vacuum level minus Fermi level.'),
-      formula(
-        String.raw`\Phi_S=\chi+(E_C-E_F)`,
-        'N-type semiconductor work function.',
-        true,
-      ),
+      formula(String.raw`\Phi_S=\chi+(E_C-E_F)`, 'N-type semiconductor work function.', true),
       formula(
         String.raw`\Phi_S\simeq4.136\,\mathrm{eV},\quad V_{FB}\simeq+1.06\,\mathrm V`,
         'HW4 values; an energy difference in eV is numerically volts after division by q.',
@@ -1026,14 +1072,37 @@ const laterPages = [
         true,
       ),
       formula(
+        String.raw`V_{T,n}^{\rm MOS}=V_{FB}-2\phi_F-\frac{\sqrt{4q\varepsilon_{Si}N_D\phi_F}}{C_{ox}'}`,
+        'N-type threshold with positive φF magnitude; gate bias is negative.',
+        true,
+      ),
+      formula(
         String.raw`E_{C,V}(x)=E_{C,V,\rm ref}-q\phi(x)`,
         'Both band edges move together with electrostatic potential.',
       ),
       formula(String.raw`E_{F,M}-E_{F,S}=-qV_G`, 'Gate-to-semiconductor Fermi-level offset.'),
       formula(String.raw`V_G=V_{FB},\quad\psi_s=V_{ox}=0`, 'Flat-band condition.'),
-      note('N-type Si: accumulation bends both bands down; depletion and inversion bend them up. The Fermi level is flat within each material at equilibrium.'),
+      note(
+        'N-type Si: accumulation bends both bands down; depletion and inversion bend them up. The Fermi level is flat within each material at equilibrium.',
+      ),
     ].join(''),
     right: [
+      topic('Depletion versus gate voltage', 'L12 p12–13, 20; VFB < VG < VT'),
+      formula(
+        String.raw`V_G-V_{FB}=\psi_s+\frac{\sqrt{2q\varepsilon_{Si}N_A\psi_s}}{C_{ox}'}`,
+        'Gate bias divides between silicon bending and oxide drop.',
+        true,
+      ),
+      formula(
+        String.raw`\psi_s=\frac{qN_A\varepsilon_{Si}}{2C_{ox}'^{\,2}}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}(V_G-V_{FB})}{qN_A\varepsilon_{Si}}}-1\right]^2`,
+        'Surface potential directly from gate voltage in depletion.',
+        true,
+      ),
+      formula(
+        String.raw`W=\frac{\varepsilon_{Si}}{C_{ox}'}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}(V_G-V_{FB})}{qN_A\varepsilon_{Si}}}-1\right]`,
+        'Depletion width directly from gate voltage.',
+        true,
+      ),
       topic('23. Strong inversion and threshold', 'L12 p14–21'),
       formula(
         String.raw`\phi_F=V_T\ln(N_A/n_i)`,
@@ -1066,11 +1135,15 @@ const laterPages = [
         'Here V_T without a MOS superscript is thermal voltage; V_T^MOS means transistor threshold. Added gate bias above threshold mainly increases inversion charge.',
       ),
       topic('24. MOS capacitance versus frequency', 'L12 p22–29'),
-      xref('For depletion capacitance per area use (7a) with A = 1; AC current uses (14g).'),
+      xref('For measured AC current use (14g).'),
       formula(String.raw`C'=\left|dQ_G'/dV_G\right|`, 'Small-signal gate-charge slope.'),
       formula(
         String.raw`\frac1{C'}=\frac1{C_{ox}'}+\frac1{C_{dep}'}`,
         'Oxide and depletion regions act in series.',
+      ),
+      formula(
+        String.raw`C_{dep}'=\frac{\varepsilon_{Si}}{W}`,
+        'Depleted silicon capacitance per area.',
       ),
       formula(
         String.raw`C'_{min}=\left(\frac1{C_{ox}'}+\frac{W_T}{\varepsilon_{Si}}\right)^{-1}`,
@@ -1089,6 +1162,10 @@ const laterPages = [
       formula(
         String.raw`C'_{LF,inv},\ C'_{acc}\to C_{ox}'`,
         'Minority carriers follow low-frequency inversion; accumulation charge sits near oxide.',
+      ),
+      formula(
+        String.raw`t_{inv}\sim\frac{2N_A}{n_i}\tau_0`,
+        'Illustrative inversion-charge buildup time; τ₀ is surface minority-carrier lifetime.',
       ),
       note(
         'For n-type Si reverse the gate-voltage polarities and majority/minority carriers. Low- versus high-frequency inversion depends on electron or hole supply, not just DC bias.',
@@ -1133,6 +1210,13 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .formula.compact .math { font-size: 8.5pt; }
 .formula .purpose { margin-top: 1px; color: #536570; font-size: 7.4pt; line-height: 1.2; }
 .page.eight .formula { margin: 3px 0 5px; }
+.page.eight.mos .formula { margin: 2px 0 3px; }
+.page.eight.mos .formula .math { font-size: 9pt; line-height: 1.2; }
+.page.eight.mos .formula.compact .math { font-size: 8.1pt; }
+.page.eight.mos .formula .purpose { font-size: 7pt; line-height: 1.1; }
+.page.eight.mos .topic { margin: 4px 0 2px; padding-bottom: 2px; }
+.page.eight.mos .note { margin: 3px 0 5px; padding: 4px 6px; font-size: 7.1pt; line-height: 1.15; }
+.page.eight.mos .xref { margin: 1px 0 3px; font-size: 7pt; }
 .page.eight .eq-number { color: #176d72; font-weight: 700; white-space: nowrap; margin-right: 3px; }
 .page.eight .case-list .eq-number { font-size: 7pt; }
 .page.eight .xref { margin: 2px 0 5px; color: #176d72; font-size: 7.3pt; line-height: 1.2; }
@@ -1230,13 +1314,34 @@ copyFileSync(shortOriginal, resolve(publicGuides, 'ece121b-short-cheat-sheet.pdf
 copyFileSync(shortOriginal, resolve(output, 'ece121b-short-cheat-sheet.pdf'));
 
 const eightPageSections = [
-  ['Carrier statistics & doping', 'Start with equilibrium, occupation, carrier densities, then charge neutrality.'],
-  ['Transport & continuity', 'Choose drift or diffusion for current; use continuity for time-dependent density.'],
-  ['PN junction electrostatics', 'Find built-in voltage, depletion width, electric field, then junction capacitance.'],
-  ['Contacts & band diagrams', 'Compare Schottky, PN, and p-type MOS bands before choosing a current law.'],
-  ['Minority charge & recovery', 'Use boundary excess, spatial profile, stored charge, then charge control and voltage.'],
-  ['Small signal & C-V', 'For AC use differential conductance and capacitance; for doping use 1/C² slope.'],
-  ['Sensors, light & energy', 'Select the device, then use the illuminated-diode or minority-carrier equation.'],
+  [
+    'Carrier statistics & doping',
+    'Start with equilibrium, occupation, carrier densities, then charge neutrality.',
+  ],
+  [
+    'Transport & continuity',
+    'Choose drift or diffusion for current; use continuity for time-dependent density.',
+  ],
+  [
+    'PN junction electrostatics',
+    'Find built-in voltage, depletion width, electric field, then junction capacitance.',
+  ],
+  [
+    'Contacts & band diagrams',
+    'Compare Schottky, PN, and p-type MOS bands before choosing a current law.',
+  ],
+  [
+    'Minority charge & recovery',
+    'Use boundary excess, spatial profile, stored charge, then charge control and voltage.',
+  ],
+  [
+    'Small signal & C-V',
+    'For AC use differential conductance and capacitance; for doping use 1/C² slope.',
+  ],
+  [
+    'Sensors, light & energy',
+    'Select the device, then use the illuminated-diode or minority-carrier equation.',
+  ],
   ['MOS capacitor', 'Compare p-type and n-type substrates; follow band bending, charge, and C-V.'],
 ];
 const equationCounts = new Map();
@@ -1294,13 +1399,16 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   left = numberEquations(left);
   right = numberEquations(right);
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-12 &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
   0,
 );
-if (equationLabels.size !== formulaCount + 3 || eightPageMarkup.some((markup) => /<div class="purpose">(?!<span class="eq-number">)/.test(markup)))
+if (
+  equationLabels.size !== formulaCount + 3 ||
+  eightPageMarkup.some((markup) => /<div class="purpose">(?!<span class="eq-number">)/.test(markup))
+)
   throw new Error('Every displayed equation in the eight-page sheet must have a unique label.');
 const citedEquations = eightPageMarkup.flatMap((markup) =>
   [...markup.matchAll(/<div class="xref">([\s\S]*?)<\/div>/g)].flatMap(([, body]) =>
