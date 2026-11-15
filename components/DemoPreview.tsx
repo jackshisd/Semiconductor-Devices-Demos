@@ -63,6 +63,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'solar-cell-structure': 'carriers',
   'led-structure': 'bands',
   'mos-band-diagrams': 'bands',
+  'mos-charge-cv': 'capacitance',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

@@ -97,6 +97,7 @@ const demos: Record<ExperimentSlug, ComponentType<{ initialMos?: MosInitial }>> 
   'solar-cell-structure': lazy(() => import('./SolarCellStructure')),
   'led-structure': lazy(() => import('./LedStructure')),
   'mos-band-diagrams': lazy(() => import('./MosBandDiagrams')),
+  'mos-charge-cv': lazy(() => import('./MosChargeCv')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

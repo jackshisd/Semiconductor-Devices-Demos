@@ -246,6 +246,13 @@ const catalog = [
     group: 'MOS capacitors',
   },
   {
+    slug: 'mos-charge-cv',
+    title: 'MOS charge density and C–V',
+    subtitle:
+      'Connect accumulated, depleted, and inverted silicon charge to low- and high-frequency capacitance',
+    group: 'MOS capacitors',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
