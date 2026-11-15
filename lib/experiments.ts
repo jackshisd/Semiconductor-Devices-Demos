@@ -249,7 +249,7 @@ const catalog = [
     slug: 'mos-charge-cv',
     title: 'MOS charge density and C–V',
     subtitle:
-      'Connect accumulated, depleted, and inverted silicon charge to low- and high-frequency capacitance',
+      'Watch carriers respond as gate voltage and AC probe frequency shape the measured C–V curve',
     group: 'MOS capacitors',
   },
   {

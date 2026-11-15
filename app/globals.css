@@ -3617,6 +3617,51 @@ main:focus {
   color: #4e6874;
   margin: 0 0 12px;
 }
+.mos-cv-scene {
+  margin: 0 0 16px;
+  padding: 12px;
+  border: 1px solid var(--line, #d8e2e8);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+}
+.mos-cv-playback {
+  margin: 4px 0 12px;
+}
+.mos-cv-scene-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 6px 14px;
+  margin-bottom: 6px;
+  color: #21475a;
+  font-size: 14px;
+}
+.mos-cv-scene-heading span {
+  color: #617985;
+  font-size: 12px;
+}
+.mos-cv-scene svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.mos-cv-region-label {
+  fill: #294b59;
+  font-size: 15px;
+  font-weight: 700;
+}
+.mos-cv-region-caption,
+.mos-cv-legend {
+  fill: #526b78;
+  font-size: 12px;
+}
+.mos-cv-scene p {
+  margin: 5px 2px 0;
+  color: #526b78;
+  font-size: 12px;
+  line-height: 1.45;
+}
 .scattering-scene svg {
   display: block;
   width: 100%;

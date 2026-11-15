@@ -13,6 +13,25 @@ export type MosCvParams = {
   flatBand: number;
 };
 
+// Illustrative minority-carrier response. A measured MOS capacitor also has
+// loss and phase lag, which this scalar teaching model does not represent.
+export const minorityResponseFrequency = 1e3;
+
+export function minorityResponse(frequencyHz: number) {
+  if (!Number.isFinite(frequencyHz) || frequencyHz < 0)
+    throw new RangeError('Probe frequency must be a finite nonnegative number.');
+  const ratio = frequencyHz / minorityResponseFrequency;
+  return 1 / (1 + ratio * ratio);
+}
+
+export function measuredMosCapacitance(
+  lowFrequency: number,
+  highFrequency: number,
+  frequencyHz: number,
+) {
+  return highFrequency + (lowFrequency - highFrequency) * minorityResponse(frequencyHz);
+}
+
 function chargeAtPotential(surfacePotential: number, acceptors: number) {
   const u = surfacePotential / thermalVoltage;
   const ratio = (intrinsicDensity / acceptors) ** 2;
