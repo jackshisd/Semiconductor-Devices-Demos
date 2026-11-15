@@ -64,6 +64,7 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'led-structure': 'bands',
   'mos-band-diagrams': 'bands',
   'mos-charge-cv': 'capacitance',
+  'mos-surface-width': 'bending',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',

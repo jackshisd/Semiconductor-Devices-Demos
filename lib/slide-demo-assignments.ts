@@ -86,7 +86,8 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'mos-band-diagrams': [9, 5, 6, 7, 8, 10, 11, 12, 13],
   },
   'lecture-12': {
-    'mos-charge-cv': [6, 7, 9, 11, 12, 15, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+    'mos-charge-cv': [6, 7, 9, 11, 12, 15, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29],
+    'mos-surface-width': [20],
   },
   'lecture-13': {},
   'lecture-14': {

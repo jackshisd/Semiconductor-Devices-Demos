@@ -253,6 +253,12 @@ const catalog = [
     group: 'MOS capacitors',
   },
   {
+    slug: 'mos-surface-width',
+    title: 'MOS surface potential and depletion width',
+    subtitle: 'See φs and W rise with gate voltage, then level off in inversion',
+    group: 'MOS capacitors',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
