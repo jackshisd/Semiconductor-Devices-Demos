@@ -845,7 +845,7 @@ const laterPages = [
       note(
         'HW3 P5: the supplied 1 μs / 2.95 × 10⁵ Ω quotient is about 3.4 pF, not 3.9 pF; diffusion capacitance dominates the ~0.06 pF junction term.',
       ),
-      topic('15. PN and Schottky depletion C–V', 'L9 p10–14; HW3 P3, P5'),
+      topic('15. C–V extraction: junctions and MOS', 'L9 p10–14; L12–13; HW3 P3, P5'),
       xref(
         'Two-sided width (6e), ionized charge (6j), junction C (7a), and C–V line, slope, and doping (7c), (7d), (7e).',
       ),
@@ -892,6 +892,45 @@ const laterPages = [
       ),
       note(
         'Track A in cm², ε_s in F/cm, N in cm⁻³ and W in cm. An inverse-square C–V intercept is an extrapolation, not a forward-bias measurement.',
+      ),
+      topic('MOS C–V: read the measured curve', 'L12 p25–29; L13 p7–13, 17'),
+      formula(
+        String.raw`C_{\max}\simeq C_{ox},\qquad t_{ox}\simeq\frac{\varepsilon_{ox}A}{C_{\max}}`,
+        'Accumulation plateau gives oxide capacitance and thickness.',
+        true,
+      ),
+      formula(
+        String.raw`V_G(t)=V_{DC}+v_{ac}\sin(2\pi ft)`,
+        'A DC sweep selects the operating point; a small AC probe measures C.',
+      ),
+      formula(
+        String.raw`C_{dep}(W_{\max})=\frac{C_{ox}C_{\min}}{C_{ox}-C_{\min}}`,
+        'Invert the high-frequency series minimum to get depletion capacitance.',
+        true,
+      ),
+      formula(
+        String.raw`W_{\max}=\frac{\varepsilon_{Si}A}{C_{dep}(W_{\max})}`,
+        'Then infer maximum depletion width; use (23e) to solve for doping.',
+      ),
+      note(
+        'The high-low-high shape alone does not identify NMOS or PMOS. P-type Si inverts at positive V_G; n-type Si inverts at negative V_G. Use curve orientation and device clues. More doping narrows W_max and raises C_min/C_ox.',
+      ),
+      topic('Polysilicon gate depletion', 'L13 p22–29'),
+      formula(
+        String.raw`C_{poly}=\frac{\varepsilon_{Si}A}{W_{poly}},\quad W_{poly}=\frac{\varepsilon_{ox}\mathcal E_{ox}}{qN_{poly}}`,
+        'A depleted poly-Si gate contributes its own series capacitance.',
+        true,
+      ),
+      formula(
+        String.raw`\frac1C=\frac1{C_{ox}}+\frac1{C_{dep}}+\frac1{C_{poly}}`,
+        'Include only the regions that deplete under the chosen bias.',
+      ),
+      formula(
+        String.raw`t_{\rm eff}\simeq t_{ox}+\frac{W_{poly}+T_{inv}}{3}`,
+        'Effective oxide thickness includes poly depletion and inversion-layer depth.',
+      ),
+      note(
+        'A high-bias rolloff can suggest poly-gate depletion, but it is not unique proof. Use flat-band and threshold expressions (21d), (22k), and (23g); solve for doping iteratively because φ_F depends on N_sub.',
       ),
     ].join(''),
   },
@@ -1427,7 +1466,7 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   let left = page.left;
   let right = page.right;
   if (index === 5) {
-    const cvMarker = '<div class="topic"><strong>15. PN and Schottky depletion';
+    const cvMarker = '<div class="topic"><strong>15. C–V extraction: junctions and MOS';
     const schottkyMarker = '<div class="topic"><strong>Schottky contact:';
     const cvStart = left.indexOf(cvMarker);
     const schottkyStart = right.indexOf(schottkyMarker);
@@ -1440,7 +1479,7 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   left = numberEquations(left);
   right = numberEquations(right);
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 6 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
