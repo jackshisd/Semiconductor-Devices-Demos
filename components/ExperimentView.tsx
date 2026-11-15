@@ -3,12 +3,13 @@ import { Component, Suspense, lazy, type ReactNode, type ComponentType } from 'r
 import CourseNotes from './CourseNotes';
 import { InlineControlsContext } from './DemoPresentation';
 import type { ExperimentSlug } from '../lib/experiments';
+import type { MosInitial } from '../lib/slide-demo-assignments';
 const loading = (
   <div className="experiment-loading" role="status">
     Preparing experiment…
   </div>
 );
-const demos: Record<ExperimentSlug, ComponentType> = {
+const demos: Record<ExperimentSlug, ComponentType<{ initialMos?: MosInitial }>> = {
   'matthiessen-rule': lazy(() => import('./MatthiessenDemo')),
   'screening-effect': lazy(() => import('./ScreeningEffect')),
   'thermal-drift': lazy(() =>
@@ -95,15 +96,7 @@ const demos: Record<ExperimentSlug, ComponentType> = {
   'solar-cell-ocv': lazy(() => import('./SolarCellOcv')),
   'solar-cell-structure': lazy(() => import('./SolarCellStructure')),
   'led-structure': lazy(() => import('./LedStructure')),
-  'mos-work-function': lazy(() =>
-    import('./MosBandDiagrams').then((m) => ({ default: m.MosWorkFunction })),
-  ),
-  'mos-p-type-bands': lazy(() =>
-    import('./MosBandDiagrams').then((m) => ({ default: m.MosPTypeBands })),
-  ),
-  'mos-n-type-bands': lazy(() =>
-    import('./MosBandDiagrams').then((m) => ({ default: m.MosNTypeBands })),
-  ),
+  'mos-band-diagrams': lazy(() => import('./MosBandDiagrams')),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),
@@ -156,9 +149,11 @@ class ExperimentBoundary extends Component<
 export default function ExperimentView({
   slug,
   embedded = false,
+  initialMos,
 }: {
   slug: ExperimentSlug;
   embedded?: boolean;
+  initialMos?: MosInitial;
 }) {
   const Demo = demos[slug];
   return (
@@ -166,7 +161,7 @@ export default function ExperimentView({
       <ExperimentBoundary key={slug}>
         <Suspense fallback={loading}>
           <div className="experiment-content" data-experiment={slug}>
-            <Demo />
+            <Demo initialMos={slug === 'mos-band-diagrams' ? initialMos : undefined} />
             <CourseNotes slug={slug} />
           </div>
         </Suspense>

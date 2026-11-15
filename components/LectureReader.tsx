@@ -7,7 +7,12 @@ import { ArrowLeft, ArrowRight, Download, ExternalLink, List, Minus, Plus } from
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist';
 import lectures from '../lib/lectures.json';
 import { experiments, type ExperimentSlug } from '../lib/experiments';
-import { demoForSlide, slideForDemo, lectureDemos } from '../lib/slide-demo-assignments';
+import {
+  demoForSlide,
+  slideForDemo,
+  lectureDemos,
+  mosInitialForSlide,
+} from '../lib/slide-demo-assignments';
 import { explanationForSlide } from '../lib/slide-explanations';
 import ExperimentView from './ExperimentView';
 import PhotocarrierMotionAnimation from './PhotocarrierMotionAnimation';
@@ -599,9 +604,14 @@ export default function LectureReader({ lecture }: { lecture: Lecture }) {
                 </div>
                 <ControlsHostContext.Provider value={controlsHost}>
                   <ExperimentView
-                    key={`${lecture.id}-${assignedDemo}`}
+                    key={`${lecture.id}-${assignedDemo}${assignedDemo === 'mos-band-diagrams' ? `-${slide}` : ''}`}
                     slug={assignedDemo}
                     embedded
+                    initialMos={
+                      assignedDemo === 'mos-band-diagrams'
+                        ? mosInitialForSlide(lecture.id, slide)
+                        : undefined
+                    }
                   />
                 </ControlsHostContext.Provider>
               </div>

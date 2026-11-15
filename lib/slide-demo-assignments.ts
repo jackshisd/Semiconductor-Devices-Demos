@@ -83,14 +83,12 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'led-structure': [14],
   },
   'lecture-11': {
-    'mos-work-function': [9, 5, 6, 7, 8, 10, 11],
-    'mos-p-type-bands': [12],
-    'mos-n-type-bands': [13],
+    'mos-band-diagrams': [9, 5, 6, 7, 8, 10, 11, 12, 13],
   },
   'lecture-12': {},
   'lecture-13': {},
   'lecture-14': {
-    'mos-p-type-bands': [5],
+    'mos-band-diagrams': [5],
   },
 };
 
@@ -230,4 +228,17 @@ export function demoForSlide(lectureId: string, slide: number): ExperimentSlug |
 
 export function slideForDemo(lectureId: string, slug: ExperimentSlug): number | undefined {
   return lectureAssociations[lectureId]?.[slug]?.[0];
+}
+
+export type MosInitial = { substrate: 'p' | 'n'; gate: number; flat: number };
+
+export function mosInitialForSlide(lectureId: string, slide: number): MosInitial {
+  if (lectureId === 'lecture-11') {
+    if (slide === 13) return { substrate: 'n', gate: -0.65, flat: 0 };
+    if (slide === 5) return { substrate: 'p', gate: 0, flat: 0 };
+    if (slide === 10) return { substrate: 'p', gate: 0.4, flat: 0.4 };
+    if (slide === 12) return { substrate: 'p', gate: 0.65, flat: 0 };
+  }
+  if (lectureId === 'lecture-14') return { substrate: 'p', gate: 0.65, flat: 0 };
+  return { substrate: 'p', gate: 0, flat: 0.4 };
 }

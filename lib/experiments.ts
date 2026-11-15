@@ -240,21 +240,9 @@ const catalog = [
     group: 'Doping & PN junctions',
   },
   {
-    slug: 'mos-work-function',
-    title: 'MOS work function & flat band',
-    subtitle: 'See how gate work function shifts the flat-band voltage and silicon bands',
-    group: 'MOS capacitors',
-  },
-  {
-    slug: 'mos-p-type-bands',
-    title: 'P-type MOS band diagrams',
-    subtitle: 'Sweep the gate through accumulation, flat band, depletion, and inversion',
-    group: 'MOS capacitors',
-  },
-  {
-    slug: 'mos-n-type-bands',
-    title: 'N-type MOS band diagrams',
-    subtitle: 'Reverse the bias and follow the bands and surface carriers',
+    slug: 'mos-band-diagrams',
+    title: 'MOS capacitor band diagrams',
+    subtitle: 'Compare p-type and n-type accumulation, depletion, inversion, and flat band',
     group: 'MOS capacitors',
   },
   {
@@ -340,3 +328,10 @@ export const experiments = [...catalog].sort(
       : 0),
 );
 export type ExperimentSlug = (typeof experiments)[number]['slug'];
+
+// Keep previously shared URLs usable without showing duplicate demo-library entries.
+export const legacyExperimentAliases = {
+  'mos-work-function': 'mos-band-diagrams',
+  'mos-p-type-bands': 'mos-band-diagrams',
+  'mos-n-type-bands': 'mos-band-diagrams',
+} as const satisfies Record<string, ExperimentSlug>;

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Controls } from './Controls';
 import { Calculation, DemoLayout, fmt, Metric, Metrics, sci, useParams } from './Demos';
+import type { MosInitial } from '../lib/slide-demo-assignments';
 
 type Substrate = 'p' | 'n';
 type Regime = 'Accumulation' | 'Flat band' | 'Depletion' | 'Inversion';
@@ -165,19 +166,15 @@ function BandDiagram({
   );
 }
 
-function MosDemo({
-  initialSubstrate,
-  workFunction,
+const defaultInitial: MosInitial = { substrate: 'p', gate: 0, flat: 0.4 };
+
+export default function MosBandDiagrams({
+  initialMos = defaultInitial,
 }: {
-  initialSubstrate: Substrate;
-  workFunction?: boolean;
+  initialMos?: MosInitial;
 }) {
-  const [substrate, setSubstrate] = useState<Substrate>(initialSubstrate);
-  const initial = {
-    gate: workFunction ? 0 : initialSubstrate === 'p' ? 0.65 : -0.65,
-    flat: workFunction ? 0.4 : 0,
-    doping: 1e16,
-  };
+  const [substrate, setSubstrate] = useState<Substrate>(initialMos.substrate);
+  const initial = { gate: initialMos.gate, flat: initialMos.flat, doping: 1e16 };
   const { v, set, reset } = useParams(initial);
   const state = mosState(substrate, v.gate, v.flat, v.doping);
   const choose = (regime: Regime) => {
@@ -193,7 +190,7 @@ function MosDemo({
           set={set}
           reset={() => {
             reset();
-            setSubstrate(initialSubstrate);
+            setSubstrate(initialMos.substrate);
           }}
           items={[
             { key: 'gate', label: 'Gate voltage VG', min: -2.5, max: 2.5, step: 0.01, unit: 'V' },
@@ -265,9 +262,8 @@ function MosDemo({
       }
     >
       <p className="carrier-motion-summary">
-        {workFunction
-          ? 'Change the work-function offset to move flat band away from zero gate voltage. '
-          : ''}
+        Change the flat-band voltage to see how the gate–silicon work-function offset shifts the
+        bands.{' '}
         {substrate === 'p'
           ? 'A negative gate attracts holes; a positive gate depletes holes and eventually inverts the surface to electrons.'
           : 'A positive gate attracts electrons; a negative gate depletes electrons and eventually inverts the surface to holes.'}
@@ -292,14 +288,4 @@ function MosDemo({
       </p>
     </DemoLayout>
   );
-}
-
-export function MosWorkFunction() {
-  return <MosDemo initialSubstrate="p" workFunction />;
-}
-export function MosPTypeBands() {
-  return <MosDemo initialSubstrate="p" />;
-}
-export function MosNTypeBands() {
-  return <MosDemo initialSubstrate="n" />;
 }

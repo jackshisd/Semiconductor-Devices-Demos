@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { experiments } from '../lib/experiments.ts';
+import { experiments, legacyExperimentAliases } from '../lib/experiments.ts';
 import { demoForSlide } from '../lib/slide-demo-assignments.ts';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
 const lectures = JSON.parse(readFileSync(new URL('../lib/lectures.json', import.meta.url), 'utf8'));
@@ -14,6 +14,7 @@ const routes = new Set([
   'cheat-sheet',
   'homework-solutions',
   ...experiments.map((page) => page.slug),
+  ...Object.keys(legacyExperimentAliases),
 ]);
 for (const file of readdirSync(root).filter((name) => name.endsWith('.html'))) {
   assert.ok(routes.has(file.slice(0, -5)), `Unexpected stale route: ${file}`);
@@ -45,6 +46,10 @@ for (const page of [{ slug: 'index', title: 'Semiconductor physics' }, ...experi
 console.log(
   `Verified home page and ${experiments.length} exported experiments, formulas, controls, and assets.`,
 );
+for (const slug of Object.keys(legacyExperimentAliases)) {
+  const html = readFileSync(resolve(root, `${slug}.html`), 'utf8');
+  assert.match(html, /MOS capacitor band diagrams/, `${slug}: missing shared MOS demo`);
+}
 assert.ok(
   !existsSync(resolve(root, 'junction-models.html')),
   'Removed Junction Models route was exported.',
