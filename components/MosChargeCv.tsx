@@ -5,6 +5,7 @@ import { Controls } from './Controls';
 import { Calculation, DemoLayout, Metric, Metrics, fmt, sci, useParams } from './Demos';
 import Plot from './Plot';
 import MosCvCarrierScene from './MosCvCarrierScene';
+import MosDepletionSeries from './MosDepletionSeries';
 import {
   measuredMosCapacitance,
   minorityResponse,
@@ -16,7 +17,7 @@ const gateRange: [number, number] = [-2, 2.5];
 const clampGate = (voltage: number) => Math.max(gateRange[0], Math.min(gateRange[1], voltage));
 
 export default function MosChargeCv() {
-  const { v, set, reset } = useParams({ VG: 1.2, NA: 1e16, tox: 10, VFB: 0, frequency: 10 });
+  const { v, set, reset } = useParams({ VG: 0.45, NA: 1e16, tox: 10, VFB: 0, frequency: 10 });
   const [running, setRunning] = useState(true);
   const [sweeping, setSweeping] = useState(false);
   const sweepStart = useRef<number | null>(null);
@@ -151,6 +152,10 @@ export default function MosChargeCv() {
               formula: String.raw`Q_{dep}'\simeq-qN_AW,\qquad W\simeq\sqrt{\frac{2\varepsilon_{Si}\psi_s}{qN_A}}`,
             },
             {
+              label: 'Oxide and depleted silicon in series',
+              formula: String.raw`C_{dep}'\simeq\frac{\varepsilon_{Si}}{W},\qquad \frac1{C_{series}'}\simeq\frac1{C_{ox}'}+\frac1{C_{dep}'}`,
+            },
+            {
               label: 'Small-signal response',
               formula: String.raw`C'(f)=\left|\frac{\delta Q_s'(f)}{\delta V_G}\right|,\qquad C_{ox}'=\frac{\varepsilon_{ox}}{t_{ox}}`,
             },
@@ -218,6 +223,15 @@ export default function MosChargeCv() {
         response={response}
         running={running}
         frequencyHz={v.frequency}
+      />
+      <MosDepletionSeries
+        oxideCapacitance={state.oxideCapacitance}
+        depletionWidth={state.depletionWidth}
+        measuredCapacitance={capacitance}
+        gateVoltage={v.VG}
+        flatBand={v.VFB}
+        threshold={state.threshold}
+        minorityResponse={response}
       />
       <Plot
         title="Silicon charge components versus gate voltage"

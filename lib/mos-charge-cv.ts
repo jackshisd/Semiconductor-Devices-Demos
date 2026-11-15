@@ -32,6 +32,23 @@ export function measuredMosCapacitance(
   return highFrequency + (lowFrequency - highFrequency) * minorityResponse(frequencyHz);
 }
 
+export function mosSeriesCapacitances(oxideCapacitance: number, depletionWidth: number) {
+  if (
+    !Number.isFinite(oxideCapacitance) ||
+    oxideCapacitance <= 0 ||
+    !Number.isFinite(depletionWidth) ||
+    depletionWidth < 0
+  ) {
+    throw new RangeError('Oxide capacitance must be positive and depletion width nonnegative.');
+  }
+  const depletionCapacitance = depletionWidth === 0 ? Infinity : epsSi / depletionWidth;
+  const seriesCapacitance =
+    depletionWidth === 0
+      ? oxideCapacitance
+      : (oxideCapacitance * depletionCapacitance) / (oxideCapacitance + depletionCapacitance);
+  return { depletionCapacitance, seriesCapacitance };
+}
+
 function chargeAtPotential(surfacePotential: number, acceptors: number) {
   const u = surfacePotential / thermalVoltage;
   const ratio = (intrinsicDensity / acceptors) ** 2;

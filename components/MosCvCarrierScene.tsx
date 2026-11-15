@@ -170,8 +170,15 @@ export default function MosCvCarrierScene({
               </g>
             );
           })}
+        {!accumulation && (
+          <g stroke="#2672d9" fill="#2672d9">
+            <line x1="261" x2={edge} y1="244" y2="244" strokeWidth="1.5" />
+            <line x1="261" x2="261" y1="238" y2="250" strokeWidth="1.5" />
+            <line x1={edge} x2={edge} y1="238" y2="250" strokeWidth="1.5" />
+          </g>
+        )}
         <text x="268" y="274" fill="#2672d9" fontSize="13">
-          {accumulation ? 'No depletion layer' : `Depletion width W →`}
+          {accumulation ? 'No depletion layer' : `W ≈ ${fmt(depletionWidth * 1e7, 0)} nm`}
         </text>
         <circle cx="39" cy="291" r="6" fill="#ffedc9" stroke="#c7802d" />
         <text x="51" y="295" className="mos-cv-legend">

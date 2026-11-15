@@ -3662,6 +3662,91 @@ main:focus {
   font-size: 12px;
   line-height: 1.45;
 }
+.mos-series {
+  margin: 0 0 16px;
+  padding: 15px;
+  border: 1px solid var(--line, #d8e2e8);
+  border-radius: 16px;
+  background: var(--surface, #fff);
+}
+.mos-series h2 {
+  margin: 0 0 6px;
+  color: #21475a;
+  font-size: 17px;
+}
+.mos-series p {
+  margin: 0 0 12px;
+  color: #526b78;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.mos-series-chain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  margin: 0 0 10px;
+  color: #315366;
+  font-size: 12px;
+}
+.mos-series-chain span {
+  padding: 5px 7px;
+  border-radius: 7px;
+  background: #edf4f7;
+}
+.mos-series-chain b {
+  color: #80919c;
+}
+.mos-series-equations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 18px;
+  margin: 0 0 13px;
+  color: #294b59;
+  font-size: 13px;
+  font-weight: 600;
+}
+.mos-series-bars {
+  display: grid;
+  gap: 7px;
+}
+.mos-series-row {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(120px, 2fr) minmax(95px, 1fr);
+  align-items: center;
+  gap: 9px;
+  color: #426071;
+  font-size: 12px;
+}
+.mos-series-row strong {
+  text-align: right;
+  color: #21475a;
+  font-size: 12px;
+}
+.mos-series-track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 6px;
+  background: #edf2f4;
+}
+.mos-series-track div {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.25s ease;
+}
+.mos-series p.mos-series-footnote {
+  margin: 10px 0 0;
+  font-size: 11px;
+}
+@media (max-width: 560px) {
+  .mos-series-row {
+    grid-template-columns: 1fr minmax(90px, 1fr);
+  }
+  .mos-series-track {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+}
 .scattering-scene svg {
   display: block;
   width: 100%;
