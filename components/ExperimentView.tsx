@@ -99,6 +99,12 @@ const demos: Record<ExperimentSlug, ComponentType<{ initialMos?: MosInitial }>> 
   'mos-band-diagrams': lazy(() => import('./MosBandDiagrams')),
   'mos-charge-cv': lazy(() => import('./MosChargeCv')),
   'mos-surface-width': lazy(() => import('./MosSurfaceWidth')),
+  'mosfet-pinch-off': lazy(() =>
+    import('./MosfetPinchOff').then((m) => ({ default: m.PinchOffDemo })),
+  ),
+  'channel-length-modulation': lazy(() =>
+    import('./MosfetPinchOff').then((m) => ({ default: m.ChannelLengthModulationDemo })),
+  ),
   'avalanche-breakdown': lazy(() =>
     import('./BreakdownDemos').then((m) => ({ default: m.AvalancheBreakdown })),
   ),

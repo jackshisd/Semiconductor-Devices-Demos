@@ -259,6 +259,18 @@ const catalog = [
     group: 'MOS capacitors',
   },
   {
+    slug: 'mosfet-pinch-off',
+    title: 'MOSFET pinch-off',
+    subtitle: 'Watch the inversion channel taper as drain voltage reaches saturation',
+    group: 'MOSFETs',
+  },
+  {
+    slug: 'channel-length-modulation',
+    title: 'Channel-length modulation',
+    subtitle: 'See a shorter channel raise drain current beyond pinch-off',
+    group: 'MOSFETs',
+  },
+  {
     slug: 'avalanche-breakdown',
     title: 'Avalanche breakdown',
     subtitle: 'Inject an electron and watch impact ionization multiply carriers',
@@ -320,6 +332,7 @@ const groupOrder: string[] = [
   'Metal contacts',
   'Doping & PN junctions',
   'MOS capacitors',
+  'MOSFETs',
   'Reverse breakdown',
 ];
 const fundamentalOrder: string[] = [

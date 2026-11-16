@@ -20,7 +20,8 @@ type Kind =
   | 'screening'
   | 'degenerate'
   | 'metal'
-  | 'capacitance';
+  | 'capacitance'
+  | 'mosfet';
 const kinds: Record<ExperimentSlug, Kind> = {
   'matthiessen-rule': 'spectrum',
   'screening-effect': 'screening',
@@ -65,6 +66,8 @@ const kinds: Record<ExperimentSlug, Kind> = {
   'mos-band-diagrams': 'bands',
   'mos-charge-cv': 'capacitance',
   'mos-surface-width': 'bending',
+  'mosfet-pinch-off': 'mosfet',
+  'channel-length-modulation': 'mosfet',
   'avalanche-breakdown': 'avalanche',
   'zener-breakdown': 'tunneling',
   'quasi-fermi': 'fermi',
@@ -106,6 +109,7 @@ const curves: Record<Kind, string[]> = {
   degenerate: ['M12 20H83 M12 50H83', 'M12 13H83'],
   metal: ['M12 15H29 M34 15C48 15 49 32 65 32H83', 'M34 33C48 33 49 50 65 50H83'],
   capacitance: ['M12 48C30 47 46 43 60 32S74 16 82 8'],
+  mosfet: ['M11 16H85 M24 27H72 M24 32H72', 'M12 52H32Q43 50 49 39Q54 31 64 30L84 27'],
 };
 export default function DemoPreview({
   slug,

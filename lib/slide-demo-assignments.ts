@@ -92,6 +92,8 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
   'lecture-13': {},
   'lecture-14': {
     'mos-band-diagrams': [5],
+    'mosfet-pinch-off': [13, 14],
+    'channel-length-modulation': [15],
   },
 };
 
