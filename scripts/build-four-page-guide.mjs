@@ -60,27 +60,37 @@ ${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${
 <text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
 };
 const mosCvGraphPair = () => `<div class="mos-cv-graphs">
-<svg viewBox="0 0 440 237" role="img" aria-label="Lecture 13 MOS C-V graphs: p-type low-frequency capacitance returns to oxide capacitance, high-frequency capacitance stays at its minimum, rapid sweeping causes temporary deep depletion; positive fixed oxide charge shifts the C-V curve toward lower gate voltage">
-<text x="7" y="13" class="cv-title">P-type MOS: inversion response</text>
-<text x="7" y="137" class="cv-title">Positive fixed oxide charge: left shift</text>
-<path d="M47 27 V110 H421 M47 142 V211 H421" class="cv-axis"/>
-<text x="6" y="36" class="cv-label">C/Cₒₓ</text><text x="6" y="151" class="cv-label">C/Cₒₓ</text>
-<text x="20" y="39" class="cv-label">1</text><text x="20" y="153" class="cv-label">1</text>
-<text x="412" y="122" class="cv-label">Vɢ</text><text x="412" y="225" class="cv-label">Vɢ</text>
+<svg viewBox="0 0 440 232" role="img" aria-label="P-type MOS C-V: accumulation of holes at negative gate bias, flat band at VFB, growing depletion width and falling capacitance, inversion after VT; low-frequency inversion returns toward Cox, high-frequency inversion stays at Cmin, fast sweep causes deep depletion. A second graph shows positive fixed oxide charge shifting flat-band and threshold voltages left.">
+<text x="7" y="12" class="cv-title">P-type MOS: regions and AC response</text>
+<rect x="47" y="27" width="123" height="83" class="cv-accumulation"/><rect x="170" y="27" width="110" height="83" class="cv-depletion"/><rect x="280" y="27" width="141" height="83" class="cv-inversion"/>
+<text x="104" y="23" text-anchor="middle" class="cv-region">ACCUMULATION</text><text x="225" y="23" text-anchor="middle" class="cv-region">DEPLETION</text><text x="350" y="23" text-anchor="middle" class="cv-region">INVERSION</text>
+<path d="M47 27 V110 H421 M47 143 V211 H421" class="cv-axis"/>
+<text x="6" y="36" class="cv-label">C/Cₒₓ</text><text x="6" y="152" class="cv-label">C/Cₒₓ</text>
+<text x="20" y="39" class="cv-label">1</text><text x="20" y="154" class="cv-label">1</text>
+<text x="391" y="122" class="cv-label">Vɢ →</text><text x="391" y="225" class="cv-label">Vɢ →</text>
 <line x1="170" y1="27" x2="170" y2="110" class="cv-guide"/><line x1="280" y1="27" x2="280" y2="110" class="cv-guide"/>
-<text x="158" y="122" class="cv-label">VFB</text><text x="274" y="122" class="cv-label">VT</text>
+<text x="142" y="122" class="cv-label">VFB · flat band</text><text x="259" y="122" class="cv-label">VT · onset</text>
 <path d="M47 35 H170 C216 35 241 88 280 88 C315 88 336 35 421 35" class="cv-low"/>
 <path d="M47 35 H170 C216 35 241 88 280 88 H421" class="cv-high"/>
 <path d="M280 88 C320 91 354 107 421 107" class="cv-deep"/>
-<text x="324" y="42" class="cv-low-text">slow / LF</text>
-<text x="335" y="82" class="cv-high-text">fast AC / HF</text>
-<text x="324" y="104" class="cv-deep-text">fast sweep</text>
+<text x="55" y="47" class="cv-annotation">Cₒₓ plateau</text><text x="55" y="60" class="cv-annotation">holes at surface</text>
+<text x="187" y="53" class="cv-annotation">holes leave</text><text x="187" y="65" class="cv-annotation">W grows; C falls</text>
+<text x="288" y="55" class="cv-annotation">electron layer</text><text x="285" y="98" class="cv-annotation">Cmin</text>
+<text x="357" y="50" class="cv-low-text">LF: e⁻ follow</text>
+<text x="332" y="82" class="cv-high-text">HF: e⁻ cannot follow</text>
+<text x="342" y="103" class="cv-deep-text">rapid sweep</text>
+<text x="7" y="139" class="cv-title">Positive fixed oxide charge: both voltage markers shift left</text>
 <path d="M47 150 H170 C215 150 243 197 280 197 H421" class="cv-reference"/>
 <path d="M47 150 H133 C178 150 206 197 243 197 H421" class="cv-shift"/>
-<text x="143" y="181" class="cv-shift-text">+QF</text><text x="288" y="192" class="cv-reference-text">ideal</text>
-<path d="M278 164 H245 M245 164 l6 -3 M245 164 l6 3" class="cv-arrow"/>
-<text x="272" y="160" class="cv-label" text-anchor="end">VFB, VT move left</text>
-</svg><div class="cv-caption">Fast-sweep deep depletion is temporary. For n-type Si, reverse the gate-voltage direction. More Nₐ raises Cmin; thinner oxide lowers Cmin/Cox.</div></div>`;
+<line x1="133" y1="151" x2="133" y2="211" class="cv-guide"/><line x1="170" y1="151" x2="170" y2="211" class="cv-guide"/>
+<line x1="243" y1="183" x2="243" y2="211" class="cv-guide"/><line x1="280" y1="183" x2="280" y2="211" class="cv-guide"/>
+<text x="51" y="162" class="cv-annotation">same Cₒₓ</text><text x="287" y="207" class="cv-annotation">same Cmin</text>
+<text x="104" y="180" class="cv-shift-text">+QF</text><text x="304" y="192" class="cv-reference-text">ideal</text>
+<path d="M285 165 H246 M246 165 l6 -3 M246 165 l6 3" class="cv-arrow"/>
+<text x="294" y="162" class="cv-label">ΔVFB = −QF/Cₒₓ</text>
+<text x="133" y="220" text-anchor="middle" class="cv-shift-text">shifted VFB</text><text x="170" y="230" text-anchor="middle" class="cv-reference-text">ideal VFB</text>
+<text x="243" y="220" text-anchor="middle" class="cv-shift-text">shifted VT</text><text x="280" y="230" text-anchor="middle" class="cv-reference-text">ideal VT</text>
+</svg><div class="cv-caption">Flat band: Si bands level. Inversion: LF electrons respond; HF stays near Cmin. Fast sweep: transient deep depletion. N-type reverses Vɢ polarity. Doping ↑ raises Cmin; thinner oxide lowers Cmin/Cₒₓ.</div></div>`;
 const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
@@ -1315,6 +1325,11 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .mos-cv-graphs svg { display: block; width: 100%; height: auto; }
 .mos-cv-graphs .cv-title { fill: #176d72; font: bold 11px Georgia, serif; }
 .mos-cv-graphs .cv-label { fill: #526578; font: 9px Arial, sans-serif; }
+.mos-cv-graphs .cv-region { fill: #345261; font: bold 9px Arial, sans-serif; letter-spacing: .3px; }
+.mos-cv-graphs .cv-annotation { fill: #455e68; font: 8.5px Arial, sans-serif; }
+.mos-cv-graphs .cv-accumulation { fill: #edf5fb; }
+.mos-cv-graphs .cv-depletion { fill: #fff7e8; }
+.mos-cv-graphs .cv-inversion { fill: #eef8ef; }
 .mos-cv-graphs .cv-axis { fill: none; stroke: #526578; stroke-width: 1; }
 .mos-cv-graphs .cv-guide { stroke: #aab9bf; stroke-width: .8; stroke-dasharray: 3 2; }
 .mos-cv-graphs .cv-low, .mos-cv-graphs .cv-high, .mos-cv-graphs .cv-deep, .mos-cv-graphs .cv-reference, .mos-cv-graphs .cv-shift { fill: none; stroke-width: 2; }
