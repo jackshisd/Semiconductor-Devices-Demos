@@ -901,8 +901,14 @@ const laterPages = [
         'HW4 P1 voltage: combine turn-on charge (13g), charge scale (13h), and voltage conversion (13j); t₀ = 2 μs.',
       ),
       note(
-        'Use this charge-to-voltage step only while the long-base, low-injection, quasi-static model applies. It does not describe the entire turn-off waveform after storage ends.',
+        'Charge-to-voltage conversion assumes long-base, low-injection, quasi-static storage; it does not model post-storage turn-off.',
       ),
+      topic('PN junction capacitance: bias forms', 'L6 p9–11; L9 p10–12'),
+      formula(
+        String.raw`\begin{aligned}C_{J0}&=\varepsilon_s A/W_0\\C_J(V_A)&=C_{J0}/\sqrt{1-V_A/V_{bi}}\\C_J(V_R)&=C_{J0}/\sqrt{1+V_R/V_{bi}}\end{aligned}`,
+        'Abrupt junction; W₀ = W(0), V_R = −V_A &gt; 0. Use W from (6e).',
+        true,
+      ).replace('class="formula compact"', 'class="formula compact capacitance-shortcut"'),
     ].join(''),
   },
   {
@@ -916,8 +922,8 @@ const laterPages = [
       xref('Differential resistance (9h); depletion capacitance from width (7a).'),
       formula(String.raw`g_d=I_0e^{V_{DC}/V_T}/V_T`, 'Exact ideal conductance before I ≫ I₀.'),
       formula(
-        String.raw`C_D=\frac{dQ_{\rm stored}}{dV}\approx\frac{\tau_nI_n+\tau_pI_p}{V_T}`,
-        'Diffusion capacitance from stored minority charge.',
+        String.raw`\begin{aligned}Q_{\rm stored}&=\tau_nI_n+\tau_pI_p=\tau_{\rm eff}I_{\rm diff}\\C_D&=\frac{dQ_{\rm stored}}{dV}\approx\frac{\tau_{\rm eff}I_{\rm diff}}{V_T}\end{aligned}`,
+        'Steady low-injection storage; diffusion capacitance when carriers follow the AC probe.',
         true,
       ),
       formula(
@@ -1365,6 +1371,9 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .formula.compact .math { font-size: 8.5pt; }
 .formula .purpose { margin-top: 1px; color: #536570; font-size: 7.4pt; line-height: 1.2; }
 .page.eight .formula { margin: 3px 0 5px; }
+.page.eight .formula.capacitance-shortcut { margin: 0 0 2px; }
+.page.eight .formula.capacitance-shortcut .math { font-size: 7.4pt; line-height: 1.05; }
+.page.eight .formula.capacitance-shortcut .purpose { font-size: 6.5pt; line-height: 1.05; }
 .page.eight.mos .formula { margin: 2px 0 3px; }
 .page.eight.mos .formula .math { font-size: 9pt; line-height: 1.2; }
 .page.eight.mos .formula.compact .math { font-size: 8.1pt; }
@@ -1577,7 +1586,7 @@ const nextEquationLabel = () => {
 };
 const numberEquations = (column) =>
   column.replace(
-    /<div class="topic"><strong>(\d+)\.|<div class="topic"><strong>(?:Continuity: useful limiting cases|HW4 P2: minority-hole continuity)|<div class="purpose">|<div><b>(?:Zero field \/ no drift|Thermal equilibrium|Uniform, steady light):<\/b>/g,
+    /<div class="topic"><strong>(\d+)\.|<div class="topic"><strong>(?:Continuity: useful limiting cases|HW4 P2: minority-hole continuity|PN junction capacitance: bias forms)|<div class="purpose">|<div><b>(?:Zero field \/ no drift|Thermal equilibrium|Uniform, steady light):<\/b>/g,
     (match, section) => {
       if (section) {
         activeEquationSection = Number(section);
@@ -1589,6 +1598,10 @@ const numberEquations = (column) =>
       }
       if (match.includes('HW4 P2: minority-hole continuity')) {
         activeEquationSection = 18;
+        return match;
+      }
+      if (match.includes('PN junction capacitance: bias forms')) {
+        activeEquationSection = 7;
         return match;
       }
       const label = nextEquationLabel();
@@ -1625,6 +1638,7 @@ const categoryTopics = {
     '15. C–V extraction: junctions and MOS',
     'HW3: check built-in voltage',
     'Schottky contact: interpret the C–V line',
+    'PN junction capacitance: bias forms',
   ],
   diodes: [
     '9. Ideal PN diode',
@@ -1666,7 +1680,7 @@ const topicCategory = new Map(
 const colorizeEquations = (column) => {
   let category;
   return column.replace(
-    /<div class="topic"><strong>([^<]+)<\/strong><span>[\s\S]*?<\/span><\/div>|<div class="formula(?: compact)?">|<div class="case-list">/g,
+    /<div class="topic"><strong>([^<]+)<\/strong><span>[\s\S]*?<\/span><\/div>|<div class="formula(?: compact)?(?: capacitance-shortcut)?">|<div class="case-list">/g,
     (match, title) => {
       if (title) {
         category = topicCategory.get(title);
