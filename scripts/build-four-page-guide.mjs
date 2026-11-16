@@ -91,6 +91,68 @@ const mosCvGraphPair = () => `<div class="mos-cv-graphs">
 <text x="133" y="220" text-anchor="middle" class="cv-shift-text">shifted VFB</text><text x="170" y="230" text-anchor="middle" class="cv-reference-text">ideal VFB</text>
 <text x="243" y="220" text-anchor="middle" class="cv-shift-text">shifted VT</text><text x="280" y="230" text-anchor="middle" class="cv-reference-text">ideal VT</text>
 </svg><div class="cv-caption">Flat band: Si bands level. Inversion: LF electrons respond; HF stays near Cmin. Fast sweep: transient deep depletion. N-type reverses Vɢ polarity. Doping ↑ raises Cmin; thinner oxide lowers Cmin/Cₒₓ.</div></div>`;
+const conceptGraph = (title, category, description, drawing) =>
+  `<div class="concept-graph" data-category="${category}"><strong>${title} <small>· schematic</small></strong><svg viewBox="0 0 420 103" role="img" aria-label="${description}">${drawing}</svg></div>`;
+const minorityProfileGraph = () =>
+  conceptGraph(
+    'Minority carriers under PN bias',
+    'diodes',
+    'Excess minority holes on the n side decay from a positive junction value under forward bias, or a negative value under reverse bias, toward zero in the neutral bulk.',
+    `<path d="M36 53 H395 M55 14 V91" class="concept-axis"/><text x="4" y="20" class="concept-label">Δpₙ</text><text x="381" y="68" class="concept-label">x →</text>
+<line x1="86" y1="16" x2="86" y2="89" class="concept-guide"/><text x="54" y="101" class="concept-label">junction</text><text x="340" y="101" class="concept-label">n bulk</text>
+<path d="M86 20 C128 35 159 45 220 51 C275 53 342 53 394 53" class="concept-blue"/><path d="M86 83 C128 68 159 58 220 55 C275 53 342 53 394 53" class="concept-orange"/>
+<text x="119" y="25" class="concept-blue-text">forward: injected holes</text><text x="116" y="81" class="concept-orange-text">reverse: holes depleted</text><text x="301" y="44" class="concept-label">Δp → 0</text>`,
+  );
+const currentDensityGraph = () =>
+  conceptGraph(
+    'Forward PN diode: current components',
+    'diodes',
+    'Across a forward-biased PN junction, electron current density rises toward the n side and hole current density falls; their sum is constant.',
+    `<rect x="174" y="18" width="69" height="74" class="concept-zone"/><path d="M36 91 H395 M36 15 V91" class="concept-axis"/><text x="4" y="21" class="concept-label">J</text><text x="382" y="102" class="concept-label">x →</text>
+<path d="M40 27 H394" class="concept-total"/><path d="M40 79 C96 78 139 72 190 55 C244 37 306 33 394 33" class="concept-blue"/><path d="M40 33 C96 35 139 42 190 58 C244 74 306 78 394 79" class="concept-orange"/>
+<text x="302" y="23" class="concept-total-text">Jtotal = constant</text><text x="316" y="43" class="concept-blue-text">Jn</text><text x="89" y="43" class="concept-orange-text">Jp</text>
+<text x="61" y="102" class="concept-label">p side</text><text x="180" y="102" class="concept-label">depletion</text><text x="310" y="102" class="concept-label">n side</text>`,
+  );
+const diodeIvGraph = () =>
+  conceptGraph(
+    'PN diode I–V regions',
+    'diodes',
+    'Diode current remains near reverse leakage until breakdown, then grows rapidly with forward bias; series resistance softens the far-forward slope.',
+    `<path d="M38 57 H395 M235 10 V94" class="concept-axis"/><text x="4" y="17" class="concept-label">I</text><text x="377" y="70" class="concept-label">VA →</text>
+<path d="M45 91 C53 78 61 65 80 61 C125 59 188 59 235 57 C270 56 293 51 315 38 C342 23 370 17 393 13" class="concept-blue"/>
+<text x="41" y="102" class="concept-label">breakdown</text><text x="119" y="75" class="concept-label">reverse leakage</text><text x="232" y="72" class="concept-label">0</text><text x="308" y="89" class="concept-label">forward injection</text><text x="325" y="21" class="concept-blue-text">I rises</text>`,
+  );
+const inverseCapacitanceGraph = () =>
+  conceptGraph(
+    'Junction doping from 1/C²',
+    'junctions',
+    'For a one-sided junction plotted against applied forward voltage, inverse capacitance squared falls linearly; the negative slope gives doping and the extrapolated zero gives built-in voltage.',
+    `<path d="M37 91 H395 M37 12 V91" class="concept-axis"/><text x="3" y="18" class="concept-label">1/C²</text><text x="381" y="102" class="concept-label">VA →</text>
+<path d="M50 19 L247 67" class="concept-blue"/><path d="M247 67 L350 91" class="concept-dashed"/><line x1="350" y1="71" x2="350" y2="94" class="concept-guide"/>
+<text x="90" y="39" class="concept-blue-text">slope → Nlight</text><text x="282" y="61" class="concept-label">extrapolate</text><text x="331" y="102" class="concept-label">Vbi</text>`,
+  );
+const mosChargeGraph = () =>
+  conceptGraph(
+    'P-type MOS: surface charge versus gate bias',
+    'mos',
+    'Accumulation hole charge is positive; depletion acceptor charge becomes negative and levels near threshold. Inversion electron charge then grows negative, so total silicon charge is their sum.',
+    `<path d="M37 56 H395 M37 13 V94" class="concept-axis"/><text x="5" y="17" class="concept-label">Qs</text><text x="379" y="70" class="concept-label">VG →</text>
+<line x1="150" y1="17" x2="150" y2="91" class="concept-guide"/><line x1="270" y1="17" x2="270" y2="91" class="concept-guide"/>
+<path d="M43 22 C91 28 120 45 150 56" class="concept-blue"/><path d="M150 56 C191 69 232 76 270 76 H392" class="concept-orange"/><path d="M270 56 C311 62 350 73 392 82" class="concept-purple"/><path d="M270 76 C311 80 350 88 392 94" class="concept-total"/>
+<text x="57" y="17" class="concept-blue-text">+Qacc (holes)</text><text x="191" y="82" class="concept-orange-text">Qdep</text><text x="315" y="69" class="concept-purple-text">Qinv (e⁻)</text><text x="325" y="94" class="concept-total-text">Qs total</text>
+<text x="135" y="102" class="concept-label">VFB</text><text x="260" y="102" class="concept-label">VT</text>`,
+  );
+const mosfetOutputGraph = () =>
+  conceptGraph(
+    'NMOS output family: pinch-off and modulation',
+    'mosfet',
+    'Drain current first rises with drain voltage, then nearly saturates after pinch-off; larger gate voltage raises the curve, and channel-length modulation gives a small saturation slope.',
+    `<path d="M38 91 H395 M38 12 V91" class="concept-axis"/><text x="5" y="18" class="concept-label">ID</text><text x="374" y="102" class="concept-label">VDS →</text>
+<path d="M39 91 C85 72 107 68 132 68 C210 67 300 64 391 59" class="concept-blue"/>
+<path d="M39 91 C94 53 129 47 169 47 C230 45 310 40 391 35" class="concept-orange"/>
+<path d="M39 91 C98 36 148 24 212 24 C265 23 336 18 391 14" class="concept-purple"/>
+<text x="254" y="20" class="concept-purple-text">higher VGS → higher ID</text><text x="247" y="83" class="concept-label">after pinch-off: slight slope</text>`,
+  );
 const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
@@ -750,6 +812,9 @@ const laterPages = [
       note(
         'HW3 P2: use L_n in the electron exponent and L_p in the hole exponent. A printed intermediate line swaps the symbol.',
       ),
+      minorityProfileGraph(),
+      currentDensityGraph(),
+      diodeIvGraph(),
     ].join(''),
     right: [
       topic('12. Stored excess charge', 'L9 p4–7; HW3 P4'),
@@ -1298,6 +1363,7 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .page.eight [data-category="diodes"] { --category-color: #a3454b; }
 .page.eight [data-category="storage"] { --category-color: #8b4c86; }
 .page.eight [data-category="mos"] { --category-color: #426a35; }
+.page.eight [data-category="mosfet"] { --category-color: #355a85; }
 .page.eight .formula[data-category] .math,
 .page.eight .formula[data-category] .eq-number,
 .page.eight .case-list[data-category] .katex,
@@ -1321,6 +1387,25 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .mini-graph .hole-line { stroke: #d56138; }
 .mini-graph .tick { fill: #536570; font: 7px Arial, sans-serif; }
 .mini-graph .axis-title, .mini-graph .legend { fill: #173548; font: 7px Arial, sans-serif; }
+.concept-graph { margin: 4px 0; padding: 3px 5px 1px; border: .5px solid #cbdadd; break-inside: avoid; }
+.concept-graph strong { display: block; color: var(--category-color); font: bold 8.2pt Georgia, serif; }
+.concept-graph small { color: #647781; font: 6.7pt Arial, sans-serif; }
+.concept-graph svg { display: block; width: 100%; height: auto; }
+.concept-graph .concept-axis { fill: none; stroke: #536570; stroke-width: 1; }
+.concept-graph .concept-guide { stroke: #9aaeb6; stroke-width: .8; stroke-dasharray: 3 2; }
+.concept-graph .concept-zone { fill: #f1f5f6; }
+.concept-graph .concept-label { fill: #4d626d; font: 8px Arial, sans-serif; }
+.concept-graph .concept-blue, .concept-graph .concept-orange, .concept-graph .concept-purple, .concept-graph .concept-total, .concept-graph .concept-dashed { fill: none; stroke-width: 2; }
+.concept-graph .concept-blue { stroke: #2472b5; }
+.concept-graph .concept-orange { stroke: #d66732; }
+.concept-graph .concept-purple { stroke: #8d56a5; }
+.concept-graph .concept-total { stroke: #176e64; }
+.concept-graph .concept-dashed { stroke: #2472b5; stroke-dasharray: 4 3; }
+.concept-graph .concept-blue-text, .concept-graph .concept-orange-text, .concept-graph .concept-purple-text, .concept-graph .concept-total-text { font: bold 8.2px Arial, sans-serif; }
+.concept-graph .concept-blue-text { fill: #236eaa; }
+.concept-graph .concept-orange-text { fill: #b95625; }
+.concept-graph .concept-purple-text { fill: #7a478f; }
+.concept-graph .concept-total-text { fill: #176e64; }
 .mos-cv-graphs { margin: 3px 0 0; border: .5px solid #cbdadd; padding: 3px 5px 4px; }
 .mos-cv-graphs svg { display: block; width: 100%; height: auto; }
 .mos-cv-graphs .cv-title { fill: #176d72; font: bold 11px Georgia, serif; }
@@ -1600,13 +1685,18 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     if (cvStart < 0 || schottkyStart < 0) throw new Error('Could not group page 6 formulas.');
     const cv = left.slice(cvStart);
     const workedChecks = right.slice(0, schottkyStart);
-    left = left.slice(0, cvStart) + workedChecks;
+    left =
+      left.slice(0, cvStart) +
+      workedChecks +
+      inverseCapacitanceGraph() +
+      mosChargeGraph() +
+      mosfetOutputGraph();
     right = cv + right.slice(schottkyStart);
   }
   left = colorizeEquations(numberEquations(left));
   right = colorizeEquations(numberEquations(right));
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${index === 0 ? categoryLegend : route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '14' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${index === 0 ? categoryLegend : route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
