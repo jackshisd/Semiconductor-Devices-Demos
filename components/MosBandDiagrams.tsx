@@ -57,6 +57,7 @@ function BandDiagram({
   // compressed for legibility, while its changes track the electrostatic drop.
   const vacuumBulk = 1.25;
   const metalFermiY = y(fermi - gate);
+  const metalConductionY = metalFermiY + 38;
   const metalVacuumY = y(vacuumBulk + flat - gate);
   const vacuumInterfaceY = y(vacuumBulk - psi);
   const bulkTail = Math.exp(-(siliconEnd - siliconStart) / siliconDecay);
@@ -100,7 +101,7 @@ function BandDiagram({
       <svg
         viewBox="0 0 865 610"
         role="img"
-        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: a partially filled metal conduction band crosses the metal Fermi level; the vacuum level runs from metal through oxide into silicon; straight oxide band edges follow the oxide field; silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
+        aria-label={`${substrate}-type MOS capacitor in ${regime.toLowerCase()}: a labeled metal conduction level is below the metal Fermi level; the vacuum level runs from metal through oxide into silicon; straight oxide band edges follow the oxide field; silicon conduction, intrinsic, and valence bands bend ${psi > 0.03 ? 'down' : psi < -0.03 ? 'up' : 'very little'} at the oxide interface`}
         style={{ display: 'block', width: '100%', height: 'auto' }}
       >
         <rect x="44" y="35" width="166" height="525" rx="10" fill="#e8edf4" />
@@ -129,32 +130,9 @@ function BandDiagram({
         <text x="66" y={metalVacuumY - 7} fill="#526578" fontSize="15" fontWeight="700">
           E_vac
         </text>
-        <rect
-          x="59"
-          y={metalFermiY - 35}
-          width="137"
-          height="78"
-          rx="5"
-          fill={colors.ec}
-          opacity="0.16"
-        />
-        {[-25, -14, 14, 28].map((offset) => (
-          <line
-            key={offset}
-            x1="60"
-            x2="195"
-            y1={metalFermiY + offset}
-            y2={metalFermiY + offset}
-            stroke={colors.ec}
-            strokeWidth="1.4"
-            opacity="0.42"
-          />
-        ))}
-        <text x="66" y={metalFermiY + 23} fill="#164f87" fontSize="12.5" fontWeight="700">
-          Metal conduction band
-        </text>
-        <text x="66" y={metalFermiY + 38} fill="#315d81" fontSize="12">
-          partially filled
+        <path d={`M 58 ${metalConductionY} H 196`} stroke={colors.ec} strokeWidth="3" />
+        <text x="66" y={metalConductionY - 7} fill={colors.ec} fontSize="15" fontWeight="700">
+          E_C,M
         </text>
         <path
           d={`M 58 ${metalFermiY} H 196`}
@@ -214,9 +192,9 @@ function BandDiagram({
         Surface: {surfaceCarrier}. The gray E<sub>vac</sub> line follows the electrostatic potential
         from metal through oxide into silicon. It is straight in the charge-free oxide and bends
         with the silicon bands. Energy spacing and horizontal distance are schematic. The metal
-        Fermi level E<sub>FM</sub> moves by −qV<sub>G</sub> relative to silicon E<sub>F</sub>; a
-        shaded metal conduction band crosses E<sub>FM</sub> and is partially filled. The metal has
-        no separate semiconductor-style E<sub>C</sub> or E<sub>V</sub> edge.
+        Fermi level E<sub>FM</sub> moves by −qV<sub>G</sub> relative to silicon E<sub>F</sub>. The
+        blue E<sub>C,M</sub> line marks a schematic metal conduction level below E<sub>FM</sub>;
+        real metals do not have a universal semiconductor-style conduction-band edge.
       </p>
     </div>
   );
