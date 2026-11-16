@@ -70,11 +70,11 @@ const mosCvGraphPair = () => `<div class="mos-cv-graphs">
 <text x="391" y="122" class="cv-label">Vɢ →</text><text x="391" y="225" class="cv-label">Vɢ →</text>
 <line x1="170" y1="27" x2="170" y2="110" class="cv-guide"/><line x1="280" y1="27" x2="280" y2="110" class="cv-guide"/>
 <text x="142" y="122" class="cv-label">VFB · flat band</text><text x="259" y="122" class="cv-label">VT · onset</text>
-<path d="M47 35 H170 C216 35 241 88 280 88 C315 88 336 35 421 35" class="cv-low"/>
-<path d="M47 35 H170 C216 35 241 88 280 88 H421" class="cv-high"/>
+<path d="M47 35 H143 C158 35 163 46 170 46 C216 46 241 88 280 88 C315 88 336 35 421 35" class="cv-low"/>
+<path d="M47 35 H143 C158 35 163 46 170 46 C216 46 241 88 280 88 H421" class="cv-high"/>
 <path d="M280 88 C320 91 354 107 421 107" class="cv-deep"/>
 <text x="55" y="47" class="cv-annotation">Cₒₓ plateau</text><text x="55" y="60" class="cv-annotation">holes at surface</text>
-<text x="187" y="53" class="cv-annotation">holes leave</text><text x="187" y="65" class="cv-annotation">W grows; C falls</text>
+<text x="147" y="58" class="cv-annotation">CFB &lt; Cox</text><text x="187" y="53" class="cv-annotation">holes leave</text><text x="187" y="65" class="cv-annotation">W grows; C falls</text>
 <text x="288" y="55" class="cv-annotation">electron layer</text><text x="285" y="98" class="cv-annotation">Cmin</text>
 <text x="357" y="50" class="cv-low-text">LF: e⁻ follow</text>
 <text x="332" y="82" class="cv-high-text">HF: e⁻ cannot follow</text>
@@ -91,27 +91,42 @@ const mosCvGraphPair = () => `<div class="mos-cv-graphs">
 <text x="133" y="220" text-anchor="middle" class="cv-shift-text">shifted VFB</text><text x="170" y="230" text-anchor="middle" class="cv-reference-text">ideal VFB</text>
 <text x="243" y="220" text-anchor="middle" class="cv-shift-text">shifted VT</text><text x="280" y="230" text-anchor="middle" class="cv-reference-text">ideal VT</text>
 </svg><div class="cv-caption">Flat band: Si bands level. Inversion: LF electrons respond; HF stays near Cmin. Fast sweep: transient deep depletion. N-type reverses Vɢ polarity. Doping ↑ raises Cmin; thinner oxide lowers Cmin/Cₒₓ.</div></div>`;
-const conceptGraph = (title, category, description, drawing) =>
-  `<div class="concept-graph" data-category="${category}"><strong>${title} <small>· schematic</small></strong><svg viewBox="0 0 420 103" role="img" aria-label="${description}">${drawing}</svg></div>`;
+const conceptGraph = (title, category, description, drawing, height = 103) =>
+  `<div class="concept-graph" data-category="${category}"><strong>${title} <small>· schematic</small></strong><svg viewBox="0 0 420 ${height}" role="img" aria-label="${description}">${drawing}</svg></div>`;
 const minorityProfileGraph = () =>
   conceptGraph(
     'Minority carriers under PN bias',
     'diodes',
-    'Excess minority holes on the n side decay from a positive junction value under forward bias, or a negative value under reverse bias, toward zero in the neutral bulk.',
-    `<path d="M36 53 H395 M55 14 V91" class="concept-axis"/><text x="4" y="20" class="concept-label">Δpₙ</text><text x="381" y="68" class="concept-label">x →</text>
-<line x1="86" y1="16" x2="86" y2="89" class="concept-guide"/><text x="54" y="101" class="concept-label">junction</text><text x="340" y="101" class="concept-label">n bulk</text>
-<path d="M86 20 C128 35 159 45 220 51 C275 53 342 53 394 53" class="concept-blue"/><path d="M86 83 C128 68 159 58 220 55 C275 53 342 53 394 53" class="concept-orange"/>
-<text x="119" y="25" class="concept-blue-text">forward: injected holes</text><text x="116" y="81" class="concept-orange-text">reverse: holes depleted</text><text x="301" y="44" class="concept-label">Δp → 0</text>`,
+    'Excess minority electrons on the p side and holes on the n side rise above equilibrium under forward bias and fall below it under reverse bias. Both return to zero in the neutral bulk; the shaded central region is depleted.',
+    `<rect x="173" y="15" width="74" height="78" class="concept-zone"/><path d="M29 55 H399 M29 14 V94" class="concept-axis"/>
+<text x="2" y="22" class="concept-label">Δnₚ, Δpₙ</text><text x="384" y="70" class="concept-label">x →</text>
+<line x1="173" y1="17" x2="173" y2="94" class="concept-guide"/><line x1="247" y1="17" x2="247" y2="94" class="concept-guide"/>
+<path d="M31 55 C94 54 135 45 173 20 M247 20 C285 45 329 54 397 55" class="concept-blue"/>
+<path d="M31 55 C94 56 135 65 173 86 M247 86 C285 65 329 56 397 55" class="concept-orange"/>
+<text x="36" y="46" class="concept-label">0 in bulk</text><text x="324" y="46" class="concept-label">0 in bulk</text>
+<text x="104" y="20" class="concept-blue-text">forward Δnₚ(−xₚ)</text><text x="251" y="20" class="concept-blue-text">Δpₙ(xₙ)</text>
+<text x="94" y="84" class="concept-orange-text">reverse &lt; 0</text><text x="271" y="84" class="concept-orange-text">reverse &lt; 0</text>
+<text x="60" y="104" class="concept-label">p neutral · e⁻</text><text x="176" y="104" class="concept-label">depletion</text><text x="297" y="104" class="concept-label">n neutral · h⁺</text>
+<text x="159" y="115" class="concept-label">−xₚ</text><text x="240" y="115" class="concept-label">xₙ</text>`,
+    117,
   );
 const currentDensityGraph = () =>
   conceptGraph(
     'Forward PN diode: current components',
     'diodes',
-    'Across a forward-biased PN junction, electron current density rises toward the n side and hole current density falls; their sum is constant.',
-    `<rect x="174" y="18" width="69" height="74" class="concept-zone"/><path d="M36 91 H395 M36 15 V91" class="concept-axis"/><text x="4" y="21" class="concept-label">J</text><text x="382" y="102" class="concept-label">x →</text>
-<path d="M40 27 H394" class="concept-total"/><path d="M40 79 C96 78 139 72 190 55 C244 37 306 33 394 33" class="concept-blue"/><path d="M40 33 C96 35 139 42 190 58 C244 74 306 78 394 79" class="concept-orange"/>
-<text x="302" y="23" class="concept-total-text">Jtotal = constant</text><text x="316" y="43" class="concept-blue-text">Jn</text><text x="89" y="43" class="concept-orange-text">Jp</text>
-<text x="61" y="102" class="concept-label">p side</text><text x="180" y="102" class="concept-label">depletion</text><text x="310" y="102" class="concept-label">n side</text>`,
+    'In the neutral p and n regions, electron and hole current components trade off as minority carriers recombine. With negligible recombination inside the depletion region, each component is flat there; their sum is constant everywhere.',
+    `<rect x="173" y="17" width="74" height="77" class="concept-zone"/><path d="M29 94 H399 M29 14 V94" class="concept-axis"/>
+<text x="4" y="21" class="concept-label">J</text><text x="383" y="107" class="concept-label">x →</text>
+<line x1="173" y1="18" x2="173" y2="94" class="concept-guide"/><line x1="247" y1="18" x2="247" y2="94" class="concept-guide"/>
+<path d="M31 24 H397" class="concept-total"/>
+<path d="M31 82 C93 80 139 67 173 54 H247 C284 42 330 37 397 36" class="concept-blue"/>
+<path d="M31 36 C93 38 139 51 173 64 H247 C284 76 330 81 397 82" class="concept-orange"/>
+<text x="300" y="22" class="concept-total-text">J = Jₙ + Jₚ · constant</text>
+<text x="313" y="47" class="concept-blue-text">Jₙ · e⁻</text><text x="54" y="48" class="concept-orange-text">Jₚ · h⁺</text>
+<text x="176" y="48" class="concept-blue-text">Jₙ flat</text><text x="176" y="76" class="concept-orange-text">Jₚ flat</text>
+<text x="53" y="105" class="concept-label">p neutral</text><text x="176" y="105" class="concept-label">depletion</text><text x="303" y="105" class="concept-label">n neutral</text>
+<text x="158" y="115" class="concept-label">−xₚ</text><text x="239" y="115" class="concept-label">xₙ</text>`,
+    117,
   );
 const diodeIvGraph = () =>
   conceptGraph(
@@ -120,7 +135,8 @@ const diodeIvGraph = () =>
     'Diode current remains near reverse leakage until breakdown, then grows rapidly with forward bias; series resistance softens the far-forward slope.',
     `<path d="M38 57 H395 M235 10 V94" class="concept-axis"/><text x="4" y="17" class="concept-label">I</text><text x="377" y="70" class="concept-label">VA →</text>
 <path d="M45 91 C53 78 61 65 80 61 C125 59 188 59 235 57 C270 56 293 51 315 38 C342 23 370 17 393 13" class="concept-blue"/>
-<text x="41" y="102" class="concept-label">breakdown</text><text x="119" y="75" class="concept-label">reverse leakage</text><text x="232" y="72" class="concept-label">0</text><text x="308" y="89" class="concept-label">forward injection</text><text x="325" y="21" class="concept-blue-text">I rises</text>`,
+<line x1="80" y1="60" x2="80" y2="88" class="concept-guide"/>
+<text x="43" y="102" class="concept-label">−VBR</text><text x="114" y="74" class="concept-label">≈ −IS · leakage</text><text x="232" y="72" class="concept-label">0</text><text x="276" y="90" class="concept-label">forward: I ≈ IS(e^(VA/VT) − 1)</text><text x="334" y="21" class="concept-blue-text">I rises</text>`,
   );
 const inverseCapacitanceGraph = () =>
   conceptGraph(
@@ -129,7 +145,7 @@ const inverseCapacitanceGraph = () =>
     'For a one-sided junction plotted against applied forward voltage, inverse capacitance squared falls linearly; the negative slope gives doping and the extrapolated zero gives built-in voltage.',
     `<path d="M37 91 H395 M37 12 V91" class="concept-axis"/><text x="3" y="18" class="concept-label">1/C²</text><text x="381" y="102" class="concept-label">VA →</text>
 <path d="M50 19 L247 67" class="concept-blue"/><path d="M247 67 L350 91" class="concept-dashed"/><line x1="350" y1="71" x2="350" y2="94" class="concept-guide"/>
-<text x="90" y="39" class="concept-blue-text">slope → Nlight</text><text x="282" y="61" class="concept-label">extrapolate</text><text x="331" y="102" class="concept-label">Vbi</text>`,
+<text x="75" y="17" class="concept-blue-text">slope = −2/(qεA²Nlight)</text><text x="275" y="61" class="concept-label">extrapolate</text><text x="331" y="102" class="concept-label">Vbi</text>`,
   );
 const mosChargeGraph = () =>
   conceptGraph(
@@ -139,8 +155,8 @@ const mosChargeGraph = () =>
     `<path d="M37 56 H395 M37 13 V94" class="concept-axis"/><text x="5" y="17" class="concept-label">Qs</text><text x="379" y="70" class="concept-label">VG →</text>
 <line x1="150" y1="17" x2="150" y2="91" class="concept-guide"/><line x1="270" y1="17" x2="270" y2="91" class="concept-guide"/>
 <path d="M43 22 C91 28 120 45 150 56" class="concept-blue"/><path d="M150 56 C191 69 232 76 270 76 H392" class="concept-orange"/><path d="M270 56 C311 62 350 73 392 82" class="concept-purple"/><path d="M270 76 C311 80 350 88 392 94" class="concept-total"/>
-<text x="57" y="17" class="concept-blue-text">+Qacc (holes)</text><text x="191" y="82" class="concept-orange-text">Qdep</text><text x="315" y="69" class="concept-purple-text">Qinv (e⁻)</text><text x="325" y="94" class="concept-total-text">Qs total</text>
-<text x="135" y="102" class="concept-label">VFB</text><text x="260" y="102" class="concept-label">VT</text>`,
+<text x="57" y="17" class="concept-blue-text">+Qacc (holes)</text><text x="181" y="91" class="concept-orange-text">Qdep → −qNAWT</text><text x="312" y="61" class="concept-purple-text">Qinv (e⁻)</text><text x="325" y="94" class="concept-total-text">Qs total</text>
+<text x="134" y="102" class="concept-label">VFB</text><text x="261" y="102" class="concept-label">VT</text>`,
   );
 const mosfetOutputGraph = () =>
   conceptGraph(
@@ -151,7 +167,8 @@ const mosfetOutputGraph = () =>
 <path d="M39 91 C85 72 107 68 132 68 C210 67 300 64 391 59" class="concept-blue"/>
 <path d="M39 91 C94 53 129 47 169 47 C230 45 310 40 391 35" class="concept-orange"/>
 <path d="M39 91 C98 36 148 24 212 24 C265 23 336 18 391 14" class="concept-purple"/>
-<text x="254" y="20" class="concept-purple-text">higher VGS → higher ID</text><text x="247" y="83" class="concept-label">after pinch-off: slight slope</text>`,
+<line x1="169" y1="43" x2="169" y2="91" class="concept-guide"/>
+<text x="246" y="12" class="concept-purple-text">higher VGS → higher ID</text><text x="170" y="101" class="concept-label">VDS,sat ≈ VGS − VT</text><text x="39" y="54" class="concept-label">triode</text><text x="247" y="83" class="concept-label">saturation · slope from λ</text>`,
   );
 const continuityCases = () =>
   `<div class="case-list"><div><b>Zero field / no drift:</b> ${math(String.raw`\mathcal E=0\Rightarrow J_n=qD_n n',\;J_p=-qD_p p'`)}. Diffusion can still flow.</div>
@@ -1387,7 +1404,7 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .mini-graph .hole-line { stroke: #d56138; }
 .mini-graph .tick { fill: #536570; font: 7px Arial, sans-serif; }
 .mini-graph .axis-title, .mini-graph .legend { fill: #173548; font: 7px Arial, sans-serif; }
-.concept-graph { margin: 4px 0; padding: 3px 5px 1px; border: .5px solid #cbdadd; break-inside: avoid; }
+.concept-graph { margin: 2px 0; padding: 3px 5px 1px; border: .5px solid #cbdadd; break-inside: avoid; }
 .concept-graph strong { display: block; color: var(--category-color); font: bold 8.2pt Georgia, serif; }
 .concept-graph small { color: #647781; font: 6.7pt Arial, sans-serif; }
 .concept-graph svg { display: block; width: 100%; height: auto; }
@@ -1406,6 +1423,7 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .concept-graph .concept-orange-text { fill: #b95625; }
 .concept-graph .concept-purple-text { fill: #7a478f; }
 .concept-graph .concept-total-text { fill: #176e64; }
+.concept-graph text { paint-order: stroke; stroke: #fff; stroke-width: 1.3px; stroke-linejoin: round; }
 .mos-cv-graphs { margin: 3px 0 0; border: .5px solid #cbdadd; padding: 3px 5px 4px; }
 .mos-cv-graphs svg { display: block; width: 100%; height: auto; }
 .mos-cv-graphs .cv-title { fill: #176d72; font: bold 11px Georgia, serif; }
