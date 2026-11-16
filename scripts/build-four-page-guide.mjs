@@ -1281,6 +1281,22 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .page.eight.mos .note { margin: 3px 0 5px; padding: 4px 6px; font-size: 7.1pt; line-height: 1.15; }
 .page.eight.mos .xref { margin: 1px 0 3px; font-size: 7pt; }
 .page.eight .eq-number { color: #176d72; font-weight: 700; white-space: nowrap; margin-right: 3px; }
+.page.eight [data-category="foundations"] { --category-color: #235e91; }
+.page.eight [data-category="statistics"] { --category-color: #704e9a; }
+.page.eight [data-category="transport"] { --category-color: #176e64; }
+.page.eight [data-category="junctions"] { --category-color: #946018; }
+.page.eight [data-category="diodes"] { --category-color: #a3454b; }
+.page.eight [data-category="storage"] { --category-color: #8b4c86; }
+.page.eight [data-category="mos"] { --category-color: #426a35; }
+.page.eight .formula[data-category] .math,
+.page.eight .formula[data-category] .eq-number,
+.page.eight .case-list[data-category] .katex,
+.page.eight .case-list[data-category] .eq-number,
+.page.eight .topic[data-category] strong { color: var(--category-color); }
+.page.eight .topic[data-category] { border-bottom-color: var(--category-color); }
+.page.eight .category-key { display: flex; align-items: center; justify-content: space-between; gap: 5px; font: 6.4pt Arial, sans-serif; white-space: nowrap; }
+.page.eight .category-key span { display: inline-flex; align-items: center; gap: 3px; color: #334f5b; }
+.page.eight .category-key i { width: 7px; height: 7px; background: var(--category-color); display: inline-block; border-radius: 2px; }
 .page.eight .case-list .eq-number { font-size: 7pt; }
 .page.eight .xref { margin: 2px 0 5px; color: #176d72; font-size: 7.3pt; line-height: 1.2; }
 .note { margin: 5px 0 7px; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.5pt; line-height: 1.25; }
@@ -1461,6 +1477,102 @@ const numberEquations = (column) =>
       return match === '<div class="purpose">' ? `${match}${label}` : `${match} ${label}`;
     },
   );
+const categoryTopics = {
+  foundations: ['Reference values at 300 K', 'Units and polarity reminders'],
+  statistics: [
+    '1. Occupation and carrier statistics',
+    'Density of states and thermal carriers',
+    'HW1: compare intrinsic concentrations',
+    '2. Doping and charge neutrality',
+    'Fermi-level location',
+    '5. Quasi-Fermi levels',
+  ],
+  transport: [
+    '3. Drift, mobility and resistivity',
+    'Drift and diffusion current',
+    '4. Continuity and generation',
+    'Minority diffusion and illuminated bar',
+    'Continuity: useful limiting cases',
+  ],
+  junctions: [
+    'Electrostatic potential and Poisson equation',
+    '6. Abrupt PN junction: voltage and width',
+    'One degenerately doped PN side',
+    'Abrupt PN junction: field and charge',
+    '7. Depletion capacitance and C–V',
+    'Check before substitution',
+    '8. Metal–semiconductor contacts',
+    'Schottky barriers at equilibrium',
+    'PN junction band bending',
+    '15. C–V extraction: junctions and MOS',
+    'HW3: check built-in voltage',
+    'Schottky contact: interpret the C–V line',
+  ],
+  diodes: [
+    '9. Ideal PN diode',
+    '10. Nonideal current and breakdown',
+    '11. Biased PN minority carriers',
+    'HW3: minority current components',
+  ],
+  storage: [
+    '12. Stored excess charge',
+    '13. Charge control: current → stored charge',
+    'Stored charge → diode voltage',
+    '14. Small-signal diode around DC bias',
+    'Quick selection by operating regime',
+    '16. PN junction as temperature sensor',
+    '17. Varactor: reverse-bias tuning',
+    '18. Photodiode collection',
+    '19. Solar-cell I–V and open circuit',
+    '20. LED emission',
+    'HW4 P2: minority-hole continuity',
+  ],
+  mos: [
+    'MOS C–V: read the measured curve',
+    'Polysilicon gate depletion',
+    'Lecture 13: MOS C–V graph map',
+    'MOS capacitor band bending',
+    '21. MOS stack and flat band',
+    '22. P-type accumulation and depletion',
+    'HW4 P3: N-type MOS and band bending',
+    'Depletion versus gate voltage',
+    '23. Strong inversion and threshold',
+    '24. MOS capacitance versus frequency',
+  ],
+};
+const topicCategory = new Map(
+  Object.entries(categoryTopics).flatMap(([category, titles]) =>
+    titles.map((title) => [title, category]),
+  ),
+);
+const colorizeEquations = (column) => {
+  let category;
+  return column.replace(
+    /<div class="topic"><strong>([^<]+)<\/strong><span>[\s\S]*?<\/span><\/div>|<div class="formula(?: compact)?">|<div class="case-list">/g,
+    (match, title) => {
+      if (title) {
+        category = topicCategory.get(title);
+        if (!category) throw new Error(`Cheat-sheet topic needs a category: ${title}`);
+      } else if (!category) {
+        throw new Error(`Cheat-sheet equation has no category: ${column.slice(0, 160)}`);
+      }
+      return match.replace('<div ', `<div data-category="${category}" `);
+    },
+  );
+};
+const categoryLegend = `<div class="category-key">
+  ${[
+    ['foundations', 'Bands'],
+    ['statistics', 'Statistics'],
+    ['transport', 'Transport'],
+    ['junctions', 'Contacts &amp; junctions'],
+    ['diodes', 'Diodes'],
+    ['storage', 'Storage &amp; uses'],
+    ['mos', 'MOS capacitors'],
+  ]
+    .map(([category, label]) => `<span data-category="${category}"><i></i>${label}</span>`)
+    .join('')}
+</div>`;
 const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   const [title, route] = eightPageSections[index];
   let left = page.left;
@@ -1476,10 +1588,10 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     left = left.slice(0, cvStart) + workedChecks;
     right = cv + right.slice(schottkyStart);
   }
-  left = numberEquations(left);
-  right = numberEquations(right);
+  left = colorizeEquations(numberEquations(left));
+  right = colorizeEquations(numberEquations(right));
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
-  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
+  return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '13' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${index === 0 ? categoryLegend : route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
