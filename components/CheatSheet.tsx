@@ -81,6 +81,18 @@ export default function CheatSheet() {
   return (
     <section className="cheat-sheet">
       <h1>Cheat sheets</h1>
+      <aside className="notice" aria-label="Graph drawing answer key">
+        <h2>Lectures 1–14: graph drawing answer key</h2>
+        <p>All 39 graph exercises with labeled landmarks, equations, and explanations. 40 pages.</p>
+        <div className="midterm-prep-actions">
+          <a className="primary-link" href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf" download>
+            Download graph answer key · PDF
+          </a>
+          <a href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf" target="_blank" rel="noreferrer">
+            Open answer key ↗
+          </a>
+        </div>
+      </aside>
       <p>Choose the new eight-page sheet, the earlier four-page version, or the short sheet.</p>
       <div className="cheat-sheet-tabs" role="group" aria-label="Choose a cheat sheet">
         {sheets.map((item) => (
