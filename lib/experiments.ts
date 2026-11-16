@@ -259,6 +259,24 @@ const catalog = [
     group: 'MOS capacitors',
   },
   {
+    slug: 'mos-deep-depletion',
+    title: 'MOS deep depletion and carrier supply',
+    subtitle: 'Watch a fast gate sweep widen depletion before inversion carriers recover',
+    group: 'MOS capacitors',
+  },
+  {
+    slug: 'mos-oxide-charge',
+    title: 'MOS oxide charge and C–V shifts',
+    subtitle: 'Separate fixed charge, mobile ions, interface traps, and threshold implants',
+    group: 'MOS capacitors',
+  },
+  {
+    slug: 'mos-gate-stack',
+    title: 'Poly gate depletion and effective oxide thickness',
+    subtitle: 'See gate depletion and inversion depth reduce effective capacitance',
+    group: 'MOS capacitors',
+  },
+  {
     slug: 'mosfet-pinch-off',
     title: 'MOSFET pinch-off',
     subtitle: 'Watch the inversion channel taper as drain voltage reaches saturation',

@@ -99,6 +99,9 @@ const demos: Record<ExperimentSlug, ComponentType<{ initialMos?: MosInitial }>> 
   'mos-band-diagrams': lazy(() => import('./MosBandDiagrams')),
   'mos-charge-cv': lazy(() => import('./MosChargeCv')),
   'mos-surface-width': lazy(() => import('./MosSurfaceWidth')),
+  'mos-deep-depletion': lazy(() => import('./MosDeepDepletion')),
+  'mos-oxide-charge': lazy(() => import('./MosOxideCharge')),
+  'mos-gate-stack': lazy(() => import('./MosGateStack')),
   'mosfet-pinch-off': lazy(() =>
     import('./MosfetPinchOff').then((m) => ({ default: m.PinchOffDemo })),
   ),

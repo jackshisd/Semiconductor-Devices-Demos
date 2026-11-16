@@ -89,7 +89,13 @@ export const lectureAssociations: Record<string, Partial<Record<ExperimentSlug, 
     'mos-charge-cv': [6, 7, 9, 11, 12, 15, 17, 18, 19, 21, 22, 23, 24, 25, 26, 27, 28, 29],
     'mos-surface-width': [20],
   },
-  'lecture-13': {},
+  'lecture-13': {
+    'mos-charge-cv': [7, 4, 5, 6, 8, 12, 13],
+    'mos-deep-depletion': [9, 11],
+    'mos-band-diagrams': [10],
+    'mos-oxide-charge': [17, 14, 15, 16, 18, 19, 20, 21],
+    'mos-gate-stack': [24, 22, 23, 25, 26, 27, 28, 29],
+  },
   'lecture-14': {
     'mos-band-diagrams': [5],
     'mosfet-pinch-off': [13, 14],
@@ -245,5 +251,6 @@ export function mosInitialForSlide(lectureId: string, slide: number): MosInitial
     if (slide === 12) return { substrate: 'p', gate: 0.65, flat: 0 };
   }
   if (lectureId === 'lecture-14') return { substrate: 'p', gate: 0.65, flat: 0 };
+  if (lectureId === 'lecture-13' && slide === 10) return { substrate: 'n', gate: -0.65, flat: 0 };
   return { substrate: 'p', gate: 0, flat: 0.4 };
 }
