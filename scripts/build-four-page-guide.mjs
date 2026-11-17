@@ -26,7 +26,11 @@ const sourceGraphs = JSON.parse(
 );
 const sourceSvg = (key, width = 420, height = 118) => {
   const source = sourceGraphs[key];
-  const image = readFileSync(resolve(publicGuides, `source-graphs/${key}.png`)).toString('base64');
+  const png = readFileSync(resolve(publicGuides, `source-graphs/${key}.png`));
+  // Match the source aspect ratio so the graph fills the available column width.
+  // Fixed-height slots previously shrank the image and left large empty side margins.
+  height = (width * png.readUInt32BE(20)) / png.readUInt32BE(16) + 13;
+  const image = png.toString('base64');
   return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Original textbook graph, Hu figure ${source.figure}"><a href="${source.url}" target="_blank"><image href="data:image/png;base64,${image}" x="0" y="0" width="${width}" height="${height - 11}" preserveAspectRatio="xMidYMid meet"/><text x="3" y="${height - 2}" fill="#526670" font-family="Arial" font-size="7">Hu Fig. ${source.figure} · click for source</text></a></svg>`;
 };
 const mobilityAt = (density, carrier) =>
@@ -69,7 +73,7 @@ ${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${
 <text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
 };
 const mosCvGraphPair = () =>
-  `<div class="mos-cv-graphs">${sourceSvg('mos-cv', 440, 145)}${sourceSvg('mos-shift', 440, 85)}<div class="cv-caption">Source: Hu Figs. 5-18, 5-20. Positive oxide charge shifts flat-band voltage left; LF inversion returns to Cox, HF stays at Cmin.</div></div>`;
+  `<div class="mos-cv-graphs">${sourceSvg('mos-cv', 440, 145)}<div class="cv-caption">Hu Fig. 5-18. LF inversion returns to Cox; HF stays at Cmin. Positive oxide charge shifts VFB left. Full band diagrams are in the graph reference atlas.</div></div>`;
 const legacyMosCvGraphPair = () => `<div class="mos-cv-graphs">
 <svg viewBox="0 0 440 232" role="img" aria-label="P-type MOS C-V: accumulation of holes at negative gate bias, flat band at VFB, growing depletion width and falling capacitance, inversion after VT; low-frequency inversion returns toward Cox, high-frequency inversion stays at Cmin, fast sweep causes deep depletion. A second graph shows positive fixed oxide charge shifting flat-band and threshold voltages left.">
 <text x="7" y="12" class="cv-title">P-type MOS: regions and AC response</text>
@@ -450,7 +454,6 @@ const pages = [
         'Equilibrium field that cancels electron diffusion.',
       ),
       note('For the band-edge slope, E_C must be in joules when q is in coulombs.'),
-      `<div class="mini-graphs">${compactGraph('mobility')}${compactGraph('resistivity')}</div>`,
     ].join(''),
     right: [
       topic('4. Continuity and generation', 'L4 p29–32; HW2 P1–2'),
@@ -706,8 +709,6 @@ const pages = [
         'L5 p29, 38; ideal rectifying contacts; schematic, not to scale',
       ),
       `<div class="band-diagrams">${schottkyBandDiagram('n')}${schottkyBandDiagram('p')}</div>`,
-      topic('PN junction band bending', 'L6 p15; L7 p6–9; schematic, not to scale'),
-      `<div class="mini-band-diagrams">${pnBandDiagram(false)}${pnBandDiagram(true)}</div>`,
     ].join(''),
     right: [
       topic('9. Ideal PN diode', 'L7 p6–20'),
@@ -778,11 +779,6 @@ const pages = [
       note(
         'Avalanche: impact ionization, usually wider depletion region. Zener: tunneling through very narrow, heavily doped depletion region.',
       ),
-      topic(
-        'MOS capacitor band bending',
-        'L11 p12; L12 p8, 18; p-type Si: below flat band / above threshold',
-      ),
-      `<div class="mini-band-diagrams">${mosBandDiagram(false)}${mosBandDiagram(true)}</div>`,
     ].join(''),
   },
 ];
@@ -845,7 +841,6 @@ const laterPages = [
       ),
       minorityProfileGraph(),
       currentDensityGraph(),
-      diodeIvGraph(),
     ].join(''),
     right: [
       topic('12. Stored excess charge', 'L9 p4–7; HW3 P4'),
@@ -1351,7 +1346,7 @@ const laterPages = [
 
 const pageMarkup = pages.map(
   (page, index) =>
-    `<section class="page"><header><h1>ECE 121B &nbsp; Four-page cheat sheet</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 1–8</span></div></header><div class="columns"><div class="column">${page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 1}/4</span></footer></section>`,
+    `<section class="page"><header><h1>ECE 121B &nbsp; Four-page cheat sheet</h1><div class="meta"><span>${page.subtitle}</span><span>Professor Emaminejad / Lectures 1–8</span></div></header><div class="columns"><div class="column">${index === 3 ? page.left.replace(/<div class="note">[\s\S]*?<\/div>/g, '') : page.left}</div><div class="column">${page.right}</div></div><footer><span>L# p# = lecture / PDF page. HW# P# = homework problem. Check assumptions.</span><span>${index + 1}/4</span></footer></section>`,
 );
 const supplementMarkup = laterPages.map(
   (page, index) =>
@@ -1416,7 +1411,7 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .page.eight .case-list .eq-number { font-size: 7pt; }
 .page.eight .xref { margin: 2px 0 5px; color: #176d72; font-size: 7.3pt; line-height: 1.2; }
 .note { margin: 5px 0 7px; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.5pt; line-height: 1.25; }
-.mini-graphs { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 5px; margin: 6px 0 3px; }
+.mini-graphs { display: grid; grid-template-columns: minmax(0,1fr); gap: 5px; margin: 6px 0 3px; }
 .mini-graph { min-width: 0; border: .5px solid #cbdadd; padding: 3px 2px 1px; }
 .mini-graph strong { display: block; color: #176d72; font-size: 7.4pt; padding-left: 3px; }
 .mini-graph svg { display: block; width: 100%; height: auto; }
@@ -1472,7 +1467,7 @@ header .meta { display: flex; justify-content: space-between; color: #536570; fo
 .case-list { margin: 6px 0; padding: 5px 7px; background: #edf5f4; border-left: 2px solid #176d72; color: #334f5b; font-size: 7.3pt; line-height: 1.3; }
 .case-list div + div { margin-top: 4px; }
 .case-list .katex { font-size: .94em; }
-.band-diagrams { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin: 4px 0; }
+.band-diagrams { display: grid; grid-template-columns: minmax(0,1fr); gap: 4px; margin: 4px 0; }
 .band-diagrams svg { display: block; width: 100%; height: auto; border: .5px solid #cbdadd; }
 .mini-band-diagrams { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 4px; margin: 4px 0; }
 .mini-band-diagrams svg { display: block; width: 100%; height: auto; border: .5px solid #cbdadd; }
@@ -1751,10 +1746,17 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
         String.raw`I_D\simeq I_{D,sat}(1+\lambda V_{DS})`,
         'Channel-length modulation gives the saturation slope.',
         true,
-      ) +
-      mosfetOutputGraph();
+      );
     right = cv + right.slice(schottkyStart);
   }
+  // Prioritize legible full-column plots over repeated examples and small thumbnails.
+  if (index === 3) {
+    left = left.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
+    right = right.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
+    right += mosfetOutputGraph();
+  }
+  if (index === 4) left = left.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
+  if (index === 6) right = right.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
   left = colorizeEquations(numberEquations(left));
   right = colorizeEquations(numberEquations(right));
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';

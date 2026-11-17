@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Numbered key equations for Lectures 1–14 and Homeworks 1–4, with original online source graphs and clickable credits.',
+      'Numbered key equations for Lectures 1–14 and Homeworks 1–4, with selected source graphs enlarged to full column width. All 39 graph topics are in the separate answer key above.',
   },
   {
     id: 'full',
