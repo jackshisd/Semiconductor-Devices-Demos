@@ -1,0 +1,98 @@
+{
+  "mobility": {
+    "chapter": 2,
+    "page": 8,
+    "figure": "2-5",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch2-2.pdf#page=8"
+  },
+  "resistivity": {
+    "chapter": 2,
+    "page": 11,
+    "figure": "2-8",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch2-2.pdf#page=11"
+  },
+  "schottky-n": {
+    "chapter": 4,
+    "page": 46,
+    "figure": "4-34a",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=46"
+  },
+  "schottky-p": {
+    "chapter": 4,
+    "page": 46,
+    "figure": "4-34b",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=46"
+  },
+  "pn-equilibrium": {
+    "chapter": 4,
+    "page": 3,
+    "figure": "4-3",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=3"
+  },
+  "pn-forward": {
+    "chapter": 4,
+    "page": 17,
+    "figure": "4-14",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=17"
+  },
+  "mos-accumulation": {
+    "chapter": 5,
+    "page": 4,
+    "figure": "5-5b",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch5-1.pdf#page=4"
+  },
+  "mos-inversion": {
+    "chapter": 5,
+    "page": 9,
+    "figure": "5-9b",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch5-1.pdf#page=9"
+  },
+  "minority": {
+    "chapter": 4,
+    "page": 22,
+    "figure": "4-18",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=22"
+  },
+  "current": {
+    "chapter": 4,
+    "page": 25,
+    "figure": "4-20b",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=25"
+  },
+  "diode-iv": {
+    "chapter": 4,
+    "page": 13,
+    "figure": "4-10a",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=13"
+  },
+  "inverse-cv": {
+    "chapter": 4,
+    "page": 11,
+    "figure": "4-9",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch4-1.pdf#page=11"
+  },
+  "mos-charge": {
+    "chapter": 5,
+    "page": 12,
+    "figure": "5-14",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch5-1.pdf#page=12"
+  },
+  "mosfet-output": {
+    "chapter": 6,
+    "page": 17,
+    "figure": "6-16",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch6-1.pdf#page=17"
+  },
+  "mos-cv": {
+    "chapter": 5,
+    "page": 15,
+    "figure": "5-18",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch5-1.pdf#page=15"
+  },
+  "mos-shift": {
+    "chapter": 5,
+    "page": 16,
+    "figure": "5-20",
+    "url": "https://www.chu.berkeley.edu/wp-content/uploads/2020/01/Chenming-Hu_ch5-1.pdf#page=16"
+  }
+}

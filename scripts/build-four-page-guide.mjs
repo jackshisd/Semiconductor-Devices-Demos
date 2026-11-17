@@ -21,11 +21,20 @@ const topic = (title, reference) =>
   `<div class="topic"><strong>${title}</strong><span>${reference}</span></div>`;
 const note = (body) => `<div class="note">${body}</div>`;
 const xref = (body) => `<div class="xref">${body}</div>`;
+const sourceGraphs = JSON.parse(
+  readFileSync(resolve(publicGuides, 'source-graphs/sources.json'), 'utf8'),
+);
+const sourceSvg = (key, width = 420, height = 118) => {
+  const source = sourceGraphs[key];
+  const image = readFileSync(resolve(publicGuides, `source-graphs/${key}.png`)).toString('base64');
+  return `<svg viewBox="0 0 ${width} ${height}" role="img" aria-label="Original textbook graph, Hu figure ${source.figure}"><a href="${source.url}" target="_blank"><image href="data:image/png;base64,${image}" x="0" y="0" width="${width}" height="${height - 11}" preserveAspectRatio="xMidYMid meet"/><text x="3" y="${height - 2}" fill="#526670" font-family="Arial" font-size="7">Hu Fig. ${source.figure} · click for source</text></a></svg>`;
+};
 const mobilityAt = (density, carrier) =>
   carrier === 'electron'
     ? 92 + 1308 / (1 + (density / 9e16) ** 0.7)
     : 54 + 446 / (1 + (density / 1.5e17) ** 0.8);
 const compactGraph = (kind) => {
+  return `<div class="mini-graph"><strong>Si ${kind} · 300 K</strong>${sourceSvg(kind, 180, 123)}</div>`;
   const mobility = kind === 'mobility';
   const x = (density) => 32 + ((Math.log10(density) - 13) / 7) * 138;
   const y = (value) =>
@@ -59,7 +68,9 @@ ${[14, 17, 20].map((exponent) => `<line x1="${x(10 ** exponent)}" y1="24" x2="${
 <text x="169" y="10" text-anchor="end" class="legend"><tspan fill="#2672d9">${mobility ? 'e⁻' : 'n-type'}</tspan><tspan fill="#d56138">  ${mobility ? 'h⁺' : 'p-type'}</tspan></text>
 <text x="101" y="120" text-anchor="middle" class="axis-title">${mobility ? 'Nᴅ + Nᴀ' : 'Nᴀ or Nᴅ'} (cm⁻³)</text></svg></div>`;
 };
-const mosCvGraphPair = () => `<div class="mos-cv-graphs">
+const mosCvGraphPair = () =>
+  `<div class="mos-cv-graphs">${sourceSvg('mos-cv', 440, 145)}${sourceSvg('mos-shift', 440, 85)}<div class="cv-caption">Source: Hu Figs. 5-18, 5-20. Positive oxide charge shifts flat-band voltage left; LF inversion returns to Cox, HF stays at Cmin.</div></div>`;
+const legacyMosCvGraphPair = () => `<div class="mos-cv-graphs">
 <svg viewBox="0 0 440 232" role="img" aria-label="P-type MOS C-V: accumulation of holes at negative gate bias, flat band at VFB, growing depletion width and falling capacitance, inversion after VT; low-frequency inversion returns toward Cox, high-frequency inversion stays at Cmin, fast sweep causes deep depletion. A second graph shows positive fixed oxide charge shifting flat-band and threshold voltages left.">
 <text x="7" y="12" class="cv-title">P-type MOS: regions and AC response</text>
 <rect x="47" y="27" width="123" height="83" class="cv-accumulation"/><rect x="170" y="27" width="110" height="83" class="cv-depletion"/><rect x="280" y="27" width="141" height="83" class="cv-inversion"/>
@@ -92,7 +103,7 @@ const mosCvGraphPair = () => `<div class="mos-cv-graphs">
 <text x="243" y="220" text-anchor="middle" class="cv-shift-text">shifted VT</text><text x="280" y="230" text-anchor="middle" class="cv-reference-text">ideal VT</text>
 </svg><div class="cv-caption">Flat band: Si bands level. Inversion: LF electrons respond; HF stays near Cmin. Fast sweep: transient deep depletion. N-type reverses Vɢ polarity. Doping ↑ raises Cmin; thinner oxide lowers Cmin/Cₒₓ.</div></div>`;
 const conceptGraph = (title, category, description, drawing, height = 103) =>
-  `<div class="concept-graph" data-category="${category}"><strong>${title} <small>· schematic</small></strong><svg viewBox="0 0 420 ${height}" role="img" aria-label="${description}">${drawing}</svg></div>`;
+  `<div class="concept-graph" data-category="${category}"><strong>${title}</strong>${sourceSvg({ 'Minority carriers under PN bias': 'minority', 'Forward PN diode: current components': 'current', 'PN diode I–V regions': 'diode-iv', 'Junction doping from 1/C²': 'inverse-cv', 'P-type MOS: surface charge versus gate bias': 'mos-charge', 'NMOS output family: pinch-off and modulation': 'mosfet-output' }[title], 420, height)}</div>`;
 const minorityProfileGraph = () =>
   conceptGraph(
     'Minority carriers under PN bias',
@@ -175,6 +186,7 @@ const continuityCases = () =>
 <div><b>Thermal equilibrium:</b> ${math(String.raw`\partial_t n=\partial_t p=0,\;G=R,\;J_n=J_p=0`)}. Drift and diffusion may cancel.</div>
 <div><b>Uniform, steady light:</b> ${math(String.raw`0=G_L-\Delta n/\tau_n\Rightarrow\Delta n=G_L\tau_n`)} for minority electrons in p-type Si.</div></div>`;
 const schottkyBandDiagram = (type) => {
+  return sourceSvg(`schottky-${type}`, 180, 156);
   const n = type === 'n';
   const ef = 70;
   const vacuumSurface = n ? 18 : 28;
@@ -205,6 +217,7 @@ ${bracket(144, bendSurface, bendBulk)}<text x="150" y="${(bendSurface + bendBulk
 </svg>`;
 };
 const pnBandDiagram = (forward) => {
+  return sourceSvg(forward ? 'pn-forward' : 'pn-equilibrium', 180, 118);
   const ecLeft = forward ? 44 : 33;
   const evLeft = forward ? 91 : 80;
   const fermi = forward
@@ -220,6 +233,7 @@ ${fermi}<text x="159" y="55" class="mini-band-label">Eᴄ</text><text x="159" y=
 <text x="58" y="114" class="mini-band-label">${forward ? 'barrier falls: Vᵦᵢ − Vₐ' : 'built-in barrier: Vᵦᵢ'}</text></svg>`;
 };
 const mosBandDiagram = (inversion) => {
+  return sourceSvg(inversion ? 'mos-inversion' : 'mos-accumulation', 180, 118);
   const ecSurface = inversion ? 70 : 38;
   const evSurface = inversion ? 106 : 74;
   const gateFermi = inversion ? 93 : 62;
@@ -1660,6 +1674,7 @@ const categoryTopics = {
     'HW4 P2: minority-hole continuity',
   ],
   mos: [
+    '25. NMOS current and pinch-off',
     'MOS C–V: read the measured curve',
     'Polysilicon gate depletion',
     'Lecture 13: MOS C–V graph map',
@@ -1719,9 +1734,24 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     const workedChecks = right.slice(0, schottkyStart);
     left =
       left.slice(0, cvStart) +
-      workedChecks +
+      workedChecks.replace(/<div class="note">[\s\S]*?<\/div>/g, '') +
       inverseCapacitanceGraph() +
-      mosChargeGraph() +
+      topic('25. NMOS current and pinch-off', 'L14; long-channel, strong inversion') +
+      formula(
+        String.raw`I_D=\mu_n C_{ox}'\frac WL[(V_{GS}-V_{th})V_{DS}-\tfrac12V_{DS}^2]`,
+        'Triode: 0 ≤ VDS < VGS − Vth.',
+        true,
+      ) +
+      formula(
+        String.raw`V_{DS,sat}=V_{GS}-V_{th},\quad I_{D,sat}=\frac{\mu_n C_{ox}'W}{2L}(V_{GS}-V_{th})^2`,
+        'Pinch-off begins at the drain; ideal saturation current.',
+        true,
+      ) +
+      formula(
+        String.raw`I_D\simeq I_{D,sat}(1+\lambda V_{DS})`,
+        'Channel-length modulation gives the saturation slope.',
+        true,
+      ) +
       mosfetOutputGraph();
     right = cv + right.slice(schottkyStart);
   }

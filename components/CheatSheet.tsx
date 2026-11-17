@@ -11,14 +11,15 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Section-letter equation labels and cross-references across Lectures 1–12 and Homeworks 1–4.',
+      'Numbered key equations for Lectures 1–14 and Homeworks 1–4, with original online source graphs and clickable credits.',
   },
   {
     id: 'full',
     title: 'Four-page cheat sheet',
     file: '/guides/ece121b-four-page-cheat-sheet.pdf',
     pages: 4,
-    description: 'Expanded formulas with brief use notes and homework references.',
+    description:
+      'Expanded formulas, original source graphs, brief use notes, and homework references.',
   },
   {
     id: 'short',
@@ -88,10 +89,18 @@ export default function CheatSheet() {
           clickable source credits. 55 pages, with one figure per page for readability.
         </p>
         <div className="midterm-prep-actions">
-          <a className="primary-link" href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf" download>
+          <a
+            className="primary-link"
+            href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf"
+            download
+          >
             Download graph answer key · PDF
           </a>
-          <a href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf" target="_blank" rel="noreferrer">
+          <a
+            href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf"
+            target="_blank"
+            rel="noreferrer"
+          >
             Open answer key ↗
           </a>
         </div>
