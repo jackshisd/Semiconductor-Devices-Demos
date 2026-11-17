@@ -359,7 +359,10 @@ const pages = [
         String.raw`n=\frac{\Delta N+\sqrt{\Delta N^2+4n_i^2}}{2}`,
         'Exact neutrality result near intrinsic or compensated conditions.',
       ),
-      formula(String.raw`p=\frac{n_i^2}{n}`, 'Recover the exact hole density at equilibrium.'),
+      formula(
+        String.raw`p=\frac{-\Delta N+\sqrt{\Delta N^2+4n_i^2}}{2}=\frac{n_i^2}{n}`,
+        'Exact hole counterpart; ΔN = ND − NA.',
+      ),
       note('HW1 P5: net doping sets n or p; total ionized impurities N_D + N_A affect mobility.'),
       topic('Fermi-level location', 'L3 p11–20; HW2 P3'),
       formula(
@@ -450,8 +453,8 @@ const pages = [
         'Electric field from potential or band-edge slope.',
       ),
       formula(
-        String.raw`\mathcal E=-\frac{V_T}{n}\frac{dn}{dx}`,
-        'Equilibrium field that cancels electron diffusion.',
+        String.raw`\mathcal E=-\frac{V_T}{n}\frac{dn}{dx}=+\frac{V_T}{p}\frac{dp}{dx}`,
+        'Equilibrium field cancels electron and hole diffusion.',
       ),
       note('For the band-edge slope, E_C must be in joules when q is in coulombs.'),
     ].join(''),
@@ -480,8 +483,8 @@ const pages = [
         'Pair generation changes both carrier populations equally.',
       ),
       formula(
-        String.raw`\Delta n=G_L\tau_n`,
-        'Uniform steady low-injection photogeneration; HW2 P1.',
+        String.raw`\Delta n=G_L\tau_n,\quad\Delta p=G_L\tau_p`,
+        'Minority electrons in p material; minority holes in n material.',
       ),
       formula(
         String.raw`n=n_0+\Delta n,\quad p=p_0+\Delta p`,
@@ -501,42 +504,46 @@ const pages = [
         'Expanded forms assume constant μ and D. Low injection: excess carriers ≪ equilibrium majority density; in p-type Si compare Δn with p₀.',
       ),
       topic('Minority diffusion and illuminated bar', 'L4 p29–32; L5 p5–17; HW2 P2'),
+      note(
+        '<b>Both substrate types:</b> δ = Δp, D = Dp, τ = τp, Ld = Lp, NB = ND in n-type; δ = Δn, D = Dn, τ = τn, Ld = Ln, NB = NA in p-type. Below, ℓ is bar length; γ is end injection / majority doping.',
+      ),
       formula(
-        String.raw`D_p\frac{d^2\Delta p}{dx^2}-\frac{\Delta p}{\tau_p}=0`,
-        'Steady, field-free, unilluminated interior.',
+        String.raw`D\frac{d^2\delta}{dx^2}-\frac{\delta}{\tau}=0`,
+        'Steady, field-free interior; choose electron or hole parameters above.',
       ),
       formula(
         String.raw`L_p=\sqrt{D_p\tau_p},\quad L_n=\sqrt{D_n\tau_n}`,
         'Distance excess minority carriers survive.',
       ),
       formula(
-        String.raw`\Delta p(x)=Ae^{-x/L_p}+Be^{x/L_p}`,
+        String.raw`\delta(x)=Ae^{-x/L_d}+Be^{x/L_d}`,
         'General one-dimensional diffusion solution.',
       ),
       formula(
-        String.raw`\Delta p(0)=\Delta p(L)=\gamma N_D`,
+        String.raw`\delta(0)=\delta(\ell)=\gamma N_B`,
         'Boundary condition for equal end illumination.',
       ),
       formula(
-        String.raw`\Delta p(x)=\gamma N_D\frac{\cosh[(x-L/2)/L_p]}{\cosh[L/(2L_p)]}`,
+        String.raw`\delta(x)=\gamma N_B\frac{\cosh[(x-\ell/2)/L_d]}{\cosh[\ell/(2L_d)]}`,
         'Symmetric bar profile satisfying both ends.',
         true,
       ),
       formula(
-        String.raw`J_p(x)=-qD_p\frac{d\Delta p}{dx}`,
-        'Hole current at an edge; differentiate the profile.',
+        String.raw`J_p=-qD_p\frac{d\Delta p}{dx},\quad J_n=+qD_n\frac{d\Delta n}{dx}`,
+        'Conventional current: opposite signs for holes and electrons.',
+        true,
       ),
       formula(
-        String.raw`\Delta p(x)=\Delta p(0)e^{-x/L_p}`,
+        String.raw`\delta(x)=\delta(0)e^{-x/L_d}`,
         'Single-edge decay into a long neutral region.',
       ),
       formula(
-        String.raw`\Delta p(t)=\Delta p(0)e^{-t/\tau_p}`,
+        String.raw`\delta(t)=\delta(0)e^{-t/\tau}`,
         'Time decay after generation stops; no spatial current.',
       ),
       formula(
-        String.raw`J_p(0)=\frac{qD_p\gamma N_D}{L_p}\tanh\!\frac{L}{2L_p}`,
-        'Hole diffusion current entering the equally lit bar.',
+        String.raw`|J(0)|=\frac{qD\gamma N_B}{L_d}\tanh\!\frac{\ell}{2L_d}`,
+        'Magnitude entering either equally lit bar; sign from the current law.',
       ),
       note(
         'In HW2 P2, γ is stated as 10⁻⁴. Use the stated boundary value when checking the worked solution.',
@@ -572,8 +579,8 @@ const pages = [
         'Potential slope and curvature.',
       ),
       formula(
-        String.raw`\psi(x_2)-\psi(x_1)=V_T\ln\!\frac{n(x_2)}{n(x_1)}`,
-        'Equilibrium potential difference from electron densities.',
+        String.raw`\Delta\psi=V_T\ln\!\frac{n_2}{n_1}=-V_T\ln\!\frac{p_2}{p_1}`,
+        'Equilibrium potential from either carrier density; Δψ = ψ₂ − ψ₁.',
       ),
       topic('6. Abrupt PN junction: voltage and width', 'L6 p17–29'),
       formula(
@@ -650,8 +657,8 @@ const pages = [
         'These C–V signs use the n-type forward-bias convention. The voltage-axis intercept is V_bi.',
       ),
       formula(
-        String.raw`\begin{aligned}qV_{bi}&=\Phi_{Bn}-(E_C-E_F)_{\mathrm{FB}}\\&=\Phi_{Bn}-k_BT\ln\!\left(\frac{N_C}{N_D}\right)\end{aligned}`,
-        'For an n-type Schottky contact, use V_bi from the C–V intercept and N_D from its slope to find Φ_Bn; energies in eV.',
+        String.raw`\begin{aligned}\Phi_{Bn}&=qV_{bi,n}+k_BT\ln(N_C/N_D)\\\Phi_{Bp}&=qV_{bi,p}+k_BT\ln(N_V/N_A)\end{aligned}`,
+        'Schottky barrier from C–V: n uses ND; p uses NA. Extract Vbi with a consistent bias convention; all energies in one unit.',
         true,
       ),
       topic('Check before substitution', 'Lectures 5–6'),
@@ -732,8 +739,8 @@ const pages = [
         true,
       ),
       formula(
-        String.raw`\Delta p_n(x_n+x)=p_{n0}(e^{V_A/V_T}-1)e^{-x/L_p}`,
-        'Injected hole profile in the neutral n-side.',
+        String.raw`\Delta c(d)=c_0(e^{V_A/V_T}-1)e^{-d/L_c}`,
+        'd ≥ 0 into neutral base. n base: c₀ = pn₀, Lc = Lp (holes); p base: c₀ = np₀, Lc = Ln (electrons).',
         true,
       ),
       formula(
@@ -862,45 +869,47 @@ const laterPages = [
       ),
       topic('13. Charge control: current → stored charge', 'L9 p5–7, 16–23'),
       formula(
-        String.raw`I=\frac{dQ}{dt}+\frac{Q}{\tau_p}`,
-        'Here I is the hole-injection component in one long base; negative I extracts charge.',
+        String.raw`I=\frac{dQ}{dt}+\frac{Q}{\tau_c}`,
+        'Q ≥ 0 is stored minority-charge magnitude; τc = τp (holes in n type) or τn (electrons in p type). I is that injection component.',
       ),
-      xref('Long base: far-edge current vanishes, so the edge hole current is I in (13a).'),
+      xref(
+        'Long base: c₀ = pn₀, Lc = Lp for n type; c₀ = np₀, Lc = Ln for p type. Far-edge current vanishes.',
+      ),
       formula(
-        String.raw`Q(t)=I\tau_p+[Q(t_0)-I\tau_p]e^{-(t-t_0)/\tau_p}`,
+        String.raw`Q(t)=I\tau_c+[Q(t_0)-I\tau_c]e^{-(t-t_0)/\tau_c}`,
         'General constant-current solution; set the initial charge at t₀.',
         true,
       ),
       formula(
-        String.raw`Q(0)=Q_{\rm ss}=I_F\tau_p`,
+        String.raw`Q(0)=Q_{\rm ss}=I_F\tau_c`,
         'HW4 P1: initial charge after steady forward current.',
       ),
       formula(
-        String.raw`\frac{dQ}{dt}=-I_R-\frac{Q}{\tau_p}`,
+        String.raw`\frac{dQ}{dt}=-I_R-\frac{Q}{\tau_c}`,
         'Reverse current extracts stored charge during the storage interval.',
       ),
       formula(
-        String.raw`Q(t)=\tau_p[(I_F+I_R)e^{-t/\tau_p}-I_R]`,
+        String.raw`Q(t)=\tau_c[(I_F+I_R)e^{-t/\tau_c}-I_R]`,
         'HW4 P1: reverse extraction from Q(0) = I_Fτp.',
         true,
       ),
       formula(
-        String.raw`t_s=\tau_p\ln\!\left(1+\frac{I_F}{I_R}\right)`,
+        String.raw`t_s=\tau_c\ln\!\left(1+\frac{I_F}{I_R}\right)`,
         'Set Q(ts) = 0; for equal 1 mA currents and τp = 1 μs, ts = 0.693 μs.',
       ),
       xref('Forward reapplication: put I = I_F into the general solution (13b).'),
       formula(
-        String.raw`Q(t)\simeq I_F\tau_p(1-e^{-(t-t_0)/\tau_p})`,
+        String.raw`Q(t)\simeq I_F\tau_c(1-e^{-(t-t_0)/\tau_c})`,
         'Use only when Q(t₀) is negligible.',
       ),
       topic('Stored charge → diode voltage', 'L9 p16–23; quasi-static'),
       formula(
-        String.raw`Q_0=qAp_{n0}L_p=\tau_pI_S`,
+        String.raw`Q_0=qAc_0L_c=\tau_cI_S`,
         'One-sided saturation current I_S; Q₀ is not initial excess charge.',
       ),
       formula(
         String.raw`Q=Q_0(e^{v_a/V_T}-1)`,
-        'Boundary injection sets excess charge in a long n base.',
+        'Applies to either long base using the carrier key above.',
       ),
       formula(
         String.raw`v_a=V_T\ln\!\left(1+\frac{Q}{Q_0}\right)`,
@@ -1199,38 +1208,47 @@ const laterPages = [
         'Surface band bending for electrostatic potential ψ_s.',
       ),
       note(
-        'Primes denote charge or capacitance per area. Work-function differences in eV are numerically volts after division by q. At flat band, ψ_s = 0.',
+        'Primes: per unit area. Work functions in eV give volts numerically. At flat band ψs = 0.',
       ),
-      topic('22. P-type accumulation and depletion', 'L11 p12; L12 p5–13'),
-      formula(
-        String.raw`V_G<V_{FB}\Rightarrow\text{hole accumulation}`,
-        'Negative gate relative to flat band attracts holes.',
-      ),
-      formula(
-        String.raw`V_{FB}<V_G<V_T^{\rm MOS}\Rightarrow\text{depletion}`,
-        'Positive gate repels holes and exposes acceptors.',
+      topic('22. Both MOS substrate polarities', 'L11 p12; L12 p5–13'),
+      note(
+        '<b>MOS key (22–24):</b> p: s = +1, NB = NA. n: s = −1, NB = ND. U = s(VG − VFB), u = sψs, φF = VT ln(NB/ni) &gt; 0. Depletion: U,u &gt; 0. Vth is the signed threshold.',
       ),
       formula(
-        String.raw`W=\sqrt{\frac{2\varepsilon_{Si}\psi_s}{qN_A}}`,
-        'Depletion width from Poisson’s equation.',
+        String.raw`p:\ V_G<V_{FB};\qquad n:\ V_G>V_{FB}`,
+        'Accumulation: holes for p substrate; electrons for n substrate.',
+        true,
       ),
       formula(
-        String.raw`Q_{dep}'=-qN_AW=-\sqrt{2q\varepsilon_{Si}N_A\psi_s}`,
-        'Negative fixed-ion charge per area in p-type Si.',
+        String.raw`p:\ V_{FB}<V_G<V_{th};\quad n:\ V_{th}<V_G<V_{FB}`,
+        'Depletion: exposed acceptors (−) or donors (+).',
+        true,
+      ),
+      formula(
+        String.raw`W=\sqrt{\frac{2\varepsilon_{Si}u}{qN_B}}`,
+        'Both types: u = ψs for p; u = −ψs for n.',
+      ),
+      formula(
+        String.raw`Q_{dep}'=-s qN_BW=-s\sqrt{2q\varepsilon_{Si}N_Bu}`,
+        'p: −qNAW; n: +qNDW. Choose s from the MOS key.',
         true,
       ),
       formula(
         String.raw`Q_s'=Q_{acc}'+Q_{dep}'+Q_{inv}'`,
-        'Add mobile holes, exposed acceptors, and inversion electrons.',
+        'Both types: accumulation + depletion + inversion charge.',
       ),
       formula(
         String.raw`Q_{acc}'\approx-C_{ox}'(V_G-V_{FB})`,
-        'Strong accumulation: negative gate bias gives positive hole charge.',
+        'p: positive hole charge; n: negative electron charge in accumulation.',
       ),
       topic('HW4 P3: N-type MOS and band bending', 'L11–12; ideal oxide'),
       xref('For the bulk n-type band-edge offset use (8c); field from potential is (5h).'),
       formula(String.raw`\Phi=E_{\rm vac}-E_F`, 'Work function is vacuum level minus Fermi level.'),
-      formula(String.raw`\Phi_S=\chi+(E_C-E_F)`, 'N-type semiconductor work function.', true),
+      formula(
+        String.raw`\Phi_S=\chi+(E_C-E_F)=\chi+E_g-(E_F-E_V)`,
+        'Use EC−EF for n type, or EF−EV for p type.',
+        true,
+      ),
       formula(
         String.raw`\Phi_S\simeq4.136\,\mathrm{eV},\quad V_{FB}\simeq+1.06\,\mathrm V`,
         'HW4 values; an energy difference in eV is numerically volts after division by q.',
@@ -1243,7 +1261,7 @@ const laterPages = [
       ),
       formula(
         String.raw`V_{T,n}^{\rm MOS}=V_{FB}-2\phi_F-\frac{\sqrt{4q\varepsilon_{Si}N_D\phi_F}}{C_{ox}'}`,
-        'N-type threshold with positive φF magnitude; gate bias is negative.',
+        'N-type substrate threshold: lies below VFB; φF is a positive magnitude.',
         true,
       ),
       formula(
@@ -1257,49 +1275,54 @@ const laterPages = [
       ),
     ].join(''),
     right: [
-      topic('Depletion versus gate voltage', 'L12 p12–13, 20; VFB < VG < VT'),
+      topic('Depletion versus gate voltage', 'Both substrate types; use the MOS key in section 22'),
       formula(
-        String.raw`V_G-V_{FB}=\psi_s+\frac{\sqrt{2q\varepsilon_{Si}N_A\psi_s}}{C_{ox}'}`,
-        'Gate bias divides between silicon bending and oxide drop.',
+        String.raw`U=u+\frac{\sqrt{2q\varepsilon_{Si}N_Bu}}{C_{ox}'}`,
+        'p: U = VG−VFB; n: U = VFB−VG. Both are positive in depletion.',
         true,
       ),
       formula(
-        String.raw`\psi_s=\frac{qN_A\varepsilon_{Si}}{2C_{ox}'^{\,2}}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}(V_G-V_{FB})}{qN_A\varepsilon_{Si}}}-1\right]^2`,
-        'Surface potential directly from gate voltage in depletion.',
+        String.raw`u=\frac{qN_B\varepsilon_{Si}}{2C_{ox}'^{\,2}}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}U}{qN_B\varepsilon_{Si}}}-1\right]^2`,
+        'Surface potential: ψs = +u for p; ψs = −u for n.',
         true,
       ),
       formula(
-        String.raw`W=\frac{\varepsilon_{Si}}{C_{ox}'}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}(V_G-V_{FB})}{qN_A\varepsilon_{Si}}}-1\right]`,
+        String.raw`W=\frac{\varepsilon_{Si}}{C_{ox}'}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}U}{qN_B\varepsilon_{Si}}}-1\right]`,
         'Depletion width directly from gate voltage.',
         true,
       ),
       topic('23. Strong inversion and threshold', 'L12 p14–21'),
       formula(
-        String.raw`\phi_F=V_T\ln(N_A/n_i)`,
-        'Positive bulk Fermi-potential magnitude for p-type Si.',
+        String.raw`\phi_F=V_T\ln(N_B/n_i)`,
+        'Positive magnitude: NB = NA for p; NB = ND for n.',
       ),
-      formula(String.raw`\psi_{s,T}=2\phi_F`, 'Strong-inversion threshold surface potential.'),
+      formula(String.raw`\psi_{s,T}=s\,2\phi_F`, 'p: +2φF; n: −2φF at strong-inversion threshold.'),
       formula(
-        String.raw`n_s\approx(n_i^2/N_A)e^{\psi_s/V_T}`,
-        'Surface electrons rise exponentially with band bending.',
-      ),
-      formula(String.raw`n_s(2\phi_F)\approx N_A`, 'Strong-inversion surface criterion.'),
-      formula(
-        String.raw`W_T=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_A}}`,
-        'Approximate maximum depletion width at threshold.',
-      ),
-      formula(
-        String.raw`Q_{dep,T}'=-\sqrt{4q\varepsilon_{Si}N_A\phi_F}`,
-        'Threshold depletion sheet charge.',
-      ),
-      formula(
-        String.raw`V_T^{\rm MOS}=V_{FB}+2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_A\phi_F}}{C_{ox}'}`,
-        'Threshold voltage for ideal p-type substrate.',
+        String.raw`n_s=n_0e^{\psi_s/V_T},\quad p_s=p_0e^{-\psi_s/V_T}`,
+        'p substrate: n₀ = ni²/NA, p₀ ≈ NA; n substrate: n₀ ≈ ND, p₀ = ni²/ND.',
         true,
       ),
       formula(
-        String.raw`Q_{inv}'\approx-C_{ox}'(V_G-V_T^{\rm MOS})`,
-        'Electron inversion charge above threshold.',
+        String.raw`p\text{ sub}:\ n_s\approx N_A;\quad n\text{ sub}:\ p_s\approx N_D`,
+        'Minority surface density equals bulk majority density at threshold.',
+        true,
+      ),
+      formula(
+        String.raw`W_T=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_B}}`,
+        'Approximate maximum depletion width at threshold.',
+      ),
+      formula(
+        String.raw`Q_{dep,T}'=-s\sqrt{4q\varepsilon_{Si}N_B\phi_F}`,
+        'Threshold ion charge: negative for p; positive for n.',
+      ),
+      formula(
+        String.raw`V_{th}=V_{FB}+s\left(2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_B\phi_F}}{C_{ox}'}\right)`,
+        'p substrate / NMOS: plus; n substrate / PMOS: minus.',
+        true,
+      ),
+      formula(
+        String.raw`Q_{inv}'\approx-C_{ox}'(V_G-V_{th})`,
+        'p: electron charge < 0 for VG > Vth; n: hole charge > 0 for VG < Vth.',
       ),
       note(
         'Here V_T without a MOS superscript is thermal voltage; V_T^MOS means transistor threshold. Added gate bias above threshold mainly increases inversion charge.',
@@ -1321,7 +1344,7 @@ const laterPages = [
         true,
       ),
       formula(
-        String.raw`L_D=\sqrt{\varepsilon_{Si}V_T/(qN_A)}`,
+        String.raw`L_D=\sqrt{\varepsilon_{Si}V_T/(qN_B)}`,
         'Extrinsic Debye screening length at flat band.',
       ),
       formula(
@@ -1334,8 +1357,8 @@ const laterPages = [
         'Minority carriers follow low-frequency inversion; accumulation charge sits near oxide.',
       ),
       formula(
-        String.raw`t_{inv}\sim\frac{2N_A}{n_i}\tau_0`,
-        'Illustrative inversion-charge buildup time; τ₀ is surface minority-carrier lifetime.',
+        String.raw`t_{inv}\sim\frac{2N_B}{n_i}\tau_0`,
+        'Generation-limited buildup estimate for either substrate; τ₀ is effective generation lifetime.',
       ),
       note(
         'For n-type Si reverse the gate-voltage polarities and majority/minority carriers. Low- versus high-frequency inversion depends on electron or hole supply, not just DC bias.',
@@ -1669,13 +1692,13 @@ const categoryTopics = {
     'HW4 P2: minority-hole continuity',
   ],
   mos: [
-    '25. NMOS current and pinch-off',
+    '25. NMOS and PMOS current',
     'MOS C–V: read the measured curve',
     'Polysilicon gate depletion',
     'Lecture 13: MOS C–V graph map',
     'MOS capacitor band bending',
     '21. MOS stack and flat band',
-    '22. P-type accumulation and depletion',
+    '22. Both MOS substrate polarities',
     'HW4 P3: N-type MOS and band bending',
     'Depletion versus gate voltage',
     '23. Strong inversion and threshold',
@@ -1731,19 +1754,22 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
       left.slice(0, cvStart) +
       workedChecks.replace(/<div class="note">[\s\S]*?<\/div>/g, '') +
       inverseCapacitanceGraph() +
-      topic('25. NMOS current and pinch-off', 'L14; long-channel, strong inversion') +
+      topic('25. NMOS and PMOS current', 'L14; long-channel, strong inversion') +
+      note(
+        '<b>NMOS:</b> μc = μn, Vov = VGS − Vth,n, v = VDS. <b>PMOS:</b> μc = μp, Vov = VSG − |Vth,p|, v = VSD. Require Vov &gt; 0, v ≥ 0; equations below give |ID|. PMOS conventional drain current has opposite sign to NMOS.',
+      ) +
       formula(
-        String.raw`I_D=\mu_n C_{ox}'\frac WL[(V_{GS}-V_{th})V_{DS}-\tfrac12V_{DS}^2]`,
-        'Triode: 0 ≤ VDS < VGS − Vth.',
+        String.raw`|I_D|=\mu_c C_{ox}'\frac WL[V_{ov}v-\tfrac12v^2]`,
+        'Triode for either channel: 0 ≤ v < Vov.',
         true,
       ) +
       formula(
-        String.raw`V_{DS,sat}=V_{GS}-V_{th},\quad I_{D,sat}=\frac{\mu_n C_{ox}'W}{2L}(V_{GS}-V_{th})^2`,
-        'Pinch-off begins at the drain; ideal saturation current.',
+        String.raw`v_{sat}=V_{ov},\quad |I_{D,sat}|=\frac{\mu_c C_{ox}'W}{2L}V_{ov}^2`,
+        'NMOS: VDS,sat; PMOS: VSD,sat. Saturation when v ≥ Vov.',
         true,
       ) +
       formula(
-        String.raw`I_D\simeq I_{D,sat}(1+\lambda V_{DS})`,
+        String.raw`|I_D|\simeq |I_{D,sat}|(1+\lambda v)`,
         'Channel-length modulation gives the saturation slope.',
         true,
       );
@@ -1756,7 +1782,10 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
     right += mosfetOutputGraph();
   }
   if (index === 4) left = left.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
+  if (index === 4) right = right.replace(/<div class="note">HW3 P4:[\s\S]*?<\/div>/g, '');
+  if (index === 5) left = left.replace(/<div class="note">HW3 P5:[\s\S]*?<\/div>/g, '');
   if (index === 6) right = right.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
+  if (index === 7) left = left.replace(/<div class="note">N-type Si:[\s\S]*?<\/div>/g, '');
   left = colorizeEquations(numberEquations(left));
   right = colorizeEquations(numberEquations(right));
   const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';

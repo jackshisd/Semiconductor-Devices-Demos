@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Numbered key equations for Lectures 1–14 and Homeworks 1–4, with selected source graphs enlarged to full column width. All 39 graph topics are in the separate answer key above.',
+      'Numbered equations for both n-type and p-type cases, including MOS polarity keys, electron/hole diffusion, and NMOS/PMOS currents. Selected source graphs fill the column; all 39 topics are in the answer key above.',
   },
   {
     id: 'full',
