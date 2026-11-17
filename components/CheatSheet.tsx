@@ -83,7 +83,10 @@ export default function CheatSheet() {
       <h1>Cheat sheets</h1>
       <aside className="notice" aria-label="Graph drawing answer key">
         <h2>Lectures 1–14: graph drawing answer key</h2>
-        <p>All 39 graph exercises with labeled landmarks, equations, and explanations. 40 pages.</p>
+        <p>
+          Online reference graphs for all 39 topics, with original labels, reading notes, and
+          clickable source credits. 55 pages, with one figure per page for readability.
+        </p>
         <div className="midterm-prep-actions">
           <a className="primary-link" href="/guides/ee121b-lectures-1-14-graph-answer-key.pdf" download>
             Download graph answer key · PDF
