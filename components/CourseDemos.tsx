@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Controls, Toggle } from './Controls';
 import {
   Calculation,
@@ -248,10 +248,31 @@ export function CourseQuasiFermi() {
 }
 
 export function CourseIdealDiode() {
-  const { v, set, reset } = useParams({ N: 1e16, VA: 0.3, T: 300, tau: 1e-6 });
+  const { v, set, reset } = useParams({ NA: 1e16, ND: 1e16, VA: 0.3, T: 300, tau: 1e-6 });
   const [log, setLog] = useState(false);
-  const model = (V: number) => P.idealDiode(v.N, v.N, V, v.T, v.tau),
+  const [playing, setPlaying] = useState(false);
+  const [probe, setProbe] = useState(-3);
+  useEffect(() => {
+    if (!playing) return;
+    const timer = window.setInterval(() => setProbe((x) => (x >= 4.4 ? -4.4 : x + 0.04)), 60);
+    return () => window.clearInterval(timer);
+  }, [playing]);
+  const model = (V: number) => P.idealDiode(v.NA, v.ND, V, v.T, v.tau),
     r = model(v.VA);
+  const at = (x: number) => P.pnCurrentAt(x, v.NA, v.ND, v.VA, v.T, v.tau);
+  const sample = at(probe);
+  const exponent = Math.floor(Math.log10(Math.max(Math.abs(r.J), r.J0)));
+  const scale = 10 ** exponent;
+  const extent = Math.max(Math.abs(r.J) / scale, r.J0 / scale);
+  const positions = [...pts(-4.4, 4.4, 240, () => 0).map(([x]) => x), -0.4, 0.4].sort(
+    (a, b) => a - b,
+  );
+  const region =
+    probe < -0.4
+      ? 'p-type neutral region'
+      : probe > 0.4
+        ? 'n-type neutral region'
+        : 'depletion region';
   const forward = (V: number) => (log ? Math.log10(Math.max(model(V).J, 1e-30)) : model(V).J);
   return (
     <DemoLayout
@@ -262,11 +283,22 @@ export function CourseIdealDiode() {
           reset={() => {
             reset();
             setLog(false);
+            setPlaying(false);
+            setProbe(-3);
           }}
           items={[
             {
-              key: 'N',
-              label: 'NA = ND',
+              key: 'NA',
+              label: 'P-side acceptors NA',
+              min: 1e14,
+              max: 1e17,
+              step: 1e14,
+              unit: 'cm⁻³',
+              log: true,
+            },
+            {
+              key: 'ND',
+              label: 'N-side donors ND',
               min: 1e14,
               max: 1e17,
               step: 1e14,
@@ -319,78 +351,178 @@ export function CourseIdealDiode() {
           equation.
         </p>
       )}
-      <div className="graph-grid breakdown-graphs">
+      <section className="pn-current-demo" aria-label="Current density across the PN junction">
+        <h3>Follow the current across the junction</h3>
+        <p>
+          Blue is electron conventional current, orange is hole conventional current. Their sum
+          stays constant at every position. Change the voltage to reverse the current; change NA or
+          ND to change the split.
+        </p>
+        <div className="pn-current-probe">
+          <button type="button" aria-pressed={playing} onClick={() => setPlaying(!playing)}>
+            {playing ? 'Pause probe' : 'Play moving probe'}
+          </button>
+          <label htmlFor="pn-current-position">Inspect position · {region}</label>
+          <input
+            id="pn-current-position"
+            type="range"
+            min={-4.4}
+            max={4.4}
+            step={0.01}
+            value={probe}
+            onChange={(e) => {
+              setPlaying(false);
+              setProbe(Number(e.target.value));
+            }}
+          />
+        </div>
         <Plot
-          title="Forward current"
-          xLabel="Forward bias (V)"
-          yLabel={log ? 'log₁₀ J (A/cm²)' : 'J (A/cm²)'}
-          xDomain={[0.001, 0.6]}
-          yDomain={
-            log ? [Math.floor(forward(0.001)), Math.ceil(forward(0.6))] : [0, forward(0.6) * 1.05]
-          }
-          series={[
-            { name: 'Ideal diode', color: '#2672d9', points: pts(0.001, 0.6, 240, forward) },
+          title="Electron, hole, and total current density"
+          height={330}
+          xLabel="Position (neutral bases: diffusion lengths)"
+          yLabel={`J (×10^${exponent} A/cm²)`}
+          xDomain={[-4.4, 4.4]}
+          yDomain={r.J < 0 ? [-extent * 1.15, extent * 0.12] : [-extent * 0.12, extent * 1.15]}
+          zones={[{ from: -0.4, to: 0.4, color: '#6684a5' }]}
+          markers={[
+            { x: -0.4, label: '−xp' },
+            { x: 0.4, label: 'xn' },
+            { x: probe, label: 'Probe' },
           ]}
-        />
-        <Plot
-          title="Reverse saturation"
-          xLabel="Applied voltage (V)"
-          yLabel="J (A/cm²)"
-          xDomain={[-1, 0]}
-          yDomain={[-1.1 * r.J0, 0.1 * r.J0]}
           series={[
             {
-              name: 'Ideal reverse current',
+              name: 'Jn · electrons',
+              color: '#2672d9',
+              points: positions.map((x) => [x, at(x).Jn / scale]),
+            },
+            {
+              name: 'Jp · holes',
               color: '#d56138',
-              points: pts(-1, 0, 160, (V) => model(V).J),
+              points: positions.map((x) => [x, at(x).Jp / scale]),
             },
-          ]}
-        />
-        <Plot
-          title="Minority carriers at the depletion edges"
-          xLabel="Applied voltage (V)"
-          yLabel="Edge carrier density (cm⁻³)"
-          xDomain={[-0.1, 0.6]}
-          yDomain={[0, model(0.6).npEdge * 1.1]}
-          series={[
             {
-              name: 'np(−xp) = pn(xn)',
+              name: 'Jn + Jp · total',
               color: '#14875f',
-              points: pts(-0.1, 0.6, 180, (V) => model(V).npEdge),
-            },
-          ]}
-        />
-        <Plot
-          title="Reverse breakdown: qualitative I–V from Lecture 8"
-          xLabel="Reverse ← applied bias → forward (schematic)"
-          yLabel="Current (schematic)"
-          xDomain={[-10, 1]}
-          yDomain={[-5, 5]}
-          series={[
-            {
-              name: 'Breakdown and forward conduction · shape only',
-              color: '#7654ba',
               points: [
-                [-9, -5],
-                [-8.7, -2],
-                [-8.5, -0.3],
-                [-8, -0.12],
-                [-1, -0.12],
-                [0, 0],
-                [0.4, 0.2],
-                [0.6, 1],
-                [0.8, 3],
-                [1, 5],
+                [-4.4, r.J / scale],
+                [4.4, r.J / scale],
               ],
+              dash: true,
             },
           ]}
-          markers={[{ x: -8.5, label: 'Breakdown' }]}
+          points={[
+            { x: probe, y: sample.Jn / scale, label: 'Jn', color: '#2672d9' },
+            { x: probe, y: sample.Jp / scale, label: 'Jp', color: '#d56138' },
+          ]}
+          onInspect={(x) => `Jn ${sci(at(x).Jn)} · Jp ${sci(at(x).Jp)} · total ${sci(r.J)} A/cm²`}
         />
-      </div>
-      <p className="teaching-caption">
-        The breakdown panel reproduces the qualitative curve in Lecture 8, slide 4. Its axes have no
-        calibrated current or voltage scale; the ideal diode equation does not predict breakdown.
-      </p>
+        <div className="pn-current-regions">
+          <span>p side · minority electrons</span>
+          <span>Depletion</span>
+          <span>n side · minority holes</span>
+        </div>
+        <Metrics>
+          <Metric label="Electron current at probe" value={sci(sample.Jn)} unit="A/cm²" />
+          <Metric label="Hole current at probe" value={sci(sample.Jp)} unit="A/cm²" />
+          <Metric label="Sum at probe" value={sci(sample.J)} unit="A/cm²" />
+        </Metrics>
+        <p className="teaching-caption">
+          {v.VA === 0
+            ? 'Equilibrium: both net current components are zero.'
+            : v.VA > 0
+              ? 'Forward bias: injected minority carriers recombine in the neutral bases. The minority current falls away from its depletion edge while the majority current supplies the balance.'
+              : 'Reverse bias: minority carriers flow toward the junction and are swept across it. Negative values mean conventional current flows from n to p.'}{' '}
+          Inside depletion, this ideal model neglects generation and recombination, so Jn and Jp are
+          each flat. Electron motion is opposite the direction of its conventional current.
+        </p>
+        <p className="teaching-caption">
+          The shaded depletion width is enlarged for clarity. Left distance is measured in Ln ={' '}
+          {fmt(P.um(r.Ln), 1)} µm; right distance in Lp = {fmt(P.um(r.Lp), 1)} µm. These are
+          steady-state, long-base profiles; the moving probe inspects position, not a switching
+          transient.
+        </p>
+      </section>
+      <details className="pn-current-extra">
+        <summary>Voltage characteristics and edge injection</summary>
+        <div className="graph-grid pn-current-graphs">
+          <Plot
+            title="Forward current"
+            xLabel="Forward bias (V)"
+            yLabel={log ? 'log₁₀ J (A/cm²)' : 'J (A/cm²)'}
+            xDomain={[0.001, 0.6]}
+            yDomain={
+              log ? [Math.floor(forward(0.001)), Math.ceil(forward(0.6))] : [0, forward(0.6) * 1.05]
+            }
+            series={[
+              { name: 'Ideal diode', color: '#2672d9', points: pts(0.001, 0.6, 240, forward) },
+            ]}
+          />
+          <Plot
+            title="Reverse saturation"
+            xLabel="Applied voltage (V)"
+            yLabel="J (A/cm²)"
+            xDomain={[-1, 0]}
+            yDomain={[-1.1 * r.J0, 0.1 * r.J0]}
+            series={[
+              {
+                name: 'Ideal reverse current',
+                color: '#d56138',
+                points: pts(-1, 0, 160, (V) => model(V).J),
+              },
+            ]}
+          />
+          <Plot
+            title="Minority carriers at the depletion edges"
+            xLabel="Applied voltage (V)"
+            yLabel="Edge carrier density (cm⁻³)"
+            xDomain={[-0.1, 0.6]}
+            yDomain={[0, Math.max(model(0.6).npEdge, model(0.6).pnEdge) * 1.1]}
+            series={[
+              {
+                name: 'np(−xp) · electrons on p side',
+                color: '#14875f',
+                points: pts(-0.1, 0.6, 180, (V) => model(V).npEdge),
+              },
+              {
+                name: 'pn(xn) · holes on n side',
+                color: '#d56138',
+                points: pts(-0.1, 0.6, 180, (V) => model(V).pnEdge),
+              },
+            ]}
+          />
+          <Plot
+            title="Reverse breakdown: qualitative I–V from Lecture 8"
+            xLabel="Reverse ← applied bias → forward (schematic)"
+            yLabel="Current (schematic)"
+            xDomain={[-10, 1]}
+            yDomain={[-5, 5]}
+            series={[
+              {
+                name: 'Breakdown and forward conduction · shape only',
+                color: '#7654ba',
+                points: [
+                  [-9, -5],
+                  [-8.7, -2],
+                  [-8.5, -0.3],
+                  [-8, -0.12],
+                  [-1, -0.12],
+                  [0, 0],
+                  [0.4, 0.2],
+                  [0.6, 1],
+                  [0.8, 3],
+                  [1, 5],
+                ],
+              },
+            ]}
+            markers={[{ x: -8.5, label: 'Breakdown' }]}
+          />
+        </div>
+        <p className="teaching-caption">
+          The breakdown panel reproduces the qualitative curve in Lecture 8, slide 4. Its axes have
+          no calibrated current or voltage scale; the ideal diode equation does not predict
+          breakdown.
+        </p>
+      </details>
     </DemoLayout>
   );
 }

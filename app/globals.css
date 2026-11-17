@@ -636,6 +636,60 @@ main {
 .graph-grid.pn-graph-grid {
   max-width: 1600px;
 }
+.pn-current-demo,
+.pn-current-extra {
+  min-width: 0;
+  max-width: 100%;
+}
+.pn-current-demo > p {
+  line-height: 1.6;
+}
+.pn-current-probe {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+}
+.pn-current-probe input {
+  flex: 1 1 180px;
+  min-width: 0;
+}
+.pn-current-probe button {
+  padding: 9px 14px;
+  border: 1px solid #2672d9;
+  border-radius: 8px;
+  color: #1765a7;
+  background: #edf5ff;
+  cursor: pointer;
+}
+.pn-current-regions {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  padding: 8px 12px;
+  color: var(--muted);
+}
+.pn-current-extra summary {
+  cursor: pointer;
+  font-weight: 700;
+  padding: 18px 0;
+}
+.graph-grid.pn-current-graphs {
+  grid-template-columns: minmax(0, 1fr);
+}
+.pn-current-demo .plot-title,
+.pn-current-graphs .plot-title {
+  flex-wrap: wrap;
+}
+.pn-current-demo .plot-visual > svg,
+.pn-current-graphs .plot-visual > svg,
+.lecture-linked-demo .experiment-content[data-experiment='ideal-diode'] .plot-visual > svg {
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+}
 .pn-model-note {
   max-width: 1600px;
   margin: 12px auto 20px;

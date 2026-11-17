@@ -164,7 +164,7 @@ const catalog = [
   {
     slug: 'ideal-diode',
     title: 'PN diode current',
-    subtitle: 'Ideal current, carrier injection, and the qualitative breakdown curve',
+    subtitle: 'Follow electron, hole, and total current density across a biased junction',
     group: 'Doping & PN junctions',
   },
   {

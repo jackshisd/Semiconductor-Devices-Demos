@@ -253,6 +253,29 @@ export function minorityHoles(
 }
 
 // Ideal long-base step junction; complete ionization, low-level injection, no depletion recombination.
+// Long neutral bases; x measures diffusion lengths from each depletion edge.
+// The displayed depletion interval is schematic, not a physical length scale.
+export function pnCurrentAt(
+  x: number,
+  NA: number,
+  ND: number,
+  VA: number,
+  T: number,
+  lifetime: number,
+) {
+  const diode = idealDiode(NA, ND, VA, T, lifetime);
+  const drive = Math.expm1(VA / thermalVoltage(T));
+  const electronEdge = ((q * diode.Dn) / diode.Ln) * diode.np0 * drive;
+  const holeEdge = ((q * diode.Dp) / diode.Lp) * diode.pn0 * drive;
+  const Jn =
+    x < -0.4
+      ? electronEdge * Math.exp(x + 0.4)
+      : x <= 0.4
+        ? electronEdge
+        : diode.J - holeEdge * Math.exp(-(x - 0.4));
+  return { Jn, Jp: diode.J - Jn, J: diode.J, electronEdge, holeEdge };
+}
+
 export function idealDiode(
   NA: number,
   ND: number,
