@@ -1744,6 +1744,7 @@ const categoryLegend = `<div class="category-key">
     ['diodes', 'Diodes'],
     ['storage', 'Storage &amp; uses'],
     ['mos', 'MOS capacitors'],
+    ['mosfet', 'MOSFETs'],
   ]
     .map(([category, label]) => `<span data-category="${category}"><i></i>${label}</span>`)
     .join('')}
@@ -1906,7 +1907,13 @@ const missingCitations = citedEquations.filter((label) => !equationLabels.has(la
 if (missingCitations.length)
   throw new Error(`Cross-references point to missing equations: ${missingCitations.join(', ')}`);
 const eightPagePdfs = [];
-const chronologicalMarkup = organizeEightPageGuide(eightPageMarkup, documentStart, chrome, temp);
+const chronologicalMarkup = organizeEightPageGuide(
+  eightPageMarkup,
+  documentStart,
+  chrome,
+  temp,
+  categoryLegend,
+);
 for (const [index, markup] of chronologicalMarkup.entries()) {
   const htmlPath = resolve(temp, `ece121b-eight-page-${index + 1}.html`);
   const pagePdf = resolve(temp, `ece121b-eight-page-${index + 1}.pdf`);

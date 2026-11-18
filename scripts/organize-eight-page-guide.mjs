@@ -3,9 +3,9 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
 
-// Reflow existing equations in lecture order before assigning page-based codes.
+// Reflow existing equations in lecture order before assigning continuous numbers.
 // Source equation identifiers remain attached until all references are remapped.
-export function organizeEightPageGuide(markups, documentStart, chrome, temp) {
+export function organizeEightPageGuide(markups, documentStart, chrome, temp, categoryLegend) {
   const groups = new Map();
   function children(html) {
     const out = [];
@@ -337,11 +337,7 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp) {
     const all = page.cols?.flat() ?? [];
     const lo = all[0]?.lecture,
       hi = all.at(-1)?.lecture;
-    const titles = [...new Set(all.map((u) => u.title))];
-    const firstTitle = titles[0] ?? '',
-      lastTitle = titles.at(-1) ?? '';
     const range = lo === hi ? `Lecture ${lo}` : `Lectures ${lo}–${hi}`;
-    const route = `${firstTitle}${firstTitle === lastTitle ? '' : ' → ' + lastTitle}`;
     let content;
     if (page.slides) {
       content =
@@ -355,7 +351,7 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp) {
         '<p>Lecture 11, slides 12–13. Slide 12’s example assumes ΦM = ΦS, hence VFB = 0; this is not a general MOS requirement.</p></div>';
     } else
       content = `<div class="columns"><div class="column">${renderColumn(page.cols[0])}</div><div class="column">${renderColumn(page.cols[1])}</div></div>`;
-    return `${extraCss}<section class="page eight chronological"><header><h1>ECE 121B &nbsp; Chronological formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${page.slides ? 'Lecture 11 · operating-region slides' : range}</strong><span>Lectures 1–14 / HW 1–5</span></div><div class="route">${route}</div></header>${content}<footer><span>Equations numbered continuously (1)–(${equationNumber}). Read left column, then right. L# p# = source slide.</span><span>${index + 1}/8</span></footer></section>`;
+    return `${extraCss}<section class="page eight chronological"><header><h1>ECE 121B &nbsp; Chronological formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${page.slides ? 'Lecture 11 · operating-region slides' : range}</strong><span>Lectures 1–14 / HW 1–5</span></div><div class="route">${categoryLegend}</div></header>${content}<footer><span>Equations numbered continuously (1)–(${equationNumber}). Read left column, then right. L# p# = source slide.</span><span>${index + 1}/8</span></footer></section>`;
   });
   for (const html of output)
     for (const [, code] of html.matchAll(/\((\d+[a-z]+)\)/g))
