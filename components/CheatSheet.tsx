@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Numbered equations for both n-type and p-type cases, including MOS polarity keys, electron/hole diffusion, and NMOS/PMOS currents. Selected source graphs fill the column; all 39 topics are in the answer key above.',
+      'Numbered equations through Homework 5: both substrate polarities, total MOS charge, threshold-adjustment implant dose, work-function extraction, and C–V checks. Selected source graphs fill the column.',
   },
   {
     id: 'full',

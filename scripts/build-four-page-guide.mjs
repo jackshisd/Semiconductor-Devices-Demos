@@ -1692,6 +1692,9 @@ const categoryTopics = {
     'HW4 P2: minority-hole continuity',
   ],
   mos: [
+    '26. HW5: total MOS charge and implant dose',
+    '27. HW5: work-function and C–V checks',
+    'HW5: geometry, trends and graph clues',
     '25. NMOS and PMOS current',
     'MOS C–V: read the measured curve',
     'Polysilicon gate depletion',
@@ -1786,9 +1789,49 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   if (index === 5) left = left.replace(/<div class="note">HW3 P5:[\s\S]*?<\/div>/g, '');
   if (index === 6) right = right.replace(/<div class="note">[\s\S]*?<\/div>/g, '');
   if (index === 7) left = left.replace(/<div class="note">N-type Si:[\s\S]*?<\/div>/g, '');
+  if (index === 1)
+    left =
+      left.replace(/<div class="note">(?:HW1 P5:|For the band-edge slope)[\s\S]*?<\/div>/g, '') +
+      topic(
+        '26. HW5: total MOS charge and implant dose',
+        'HW5 P2c–d, P3e; s, NB and φF from section 22',
+      ) +
+      formula(
+        String.raw`Q_s'\simeq\begin{cases}-C_{ox}'(V_G-V_{FB})&\text{strong acc.}\\-s\sqrt{2q\varepsilon_{Si}N_Bu}&\text{depletion}\\-s|Q_{dep,T}'|-C_{ox}'(V_G-V_{th})&\text{strong inv.}\end{cases}`,
+        'Total C/cm². In depletion u = sψs from (22p). Qdep,T from (23f).',
+        true,
+      ) +
+      formula(
+        String.raw`\begin{aligned}\Delta V_{th}&\simeq\frac{q(N_{A,I}-N_{D,I})}{C_{ox}'}\\N_I&=\frac{C_{ox}'|V_{th,new}-V_{th,old}|}{q}\end{aligned}`,
+        'Dose in ions/cm²: acceptors raise signed Vth; donors lower it.',
+        true,
+      ) +
+      note(
+        'Thin, fully ionized implant within depletion; first-order sheet-charge model. Choose a signed target Vth before computing dose magnitude. Charge sketch: ρ = −s qNB over 0 &lt; x &lt; W, inversion is a sheet at x = 0; QG′ = −Qs′. Strong inversion: W ≈ WT.',
+      );
+  if (index === 0)
+    right =
+      right.replace(/<div class="note">Assumptions:[\s\S]*?<\/div>/g, '') +
+      topic(
+        '27. HW5: work-function and C–V checks',
+        'HW5 P1, P3–4; ideal oxide / nondegenerate Si',
+      ) +
+      formula(
+        String.raw`N_D=N_Ce^{-(\Phi_S-\chi)/(k_BT)},\quad N_A=N_Ve^{-(\chi+E_g-\Phi_S)/(k_BT)}`,
+        'Infer n- or p-substrate doping from ΦS = ΦM − qVFB. Use consistent energy units.',
+        true,
+      ) +
+      xref('Threshold (22k)/(23g); WT (23e); Cmax (21a); Cmin = A Cmin′ from (24d).');
+  if (index === 6)
+    left =
+      left.replace(/<div class="note">Photocarriers form[\s\S]*?<\/div>/g, '') +
+      topic('HW5: geometry, trends and graph clues', 'P1c–d, P3, P4') +
+      note(
+        '100 μm × 100 μm = 10⁻⁴ cm²; 1 pF = 10⁻¹² F; 1 nm = 10⁻⁷ cm. Ideal n substrate: ND ↓ raises signed Vth (possibly across zero); tox ↑ lowers Vth. Include VFB’s doping dependence. Relative to VFB, negative-bias accumulation means p substrate / NMOS; positive-bias accumulation means n substrate / PMOS. Falling inversion C suggests poly depletion (15j–l).',
+      );
   left = colorizeEquations(numberEquations(left));
   right = colorizeEquations(numberEquations(right));
-  const homeworkRange = index < 4 ? 'HW 1-3' : 'HW 1-4';
+  const homeworkRange = 'HW 1-5';
   return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '14' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${index === 0 ? categoryLegend : route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
 const formulaCount = eightPageMarkup.reduce(
