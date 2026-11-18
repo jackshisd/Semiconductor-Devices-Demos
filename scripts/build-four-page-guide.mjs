@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import katex from 'katex';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf.mjs';
+import { organizeEightPageGuide } from './organize-eight-page-guide.mjs';
 
 const root = resolve('.');
 const temp = resolve(root, 'tmp/pdfs');
@@ -1905,7 +1906,8 @@ const missingCitations = citedEquations.filter((label) => !equationLabels.has(la
 if (missingCitations.length)
   throw new Error(`Cross-references point to missing equations: ${missingCitations.join(', ')}`);
 const eightPagePdfs = [];
-for (const [index, markup] of eightPageMarkup.entries()) {
+const chronologicalMarkup = organizeEightPageGuide(eightPageMarkup, documentStart, chrome, temp);
+for (const [index, markup] of chronologicalMarkup.entries()) {
   const htmlPath = resolve(temp, `ece121b-eight-page-${index + 1}.html`);
   const pagePdf = resolve(temp, `ece121b-eight-page-${index + 1}.pdf`);
   writeFileSync(htmlPath, `${documentStart}${markup}</body></html>`);

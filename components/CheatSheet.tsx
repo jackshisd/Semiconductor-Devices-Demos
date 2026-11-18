@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Explicit p-type and n-type MOS equations through Homework 5, with separate NMOS/PMOS currents, total charge, implant dose, and C–V formulas. Crowded graphs have been removed to make room for the paired equations.',
+      'Equations in lecture order from Lectures 1–14, with paired p-type/n-type formulas and page-based equation codes. Lecture 11 slides 12–13 are included as reduced figures; other graphs are removed to save space.',
   },
   {
     id: 'full',
