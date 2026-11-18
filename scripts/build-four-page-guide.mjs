@@ -267,8 +267,8 @@ const pages = [
         'Thermal voltage in transport and junction formulas.',
       ),
       formula(
-        String.raw`E_{g,\mathrm{Si}}\approx1.12\,\mathrm{eV},\quad\varepsilon_{\mathrm{Si}}=11.7\varepsilon_0`,
-        'Silicon gap and permittivity; ε₀ = 8.85 × 10⁻¹⁴ F/cm.',
+        String.raw`\varepsilon_{\mathrm{Si}}=11.7\varepsilon_0\approx1.036\times10^{-12}\,\mathrm{F/cm}`,
+        'Silicon: Eg ≈ 1.12 eV; ε₀ = 8.854 × 10⁻¹⁴ F/cm. Equivalently εSi ≈ 1.036 × 10⁻¹⁰ F/m.',
       ),
       formula(
         String.raw`N_C=2.82\times10^{19},\quad N_V=1.83\times10^{19}\,\mathrm{cm^{-3}}`,
