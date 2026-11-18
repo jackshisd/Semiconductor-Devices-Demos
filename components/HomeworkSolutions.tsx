@@ -52,8 +52,8 @@ export default function HomeworkSolutions() {
         <span className="eyebrow">WORKED SOLUTIONS</span>
         <h1>Homework solutions</h1>
         <p>
-          Read the HW 1, HW 2, and HW 3 solutions. Hover, click, or focus the blue dots beside
-          worked steps for explanations, then explore the related demos.
+          Read the HW 1–4 solutions. Hover, click, or focus the blue dots beside worked steps for
+          explanations, then explore the related demos.
         </p>
       </div>
       <div className="homework-set-tabs" role="group" aria-label="Choose homework solutions">

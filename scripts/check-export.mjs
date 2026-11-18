@@ -101,10 +101,15 @@ for (const [name, pages] of [
 console.log('Verified midterm preparation and all three cheat sheets (eight, four and two pages).');
 const homeworkHtml = readFileSync(resolve(root, 'homework-solutions.html'), 'utf8');
 assert.match(homeworkHtml, /Homework solutions/, 'Missing homework solutions page.');
-for (const name of ['hw1-solutions.pdf', 'hw2-solutions.pdf', 'hw3-solutions.pdf']) {
+for (const name of [
+  'hw1-solutions.pdf',
+  'hw2-solutions.pdf',
+  'hw3-solutions.pdf',
+  'hw4-solutions.pdf',
+]) {
   const bytes = readFileSync(resolve(root, 'homework', name));
   assert.equal(bytes.subarray(0, 4).toString(), '%PDF', `${name}: invalid PDF asset`);
 }
 assert.match(readFileSync(resolve(root, 'index.html'), 'utf8'), /Credits: Jack Shi/);
 assert.ok(!existsSync(resolve(root, 'credits.html')), 'Removed credits route was exported.');
-console.log('Verified homework solutions, all three PDFs, and home page credits.');
+console.log('Verified homework solutions, all four PDFs, and home page credits.');
