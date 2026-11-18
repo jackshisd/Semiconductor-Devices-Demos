@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Equations in lecture order from Lectures 1–14, with paired p-type/n-type formulas and page-based equation codes. Lecture 11 slides 12–13 are included as reduced figures; other graphs are removed to save space.',
+      'Equations in lecture order from Lectures 1–14, with paired p-type/n-type formulas and continuous equation numbers. MOS charge terms identify fixed ions and mobile carriers. Lecture 11 slides 12–13 are included as reduced figures; other graphs are removed to save space.',
   },
   {
     id: 'full',

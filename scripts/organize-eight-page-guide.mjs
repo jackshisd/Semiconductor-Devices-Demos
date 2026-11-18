@@ -297,19 +297,14 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp) {
   for (let i = 0; i < 8; i++) pages.push({ cols: [a.cols[i * 2], a.cols[i * 2 + 1]] });
   const mapping = new Map(),
     newCodes = new Set();
-  const letter = (n) => {
-    let s = '';
-    for (let v = n; v >= 0; v = Math.floor(v / 26) - 1) s = String.fromCharCode(97 + (v % 26)) + s;
-    return s;
-  };
-  pages.forEach((page, index) => {
-    let n = 0;
+  let equationNumber = 0;
+  pages.forEach((page) => {
     for (const col of page.cols ?? [])
       for (const unit of col) {
         unit.final = unit.html.replace(
           /<span class="eq-number">\((\d+[a-z]+)\)<\/span>/g,
           (match, old) => {
-            const code = `${index + 1}${letter(n++)}`;
+            const code = String(++equationNumber);
             if (mapping.has(old)) throw Error('Duplicate source equation ' + old);
             mapping.set(old, code);
             newCodes.add(code);
@@ -360,11 +355,16 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp) {
         '<p>Lecture 11, slides 12–13. Slide 12’s example assumes ΦM = ΦS, hence VFB = 0; this is not a general MOS requirement.</p></div>';
     } else
       content = `<div class="columns"><div class="column">${renderColumn(page.cols[0])}</div><div class="column">${renderColumn(page.cols[1])}</div></div>`;
-    return `${extraCss}<section class="page eight chronological"><header><h1>ECE 121B &nbsp; Chronological formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${page.slides ? 'Lecture 11 · operating-region slides' : range}</strong><span>Lectures 1–14 / HW 1–5</span></div><div class="route">${route}</div></header>${content}<footer><span>Codes begin with the page number: (7a) is on page 7. Read left column, then right. L# p# = source slide.</span><span>${index + 1}/8</span></footer></section>`;
+    return `${extraCss}<section class="page eight chronological"><header><h1>ECE 121B &nbsp; Chronological formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${page.slides ? 'Lecture 11 · operating-region slides' : range}</strong><span>Lectures 1–14 / HW 1–5</span></div><div class="route">${route}</div></header>${content}<footer><span>Equations numbered continuously (1)–(${equationNumber}). Read left column, then right. L# p# = source slide.</span><span>${index + 1}/8</span></footer></section>`;
   });
   for (const html of output)
     for (const [, code] of html.matchAll(/\((\d+[a-z]+)\)/g))
-      if (!newCodes.has(code)) throw Error('Unknown remapped reference ' + code);
+      throw Error('Unconverted source reference ' + code);
+  const labels = output.flatMap((html) =>
+    [...html.matchAll(/class="eq-number">\((\d+)\)/g)].map((m) => Number(m[1])),
+  );
+  if (labels.length !== mapping.size || labels.some((code, i) => code !== i + 1))
+    throw Error('Equation numbers must be continuous and unique.');
   writeFileSync(
     resolve(temp, 'chronological-equation-map.json'),
     JSON.stringify(Object.fromEntries(mapping), null, 2),

@@ -1804,8 +1804,8 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
         'HW5 P2c–d, P3e; φF is positive for either substrate',
       ) +
       formula(
-        String.raw`Q_s'\simeq\begin{cases}-C_{ox}'(V_G-V_{FB})&\text{strong acc., both}\\-\sqrt{2q\varepsilon_{Si}N_A\psi_s}&p\text{-type depletion}\\+\sqrt{-2q\varepsilon_{Si}N_D\psi_s}&n\text{-type depletion}\\-\sqrt{4q\varepsilon_{Si}N_A\phi_F}-C_{ox}'(V_G-V_{th})&p\text{-type strong inv.}\\+\sqrt{4q\varepsilon_{Si}N_D\phi_F}-C_{ox}'(V_G-V_{th})&n\text{-type strong inv.}\end{cases}`,
-        'Total charge per area, C/cm². In depletion ψs > 0 for p type; ψs < 0 for n type.',
+        String.raw`Q_s'\simeq\begin{cases}-C_{ox}'(V_G-V_{FB})&\text{strong acc., both}\\-\sqrt{2q\varepsilon_{Si}N_A\psi_s}&p\text{-type depletion}\\+\sqrt{-2q\varepsilon_{Si}N_D\psi_s}&n\text{-type depletion}\\\underbrace{-\sqrt{4q\varepsilon_{Si}N_A\phi_F}}_{\text{fixed acceptors}}\underbrace{-C_{ox}'(V_G-V_{th})}_{\text{mobile electrons}}&p\text{-type strong inv.}\\\underbrace{+\sqrt{4q\varepsilon_{Si}N_D\phi_F}}_{\text{fixed donors}}\underbrace{-C_{ox}'(V_G-V_{th})}_{\text{mobile holes}}&n\text{-type strong inv.}\end{cases}`,
+        'Total silicon charge per area, C/cm². Choose one row. In depletion ψs > 0 for p type; ψs < 0 for n type. Gate charge: QG′ = −Qs′, see (21g).',
         true,
       ) +
       formula(
