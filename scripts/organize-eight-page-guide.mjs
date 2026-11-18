@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import katex from 'katex';
 
 // Reflow existing equations in lecture order before assigning continuous numbers.
 // Source equation identifiers remain attached until all references are remapped.
@@ -57,6 +58,34 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp, cat
     items: items.filter(Boolean),
   });
   const note = (text) => `<div class="note">${text}</div>`;
+  // Keep the two long-base PN solutions together instead of repeating them later.
+  const diffusion = get('Minority diffusion and illuminated bar');
+  const pnElectrons = equation('11. Biased PN minority carriers', '11c').replace(
+    'Electron profile for x ≤ −x_p in a long p base.',
+    'PN long p base: x ≤ −x_p; Δnp → 0 as x → −∞. Edge value from (11a). Total np = np0 + Δnp.',
+  );
+  const pnHoles = equation('9. Ideal PN diode', '9f')
+    .replace(
+      /<div class="math">[\s\S]*?<\/div>/,
+      `<div class="math">${katex.renderToString(String.raw`\Delta p_n(x)=\Delta p_n(x_n)e^{-(x-x_n)/L_p}`, { throwOnError: true })}</div>`,
+    )
+    .replace(
+      'd ≥ 0 into neutral base. n base: c₀ = pn₀, Lc = Lp (holes); p base: c₀ = np₀, Lc = Ln (electrons).',
+      'PN long n base: x ≥ x_n; Δpn → 0 as x → +∞. Edge value from (11b). Total pn = pn0 + Δpn. Both profiles decay away from depletion.',
+    );
+  for (const [title, code] of [
+    ['11. Biased PN minority carriers', '11c'],
+    ['9. Ideal PN diode', '9f'],
+  ]) {
+    const g = get(title);
+    g.items = g.items.filter((item) => !item.includes(`>(${code})</span>`));
+  }
+  const longBaseIndex = diffusion.items.findIndex((item) => item.includes('>(4p)</span>'));
+  if (longBaseIndex < 0) throw Error('Missing long-base diffusion solution');
+  diffusion.items.splice(longBaseIndex + 1, 0, pnElectrons, pnHoles);
+  get('11. Biased PN minority carriers').items.push(
+    '<div class="xref">Long-base electron and hole profiles: (11c), (9f). Use the edge values above.</div>',
+  );
   const work = get('HW4 P3: N-type MOS and band bending');
   const workFunctions = custom(
     'MOS work functions and flat band',
