@@ -11,7 +11,7 @@ const sheets = [
     file: '/guides/ece121b-eight-page-cheat-sheet.pdf',
     pages: 8,
     description:
-      'Numbered equations through Homework 5: both substrate polarities, total MOS charge, threshold-adjustment implant dose, work-function extraction, and C–V checks. Selected source graphs fill the column.',
+      'Explicit p-type and n-type MOS equations through Homework 5, with separate NMOS/PMOS currents, total charge, implant dose, and C–V formulas. Crowded graphs have been removed to make room for the paired equations.',
   },
   {
     id: 'full',

@@ -1210,7 +1210,7 @@ const laterPages = [
       note('Primes: per area. Work-function differences in eV give volts numerically.'),
       topic('22. Both MOS substrate polarities', 'L11 p12; L12 p5–13'),
       note(
-        '<b>MOS key (22–24):</b> p: s = +1, NB = NA. n: s = −1, NB = ND. U = s(VG − VFB), u = sψs, φF = VT ln(NB/ni) &gt; 0. Depletion: U,u &gt; 0. Vth is the signed threshold.',
+        '<b>Read the substrate label:</b> p-type uses NA and ψs &gt; 0 in depletion; n-type uses ND and ψs &lt; 0. φF is a positive magnitude for either type. The subscript s in ψs or Qs means surface/silicon.',
       ),
       formula(
         String.raw`p:\ V_G<V_{FB};\qquad n:\ V_G>V_{FB}`,
@@ -1223,12 +1223,13 @@ const laterPages = [
         true,
       ),
       formula(
-        String.raw`W=\sqrt{\frac{2\varepsilon_{Si}u}{qN_B}}`,
-        'Both types: u = ψs for p; u = −ψs for n.',
+        String.raw`\begin{aligned}p:\ W&=\sqrt{\frac{2\varepsilon_{Si}\psi_s}{qN_A}}\\n:\ W&=\sqrt{\frac{-2\varepsilon_{Si}\psi_s}{qN_D}}\end{aligned}`,
+        'Depletion width: ψs is positive for p and negative for n.',
+        true,
       ),
       formula(
-        String.raw`Q_{dep}'=-s qN_BW=-s\sqrt{2q\varepsilon_{Si}N_Bu}`,
-        'p: −qNAW; n: +qNDW. Choose s from the MOS key.',
+        String.raw`p:\ Q_{dep}'=-qN_AW;\quad n:\ Q_{dep}'=+qN_DW`,
+        'Signed sheet charge: negative acceptor ions; positive donor ions.',
         true,
       ),
       formula(
@@ -1273,28 +1274,33 @@ const laterPages = [
       ),
     ].join(''),
     right: [
-      topic('Depletion versus gate voltage', 'Both substrate types; use the MOS key in section 22'),
+      topic('Depletion versus gate voltage', 'Choose the explicit p-type or n-type equation'),
       formula(
-        String.raw`U=u+\frac{\sqrt{2q\varepsilon_{Si}N_Bu}}{C_{ox}'}`,
-        'p: U = VG−VFB; n: U = VFB−VG. Both are positive in depletion.',
+        String.raw`p:\ V_G-V_{FB}=\psi_s+\frac{\sqrt{2q\varepsilon_{Si}N_A\psi_s}}{C_{ox}'}`,
+        'P-type depletion: solve for positive ψs, then W from (22c).',
         true,
       ),
       formula(
-        String.raw`u=\frac{qN_B\varepsilon_{Si}}{2C_{ox}'^{\,2}}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}U}{qN_B\varepsilon_{Si}}}-1\right]^2`,
-        'Surface potential: ψs = +u for p; ψs = −u for n.',
+        String.raw`n:\ V_{FB}-V_G=-\psi_s+\frac{\sqrt{-2q\varepsilon_{Si}N_D\psi_s}}{C_{ox}'}`,
+        'N-type depletion: solve for negative ψs, then W from (22c).',
         true,
       ),
       formula(
-        String.raw`W=\frac{\varepsilon_{Si}}{C_{ox}'}\left[\sqrt{1+\frac{2C_{ox}'^{\,2}U}{qN_B\varepsilon_{Si}}}-1\right]`,
-        'Depletion width directly from gate voltage.',
+        String.raw`\begin{aligned}p:\ V_G-V_{FB}&=\frac{qN_AW^2}{2\varepsilon_{Si}}+\frac{qN_AW}{C_{ox}'}\\n:\ V_{FB}-V_G&=\frac{qN_DW^2}{2\varepsilon_{Si}}+\frac{qN_DW}{C_{ox}'}\end{aligned}`,
+        'Solve the appropriate quadratic for W ≥ 0, below threshold.',
         true,
       ),
       topic('23. Strong inversion and threshold', 'L12 p14–21'),
       formula(
-        String.raw`\phi_F=V_T\ln(N_B/n_i)`,
-        'Positive magnitude: NB = NA for p; NB = ND for n.',
+        String.raw`p:\ \phi_F=V_T\ln(N_A/n_i);\quad n:\ \phi_F=V_T\ln(N_D/n_i)`,
+        'Both φF values are positive; VT = kBT/q is thermal voltage.',
+        true,
       ),
-      formula(String.raw`\psi_{s,T}=s\,2\phi_F`, 'p: +2φF; n: −2φF at strong-inversion threshold.'),
+      formula(
+        String.raw`p:\ \psi_{s,T}=+2\phi_F;\quad n:\ \psi_{s,T}=-2\phi_F`,
+        'Explicit threshold surface potentials.',
+        true,
+      ),
       formula(
         String.raw`n_s=n_0e^{\psi_s/V_T},\quad p_s=p_0e^{-\psi_s/V_T}`,
         'p substrate: n₀ = ni²/NA, p₀ ≈ NA; n substrate: n₀ ≈ ND, p₀ = ni²/ND.',
@@ -1306,25 +1312,25 @@ const laterPages = [
         true,
       ),
       formula(
-        String.raw`W_{\max}^{(n)}=W_T^{(n)}=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_D}}`,
-        'N-substrate maximum width; p counterpart replaces ND by NA. WT ≡ Wmax.',
+        String.raw`\begin{aligned}p:\ W_{\max}&=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_A}}\\n:\ W_{\max}&=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_D}}\end{aligned}`,
+        'Maximum depletion width at threshold; WT ≡ Wmax.',
+        true,
       ),
       formula(
-        String.raw`Q_{d,\max}^{(n)}=qN_DW_{\max}^{(n)}=\sqrt{4q\varepsilon_{Si}N_D\phi_F}`,
-        'N: positive Qdep,T′ = Qd,max⁽ⁿ⁾. P: Qdep,T′ = −√(4qεSiNAφF). Units C/cm².',
+        String.raw`\begin{aligned}n:\ Q_{d,\max}^{(n)}&=qN_DW_{\max}^{(n)}=\sqrt{4q\varepsilon_{Si}N_D\phi_F}\\p:\ Q_{dep,T}'&=-qN_AW_{\max}^{(p)}=-\sqrt{4q\varepsilon_{Si}N_A\phi_F}\end{aligned}`,
+        'Signed depletion charge in C/cm²: n positive; p negative. For n type, Qdep,T′ = Qd,max⁽ⁿ⁾.',
+        true,
       ),
       formula(
-        String.raw`V_{th}=V_{FB}+s\left(2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_B\phi_F}}{C_{ox}'}\right)`,
-        'p substrate / NMOS: plus; n substrate / PMOS: minus.',
+        String.raw`p:\ V_{th}=V_{FB}+2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_A\phi_F}}{C_{ox}'}`,
+        'P-substrate threshold. N-substrate equation is (22k), with minus signs.',
         true,
       ),
       formula(
         String.raw`Q_{inv}'\approx-C_{ox}'(V_G-V_{th})`,
         'p: electron charge < 0 for VG > Vth; n: hole charge > 0 for VG < Vth.',
       ),
-      note(
-        'Here V_T without a MOS superscript is thermal voltage; V_T^MOS means transistor threshold. Added gate bias above threshold mainly increases inversion charge.',
-      ),
+      note('VT = kBT/q is thermal voltage; Vth and VT^MOS are threshold voltages.'),
       topic('24. MOS capacitance versus frequency', 'L12 p22–29'),
       xref('For measured AC current use (14g).'),
       formula(String.raw`C'=\left|dQ_G'/dV_G\right|`, 'Small-signal gate-charge slope.'),
@@ -1342,8 +1348,9 @@ const laterPages = [
         true,
       ),
       formula(
-        String.raw`L_D=\sqrt{\varepsilon_{Si}V_T/(qN_B)}`,
-        'Extrinsic Debye screening length at flat band.',
+        String.raw`p:\ L_D=\sqrt{\frac{\varepsilon_{Si}V_T}{qN_A}};\quad n:\ L_D=\sqrt{\frac{\varepsilon_{Si}V_T}{qN_D}}`,
+        'Flat-band screening length; choose substrate doping explicitly.',
+        true,
       ),
       formula(
         String.raw`C'_{FB}=\left(\frac1{C_{ox}'}+\frac{L_D}{\varepsilon_{Si}}\right)^{-1}`,
@@ -1355,8 +1362,9 @@ const laterPages = [
         'Minority carriers follow low-frequency inversion; accumulation charge sits near oxide.',
       ),
       formula(
-        String.raw`t_{inv}\sim\frac{2N_B}{n_i}\tau_0`,
-        'Generation-limited buildup estimate for either substrate; τ₀ is effective generation lifetime.',
+        String.raw`p:\ t_{inv}\sim\frac{2N_A\tau_0}{n_i};\quad n:\ t_{inv}\sim\frac{2N_D\tau_0}{n_i}`,
+        'Generation-limited buildup estimate; τ₀ is effective generation lifetime.',
+        true,
       ),
       note(
         'Both types: inversion-carrier supply sets the LF/HF response; reverse gate polarities for n substrate.',
@@ -1757,21 +1765,21 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
       inverseCapacitanceGraph() +
       topic('25. NMOS and PMOS current', 'L14; long-channel, strong inversion') +
       note(
-        '<b>NMOS:</b> μc = μn, Vov = VGS − Vth,n, v = VDS. <b>PMOS:</b> μc = μp, Vov = VSG − |Vth,p|, v = VSD. Require Vov &gt; 0, v ≥ 0; equations below give |ID|. PMOS conventional drain current has opposite sign to NMOS.',
+        '<b>NMOS:</b> p substrate, threshold VTN; use VGS and VDS. <b>PMOS:</b> n substrate, threshold VTP; use positive VSG and VSD. Enhancement PMOS has VTP &lt; 0; its formulas give current magnitude |ID|.',
       ) +
       formula(
-        String.raw`|I_D|=\mu_c C_{ox}'\frac WL[V_{ov}v-\tfrac12v^2]`,
-        'Triode for either channel: 0 ≤ v < Vov.',
+        String.raw`\begin{aligned}\mathrm{NMOS}:\ I_D&=\mu_n C_{ox}'\frac WL[(V_{GS}-V_{TN})V_{DS}-\tfrac12V_{DS}^2]\\\mathrm{PMOS}:\ |I_D|&=\mu_p C_{ox}'\frac WL[(V_{SG}-|V_{TP}|)V_{SD}-\tfrac12V_{SD}^2]\end{aligned}`,
+        'Triode: NMOS 0 ≤ VDS < VGS−VTN; PMOS 0 ≤ VSD < VSG−|VTP|.',
         true,
       ) +
       formula(
-        String.raw`v_{sat}=V_{ov},\quad |I_{D,sat}|=\frac{\mu_c C_{ox}'W}{2L}V_{ov}^2`,
-        'NMOS: VDS,sat; PMOS: VSD,sat. Saturation when v ≥ Vov.',
+        String.raw`\begin{aligned}\mathrm{NMOS}:\ V_{DS,sat}&=V_{GS}-V_{TN}\\I_{D,sat}&=\frac{\mu_n C_{ox}'W}{2L}(V_{GS}-V_{TN})^2\\\mathrm{PMOS}:\ V_{SD,sat}&=V_{SG}-|V_{TP}|\\|I_{D,sat}|&=\frac{\mu_p C_{ox}'W}{2L}(V_{SG}-|V_{TP}|)^2\end{aligned}`,
+        'Saturation: drain bias is at least its listed pinch-off voltage; gate must be above turn-on.',
         true,
       ) +
       formula(
-        String.raw`|I_D|\simeq |I_{D,sat}|(1+\lambda v)`,
-        'Channel-length modulation gives the saturation slope.',
+        String.raw`\begin{aligned}\mathrm{NMOS}:\ I_D&\simeq I_{D,sat}(1+\lambda_n V_{DS})\\\mathrm{PMOS}:\ |I_D|&\simeq |I_{D,sat}|(1+\lambda_p V_{SD})\end{aligned}`,
+        'Channel-length modulation; PMOS conventional drain current has opposite sign.',
         true,
       );
     right = cv + right.slice(schottkyStart);
@@ -1792,11 +1800,11 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
       left.replace(/<div class="note">(?:HW1 P5:|For the band-edge slope)[\s\S]*?<\/div>/g, '') +
       topic(
         '26. HW5: total MOS charge and implant dose',
-        'HW5 P2c–d, P3e; s, NB and φF from section 22',
+        'HW5 P2c–d, P3e; φF is positive for either substrate',
       ) +
       formula(
-        String.raw`Q_s'\simeq\begin{cases}-C_{ox}'(V_G-V_{FB})&\text{strong acc.}\\-s\sqrt{2q\varepsilon_{Si}N_Bu}&\text{depletion}\\-s|Q_{dep,T}'|-C_{ox}'(V_G-V_{th})&\text{strong inv.}\end{cases}`,
-        'Total C/cm². In depletion u = sψs from (22p). Qdep,T from (23f).',
+        String.raw`Q_s'\simeq\begin{cases}-C_{ox}'(V_G-V_{FB})&\text{strong acc., both}\\-\sqrt{2q\varepsilon_{Si}N_A\psi_s}&p\text{-type depletion}\\+\sqrt{-2q\varepsilon_{Si}N_D\psi_s}&n\text{-type depletion}\\-\sqrt{4q\varepsilon_{Si}N_A\phi_F}-C_{ox}'(V_G-V_{th})&p\text{-type strong inv.}\\+\sqrt{4q\varepsilon_{Si}N_D\phi_F}-C_{ox}'(V_G-V_{th})&n\text{-type strong inv.}\end{cases}`,
+        'Total charge per area, C/cm². In depletion ψs > 0 for p type; ψs < 0 for n type.',
         true,
       ) +
       formula(
@@ -1805,7 +1813,7 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
         true,
       ) +
       note(
-        'Thin, fully ionized implant within depletion; first-order sheet-charge model. Choose a signed target Vth before computing dose magnitude. Charge sketch: ρ = −s qNB over 0 &lt; x &lt; W, inversion is a sheet at x = 0; QG′ = −Qs′. Strong inversion: W ≈ WT.',
+        'Thin, ionized implant in depletion; first-order sheet-charge model. Choose signed target Vth first. Charge sketch over 0 &lt; x &lt; W: p type ρ = −qNA; n type ρ = +qND. Inversion is a surface sheet. QG′ = −Qs′; strong inversion W ≈ WT.',
       );
   if (index === 0)
     right =
@@ -1832,6 +1840,53 @@ const eightPageMarkup = [...pages, ...laterPages].map((page, index) => {
   const homeworkRange = 'HW 1-5';
   return `<section class="page eight${index === 7 ? ' mos' : ''}"><header><h1>ECE 121B &nbsp; Formula reference</h1><div class="meta"><strong>${String(index + 1).padStart(2, '0')} / 08 &nbsp; ${title}</strong><span>Lectures 1-${index >= 5 ? '14' : '12'} &nbsp; / &nbsp; ${homeworkRange}</span></div><div class="route">${index === 0 ? categoryLegend : route}</div></header><div class="columns"><div class="column">${left}</div><div class="column">${right}</div></div><footer><span>Eq. tags use section number + letter: 13a. L# p# = lecture page. HW# P# = homework problem.</span><span>${index + 1}/8</span></footer></section>`;
 });
+// Arrange already-numbered blocks without changing existing equation codes.
+const splitColumns = (markup) => {
+  const prefix = '<div class="columns"><div class="column">';
+  const separator = '</div><div class="column">';
+  const start = markup.indexOf(prefix) + prefix.length;
+  const middle = markup.indexOf(separator, start);
+  const end = markup.indexOf('</div></div><footer>', middle);
+  if (start < prefix.length || middle < 0 || end < 0) throw new Error('Missing sheet columns');
+  return {
+    before: markup.slice(0, start),
+    left: markup.slice(start, middle),
+    right: markup.slice(middle + separator.length, end),
+    after: markup.slice(end),
+    separator,
+  };
+};
+const joinColumns = (parts) =>
+  parts.before + parts.left + parts.separator + parts.right + parts.after;
+const topicStart = (markup, title) => {
+  const at = markup.indexOf(`<strong>${title}</strong>`);
+  if (at < 0) throw new Error(`Missing topic ${title}`);
+  return markup.lastIndexOf('<div ', at);
+};
+const page2 = splitColumns(eightPageMarkup[1]);
+const hw5Start = topicStart(page2.left, '26. HW5: total MOS charge and implant dose');
+const hw5Charge = page2.left.slice(hw5Start);
+page2.left = page2.left.slice(0, hw5Start);
+eightPageMarkup[1] = joinColumns(page2);
+const page7 = splitColumns(eightPageMarkup[6]);
+page7.right =
+  page7.right.slice(0, topicStart(page7.right, 'Lecture 13: MOS C–V graph map')) + hw5Charge;
+eightPageMarkup[6] = joinColumns(page7);
+const page8 = splitColumns(eightPageMarkup[7]);
+const workStart = topicStart(page8.left, 'HW4 P3: N-type MOS and band bending');
+const workFunctions = page8.left.slice(workStart);
+const inversionStart = topicStart(page8.right, '23. Strong inversion and threshold');
+page8.left = page8.left.slice(0, workStart) + page8.right.slice(0, inversionStart);
+page8.right = page8.right.slice(inversionStart);
+eightPageMarkup[7] = joinColumns(page8);
+const page4 = splitColumns(eightPageMarkup[3]);
+page4.left =
+  page4.left.slice(0, topicStart(page4.left, 'Schottky barriers at equilibrium')) + workFunctions;
+page4.right = page4.right.replace(/<div class="concept-graph"[^>]*>[\s\S]*?<\/div>/g, '');
+eightPageMarkup[3] = joinColumns(page4);
+const page6 = splitColumns(eightPageMarkup[5]);
+page6.left = page6.left.replace(/<div class="concept-graph"[^>]*>[\s\S]*?<\/div>/g, '');
+eightPageMarkup[5] = joinColumns(page6);
 const formulaCount = eightPageMarkup.reduce(
   (total, markup) => total + (markup.match(/<div class="purpose">/g) ?? []).length,
   0,
