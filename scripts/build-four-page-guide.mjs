@@ -275,8 +275,8 @@ const pages = [
         'Effective band-state densities at 300 K.',
       ),
       formula(
-        String.raw`n_i\approx10^{10}\,\mathrm{cm^{-3}}`,
-        'Rounded course value for silicon at 300 K.',
+        String.raw`n_i\approx10^{10}\,\mathrm{cm^{-3}},\quad\chi_{Si}\approx4.05\,\mathrm{eV}`,
+        'Rounded intrinsic concentration and Si electron affinity at 300 K.',
       ),
       topic('1. Occupation and carrier statistics', 'L2 p15, 30–32; HW1 P1–2'),
       formula(
@@ -1190,7 +1190,7 @@ const laterPages = [
       ),
       formula(
         String.raw`V_{FB}=\frac{\Phi_M-\Phi_S}{q}-\frac{Q_{ox}'}{C_{ox}'}`,
-        'Flat-band voltage; HW4 uses Qox = 0, so only the work-function term remains.',
+        'Ideal oxide: VFB = ΦM − ΦS numerically for work functions in eV (Qox′ = 0).',
         true,
       ),
       formula(
@@ -1207,9 +1207,7 @@ const laterPages = [
         String.raw`E_C(0)-E_C(\infty)=-q\psi_s`,
         'Surface band bending for electrostatic potential ψ_s.',
       ),
-      note(
-        'Primes: per unit area. Work functions in eV give volts numerically. At flat band ψs = 0.',
-      ),
+      note('Primes: per area. Work-function differences in eV give volts numerically.'),
       topic('22. Both MOS substrate polarities', 'L11 p12; L12 p5–13'),
       note(
         '<b>MOS key (22–24):</b> p: s = +1, NB = NA. n: s = −1, NB = ND. U = s(VG − VFB), u = sψs, φF = VT ln(NB/ni) &gt; 0. Depletion: U,u &gt; 0. Vth is the signed threshold.',
@@ -1245,23 +1243,23 @@ const laterPages = [
       xref('For the bulk n-type band-edge offset use (8c); field from potential is (5h).'),
       formula(String.raw`\Phi=E_{\rm vac}-E_F`, 'Work function is vacuum level minus Fermi level.'),
       formula(
-        String.raw`\Phi_S=\chi+(E_C-E_F)=\chi+E_g-(E_F-E_V)`,
-        'Use EC−EF for n type, or EF−EV for p type.',
+        String.raw`\Phi_{S,n}\approx\chi+\frac{E_g}{2}-\phi_F`,
+        'N type; energies in eV, φF numerically in eV. Midgap-Ei approximation; exact offset from (8c).',
         true,
       ),
       formula(
-        String.raw`\Phi_S\simeq4.136\,\mathrm{eV},\quad V_{FB}\simeq+1.06\,\mathrm V`,
-        'HW4 values; an energy difference in eV is numerically volts after division by q.',
+        String.raw`\Phi_{S,p}\approx\chi+\frac{E_g}{2}+\phi_F`,
+        'P-type counterpart; positive φF = (kT/q) ln(NA/ni). Same midgap approximation.',
         true,
       ),
       formula(
-        String.raw`\phi_F=V_T\ln(N_D/n_i),\quad\psi_{s,inv}\simeq-2\phi_F`,
-        'N-type strong inversion; HW4 gives ψs ≈ −0.954 V.',
+        String.raw`\phi_F=\frac{k_BT}{q}\ln(N_D/n_i),\quad\psi_{s,T}=-2\phi_F`,
+        'N-type substrate: φF is a positive magnitude; kT/q ≈ 0.0259 V at 300 K.',
         true,
       ),
       formula(
-        String.raw`V_{T,n}^{\rm MOS}=V_{FB}-2\phi_F-\frac{\sqrt{4q\varepsilon_{Si}N_D\phi_F}}{C_{ox}'}`,
-        'N-type substrate threshold: lies below VFB; φF is a positive magnitude.',
+        String.raw`V_{T,n}^{\rm MOS}=V_{FB}-2\phi_F-\frac{Q_{d,\max}^{(n)}}{C_{ox}'}`,
+        'N-substrate threshold; Qd,max⁽ⁿ⁾ is positive sheet charge from (23f).',
         true,
       ),
       formula(
@@ -1308,12 +1306,12 @@ const laterPages = [
         true,
       ),
       formula(
-        String.raw`W_T=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_B}}`,
-        'Approximate maximum depletion width at threshold.',
+        String.raw`W_{\max}^{(n)}=W_T^{(n)}=\sqrt{\frac{4\varepsilon_{Si}\phi_F}{qN_D}}`,
+        'N-substrate maximum width; p counterpart replaces ND by NA. WT ≡ Wmax.',
       ),
       formula(
-        String.raw`Q_{dep,T}'=-s\sqrt{4q\varepsilon_{Si}N_B\phi_F}`,
-        'Threshold ion charge: negative for p; positive for n.',
+        String.raw`Q_{d,\max}^{(n)}=qN_DW_{\max}^{(n)}=\sqrt{4q\varepsilon_{Si}N_D\phi_F}`,
+        'N: positive Qdep,T′ = Qd,max⁽ⁿ⁾. P: Qdep,T′ = −√(4qεSiNAφF). Units C/cm².',
       ),
       formula(
         String.raw`V_{th}=V_{FB}+s\left(2\phi_F+\frac{\sqrt{4q\varepsilon_{Si}N_B\phi_F}}{C_{ox}'}\right)`,
@@ -1361,7 +1359,7 @@ const laterPages = [
         'Generation-limited buildup estimate for either substrate; τ₀ is effective generation lifetime.',
       ),
       note(
-        'For n-type Si reverse the gate-voltage polarities and majority/minority carriers. Low- versus high-frequency inversion depends on electron or hole supply, not just DC bias.',
+        'Both types: inversion-carrier supply sets the LF/HF response; reverse gate polarities for n substrate.',
       ),
     ].join(''),
   },
