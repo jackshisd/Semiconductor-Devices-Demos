@@ -58,6 +58,18 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp, cat
     items: items.filter(Boolean),
   });
   const note = (text) => `<div class="note">${text}</div>`;
+  const math = (tex) => katex.renderToString(tex, { throwOnError: true });
+  const odeSummary = custom(
+    'Standard differential equations and solutions',
+    'Quick reference · diffusion (4j), (4l), (4p); charge control (13a), (13b)',
+    [
+      `<div class="ode-summary"><table><thead><tr><th>Differential equation</th><th>Standard solution</th></tr></thead><tbody>
+      <tr data-category="transport"><td><b>Steady minority diffusion</b><div class="ode-math">${math(String.raw`D\frac{d^2\delta}{dx^2}-\frac{\delta}{\tau}=0`)}</div>No field, no external generation.</td><td><div class="ode-math">${math(String.raw`\delta(x)=Ae^{-x/L}+Be^{x/L}`)}</div><div class="ode-math">${math(String.raw`L=\sqrt{D\tau}`)}</div>Use both spatial boundary conditions. For x ≥ 0 into a long base, δ(∞) = 0 gives B = 0:<div class="ode-math">${math(String.raw`\delta(x)=\delta(0)e^{-x/L}`)}</div></td></tr>
+      <tr data-category="storage"><td><b>Stored-charge control</b><div class="ode-math">${math(String.raw`\frac{dQ}{dt}+\frac{Q}{\tau}=I`)}</div>Constant signed current I; initial charge Q(t₀).</td><td><div class="ode-math">${math(String.raw`\begin{aligned}Q(t)&=I\tau+\big[Q(t_0)-I\tau\big]\\&\qquad\times e^{-(t-t_0)/\tau}\end{aligned}`)}</div>Steady value: Qss = Iτ. Reverse extraction: I = −IR; use until stored excess Q reaches zero.</td></tr>
+      </tbody></table><div class="xref">δ = Δnp, D = Dn, τ = τn for electrons in p-Si; δ = Δpn, D = Dp, τ = τp for holes in n-Si. In charge control, τ is the injected carrier lifetime. Explicit PN profiles: (11c), (9f).</div></div>`,
+    ],
+    'foundations',
+  );
   // Keep the two long-base PN solutions together instead of repeating them later.
   const diffusion = get('Minority diffusion and illuminated bar');
   const pnElectrons = equation('11. Biased PN minority carriers', '11c').replace(
@@ -153,6 +165,7 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp, cat
   const first = [
     ['Reference values at 300 K', 1],
     ['Units and polarity reminders', 1],
+    [odeSummary, 1],
     ['1. Occupation and carrier statistics', 2],
     ['Density of states and thermal carriers', 2],
     ['HW1: compare intrinsic concentrations', 2],
@@ -241,7 +254,7 @@ export function organizeEightPageGuide(markups, documentStart, chrome, temp, cat
   }
   const early = flatten(first),
     late = flatten(last);
-  const extraCss = `<style>.flow-unit{display:flow-root}.chronological .formula{margin:2px 0 3px}.chronological .formula .math{font-size:9.2pt;line-height:1.15}.chronological .formula.compact .math{font-size:8.5pt;line-height:1.15}.chronological .formula .purpose{font-size:7pt;line-height:1.1}.chronological .topic{margin:3px 0 2px;padding-bottom:2px}.chronological .topic strong{font-size:9.5pt}.chronological .topic span{font-size:6.5pt;margin-top:2px}.chronological .note{font-size:7pt;line-height:1.1;padding:3px 5px;margin:3px 0}.chronological .xref{font-size:7pt;margin:2px 0}.requested-slide img{display:block;width:100%;height:auto}.chronological .route{font-size:6.8pt!important}</style>`;
+  const extraCss = `<style>.ode-summary table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:7pt;line-height:1.15}.ode-summary th,.ode-summary td{border:0.5px solid #b8ccd2;padding:4px;vertical-align:top}.ode-summary th{background:#edf3f6;text-align:left}.ode-summary th:first-child{width:42%}.ode-summary b{display:block;color:var(--category-color);margin-bottom:3px}.ode-summary .ode-math{font-size:7.6pt;color:var(--category-color);margin:3px 0}.flow-unit{display:flow-root}.chronological .formula{margin:2px 0 3px}.chronological .formula .math{font-size:9.2pt;line-height:1.15}.chronological .formula.compact .math{font-size:8.5pt;line-height:1.15}.chronological .formula .purpose{font-size:7pt;line-height:1.1}.chronological .topic{margin:3px 0 2px;padding-bottom:2px}.chronological .topic strong{font-size:9.5pt}.chronological .topic span{font-size:6.5pt;margin-top:2px}.chronological .note{font-size:7pt;line-height:1.1;padding:3px 5px;margin:3px 0}.chronological .xref{font-size:7pt;margin:2px 0}.requested-slide img{display:block;width:100%;height:auto}.chronological .route{font-size:6.8pt!important}</style>`;
   function unitHtml(u) {
     return `<div class="flow-unit ${u.html.includes('data-category="mos"') ? 'mos' : ''}" data-unit="${u.id}">${u.html}</div>`;
   }
